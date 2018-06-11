@@ -1,6 +1,6 @@
 <template>
 <div class="home">
-    <gmap-map :center="center" :zoom="2" style="width:100%; height: 800px;">
+    <gmap-map :center="center" :zoom="4" style="width:100%; height: 800px;">
         <gmap-marker :key="index" v-for="(m, index) in markers" :position="m.position"></gmap-marker>
     </gmap-map>
 </div>
@@ -12,8 +12,8 @@ export default {
     data() {
         return {
             center: {
-                lat: 0,
-                lng: 0
+                lat: 37,
+                lng: -95
             },
             markers: []
         };
@@ -29,19 +29,31 @@ export default {
             self.markers.push({
                 position: marker
             });
+            console.log(self.markers.length)
+        },
+        delMarker() {
+            var self = this;
+              self.markers.pop();
+            console.log(self.markers.length)
         },
         showPoint: function (delay, location) {
             var self = this;
             setTimeout(function () {
                 self.addMarker(location)
             }, 1000 * delay);
-        }
+        },
+        hidePoint: function (delay, length) {
+        var self = this;
+            setTimeout(function () {
+                self.delMarker()
+            }, (6000) * delay);
+       }
     },
     mounted: function () {
         var self = this;
         var locations = [{
-                latitude: 62.902913055,
-                longitude: -150.503664652
+                latitude: 30.902913055,
+                longitude: -100.503664652
             },
             {
                 latitude: 34.196000,
@@ -49,24 +61,27 @@ export default {
             },
             {
                 latitude: 30.196000,
-                longitude: -50.838000
+                longitude: -110.838000
             },
             {
-                latitude: 20.196000,
-                longitude: -50.838000
+                latitude: 30.196000,
+                longitude: -97.838000
             },
             {
                 latitude: 50.196000,
-                longitude: -30.838000
+                longitude: -80.838000
             },
             {
-                latitude: 90.196000,
-                longitude: -40.838000
+                latitude: 40.196000,
+                longitude: -93.838000
             }
         ];
 
         for (var x = 0; x < locations.length; x++) {
             self.showPoint(x, locations[x]);
+        }
+        for (var x = 0; x <= locations.length; x++) {
+            self.hidePoint(x, locations.length);
         }
     }
 }
