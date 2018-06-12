@@ -3,7 +3,6 @@
   font-color: black;
   text-align: center;
   font-family: 'Courier New', Courier, monospace;
-  padding: 0 0 0 0;
 }
 
 .aboutBody {
@@ -15,7 +14,7 @@
 }
 
 a:hover {
-  color: red;
+  color: limegreen;
 }
 
 a::visited {
@@ -29,7 +28,6 @@ a:active {
 a:link {
   color: black;
   text-decoration: none;
-
 }
 
 ul {
@@ -37,13 +35,23 @@ ul {
 }
 
 
-ul li {
-  display: inline;
-}
-
 li {
   margin-right: 35px;
   text-decoration:
+}
+
+li a:visited { /*Had to use the list and linked-visted to get the colors to change*/
+  text-decoration: none;
+  color: darkblue;
+}
+
+li a:hover { /*Had to put this after the list and visted because it was overriden after visted*/
+  color: limegreen;
+}
+
+ul li {
+  display: inline;
+  text-align: center;
 }
 
 #map-canvas {
