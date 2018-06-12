@@ -1,0 +1,47 @@
+#heading {
+  font-size: 19px;
+  font-color: black;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0 0 0 0;
+}
+
+.aboutBody {
+  align-content:center;
+  font-family: 'Courier New', Courier, monospace;
+  color: black;
+  list-style: none;
+  text-align: center;
+}
+
+a:hover {
+  color: red;
+}
+
+a::visited {
+  color: greenyellow;
+}
+a:active {
+  color: green;
+  text-decoration: underline;
+}
+
+a:link {
+  color: black;
+  text-decoration: none;
+
+}
+
+ul li {
+  display: inline;
+}
+
+li {
+  margin-right: 35px;
+  text-decoration:
+}
+
+#map-canvas {
+  height: 93vh; /*Use to to make the map load dynamically*/
+  padding-top: 10px;
+}
