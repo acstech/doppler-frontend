@@ -32,6 +32,11 @@ a:link {
 
 }
 
+ul {
+  list-style: none;
+}
+
+
 ul li {
   display: inline;
 }
