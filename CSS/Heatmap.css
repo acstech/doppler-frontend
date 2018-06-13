@@ -9,6 +9,22 @@
   padding-right: 40px;
 }
 
+.fieldDrop form {
+  display: inline;
+  padding-left: 100px;
+  font-size: 19px;
+  font-color: black;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* .idChecker {
+  display: right;
+  padding-left: 1450px;
+  font-family: 'Courier New', Courier, monospace;
+  float: right;
+} */
+
+
 .aboutBody {
   align-content:center;
   font-family: 'Courier New', Courier, monospace;
