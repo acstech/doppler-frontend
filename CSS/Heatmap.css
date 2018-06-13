@@ -1,7 +1,7 @@
 #heading {
   font-size: 19px;
   font-color: black;
-  text-align: center;
+  position: static;
   font-family: 'Courier New', Courier, monospace;
 }
 
@@ -11,13 +11,14 @@
   color: black;
   list-style: none;
   text-align: center;
+  padding-top: 15px;
 }
 
 a:hover {
   color: limegreen;
 }
 
-a::visited {
+a:visited {
   color: greenyellow;
 }
 a:active {
@@ -42,7 +43,7 @@ li {
 
 li a:visited { /*Had to use the list and linked-visted to get the colors to change*/
   text-decoration: none;
-  color: darkblue;
+  color: black;
 }
 
 li a:hover { /*Had to put this after the list and visted because it was overriden after visted*/
