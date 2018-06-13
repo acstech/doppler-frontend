@@ -7,7 +7,7 @@
   <title>My Leaflet Map</title>
 
   <link rel="stylesheet" type="text/css" href="CSS/Heatmap.css">
-  <link rel="shortcut icon" href="Logo/logo.png">
+  <link rel="shortcut icon" href="Logo/Fire_Emoji_large.png">
 
   <!--link to the styling-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
@@ -23,18 +23,36 @@
 
 <body>
 
-<!--Here is our basic menu-->
+
+  <div class="fieldDrop"> <!--Had to make this structure to get them to be aligned Change to one big div -->
+
+    <!--<a href="index.html"> <img src="Logo/Fire_Emoji_large.png" style="width:30px;height:30px;border:0;"></a>-->
+    <a href="index.html">Map</a>
+    <button type ="button" disabled class="dropbtn">Filter</button>
+    <div class="dropdown-content">
+      <button onclick="">Realm Log In</button> <!--make a function in JS that will display the fields according to clientID-->
+      <button onclick="">Gifts</button>
+      <button onclick="">Mobile</button>
+    </div>
+  </div>
+
+
+<!--Here is our basic menu TESTING SO COMMENTING OUT
 <div id="heading">
   <ul>
-
     <li>
       <a href="index.html" >Map</a>
     </li>
   <li>
-    Filter
-  </li>
+    <button class="dropbtn">Filter</button>
+      <div class="dropdown-content">
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+      </div>
+    </li>
   </ul>
-</div>
+</div>-->
 
 <!--This is our mapID-->
   <div id="map-canvas"></div>
