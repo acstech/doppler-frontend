@@ -4,7 +4,7 @@ max: 8,
 data: [{
   lat: 24.6408,
   lng: 46.7728,
-  count: 3
+  count: 0
 }]
 };
 
