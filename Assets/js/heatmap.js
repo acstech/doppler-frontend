@@ -8,7 +8,7 @@
  */
 
 
-;(function (name, context, factory) {
+(function (name, context, factory) {
 
   // Supports UMD. AMD, CommonJS/Node.js and browser context
   if (typeof module !== "undefined" && module.exports) {
@@ -135,6 +135,7 @@ var Store = (function StoreClosure() {
       });
     },
     addData: function() {
+      console.log("Beep! Beep! Beep!!")
       if (arguments[0].length > 0) {
         var dataArr = arguments[0];
         var dataLen = dataArr.length;
@@ -149,11 +150,11 @@ var Store = (function StoreClosure() {
           if (this._data.length === 0) {
             this._min = this._max = organisedEntry.value;
           }
-          this._coordinator.emit('renderpartial', {
-            min: this._min,
-            max: this._max,
-            data: [organisedEntry]
-          });
+          // this._coordinator.emit('renderpartial', {
+          //   min: this._min,
+          //   max: this._max,
+          //   data: [organisedEntry]
+          // });
         }
       }
       return this;
@@ -660,6 +661,7 @@ var Heatmap = (function HeatmapClosure() {
   // add API documentation
   Heatmap.prototype = {
     addData: function() {
+      debugger
       this._store.addData.apply(this._store, arguments);
       return this;
     },
@@ -791,7 +793,7 @@ return heatmapFactory;
 
       if (!this._heatmap) {
         this._heatmap = h337.create(this.cfg);
-      } 
+      }
 
       // this resets the origin and redraws whenever
       // the zoom changed or the map has been moved
@@ -812,9 +814,9 @@ return heatmapFactory;
     },
     _draw: function() {
       if (!this._map) { return; }
-      
+
       var mapPane = this._map.getPanes().mapPane;
-      var point = mapPane._leaflet_pos;      
+      var point = mapPane._leaflet_pos;
 
       // reposition the layer
       this._el.style[HeatmapOverlay.CSS_TRANSFORM] = 'translate(' +
@@ -845,7 +847,7 @@ return heatmapFactory;
       var localMin = 0;
       var valueField = this.cfg.valueField;
       var len = this._data.length;
-    
+
       while (len--) {
         var entry = this._data[len];
         var value = entry[valueField];
@@ -889,12 +891,12 @@ return heatmapFactory;
       var latField = this.cfg.latField || 'lat';
       var lngField = this.cfg.lngField || 'lng';
       var valueField = this.cfg.valueField || 'value';
-    
+
       // transform data to latlngs
       var data = data.data;
       var len = data.length;
       var d = [];
-    
+
       while (len--) {
         var entry = data[len];
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
@@ -906,11 +908,12 @@ return heatmapFactory;
         d.push(dataObj);
       }
       this._data = d;
-    
+
       this._draw();
     },
     // experimential... not ready.
     addData: function(pointOrArray) {
+      console.log("Beep boop!");
       if (pointOrArray.length > 0) {
         var len = pointOrArray.length;
         while(len--) {
@@ -923,7 +926,7 @@ return heatmapFactory;
         var entry = pointOrArray;
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
         var dataObj = { latlng: latlng };
-        
+
         dataObj[valueField] = entry[valueField];
         this._max = Math.max(this._max, dataObj[valueField]);
         this._min = Math.min(this._min, dataObj[valueField]);
@@ -937,7 +940,7 @@ return heatmapFactory;
     },
     _reset: function () {
       this._origin = this._map.layerPointToLatLng(new L.Point(0, 0));
-      
+
       var size = this._map.getSize();
       if (this._width !== size.x || this._height !== size.y) {
         this._width  = size.x;
@@ -949,7 +952,7 @@ return heatmapFactory;
         this._heatmap._renderer.setDimensions(this._width, this._height);
       }
       this._draw();
-    } 
+    }
   });
 
   HeatmapOverlay.CSS_TRANSFORM = (function() {

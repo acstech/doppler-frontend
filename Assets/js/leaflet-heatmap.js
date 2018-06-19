@@ -5,7 +5,7 @@
 * Dual-licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
 * and the Beerware (http://en.wikipedia.org/wiki/Beerware) license.
 */
-;(function (name, context, factory) {
+(function (name, context, factory) {
   // Supports UMD. AMD, CommonJS/Node.js and browser context
   if (typeof module !== "undefined" && module.exports) {
     module.exports = factory(
@@ -62,7 +62,7 @@
 
       if (!this._heatmap) {
         this._heatmap = h337.create(this.cfg);
-      } 
+      }
 
       // this resets the origin and redraws whenever
       // the zoom changed or the map has been moved
@@ -83,9 +83,9 @@
     },
     _draw: function() {
       if (!this._map) { return; }
-      
+
       var mapPane = this._map.getPanes().mapPane;
-      var point = mapPane._leaflet_pos;      
+      var point = mapPane._leaflet_pos;
 
       // reposition the layer
       this._el.style[HeatmapOverlay.CSS_TRANSFORM] = 'translate(' +
@@ -116,7 +116,7 @@
       var localMin = 0;
       var valueField = this.cfg.valueField;
       var len = this._data.length;
-    
+
       while (len--) {
         var entry = this._data[len];
         var value = entry[valueField];
@@ -154,22 +154,36 @@
 
       this._heatmap.setData(generatedData);
     },
+
+    // clears data and inserts new data
     setData: function(data) {
+
+      // cut down the size of the input if it exceeds the maxSize limit
+      if(this.maxSize > 0){
+        while (data.data.length > this.maxSize){
+          data.data.shift();
+        }
+      }
+
       this._max = data.max || this._max;
       this._min = data.min || this._min;
       var latField = this.cfg.latField || 'lat';
       var lngField = this.cfg.lngField || 'lng';
       var valueField = this.cfg.valueField || 'value';
-    
+      var timeField = this.cfg.timeField || 'time';
+
       // transform data to latlngs
       var data = data.data;
       var len = data.length;
       var d = [];
-    
+
       while (len--) {
         var entry = data[len];
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
-        var dataObj = { latlng: latlng };
+
+        // gives inserted data the current time (UNIX) and passes the object into the data array
+        var dataObj = { latlng: latlng, time: Math.round(new Date().getTime() / 1000)};
+        //dataObj[timeField] = entry[timeField]
         dataObj[valueField] = entry[valueField];
         if (entry.radius) {
           dataObj.radius = entry.radius;
@@ -177,7 +191,45 @@
         d.push(dataObj);
       }
       this._data = d;
-    
+
+      // removes the extra data
+      if (this.cfg.maxSize > 0) {
+        this.removeDataPoints();
+      }
+
+      // removes decayed data
+      if (this.cfg.maxTime > 0) {
+        this.decayDataPoints();
+      }
+
+      this._draw();
+    },
+    // removes data from the head until there are under maxSize data points
+    removeDataPoints: function(){
+      while (this._data.length > this.cfg.maxSize) {
+        this._data.shift(); // pops the head off the array
+      }
+    },
+    // pops head off of data array once
+    removeData: function(){
+        this._data.shift();
+        this._draw();
+    },
+    // removes data from the head if they are more than maxTime seconds old
+    decayDataPoints: function(){
+      if (this.cfg.maxTime > 0) {
+        // gets the oldest time a point can be before it is removed
+        var oldestTime = (Math.round(new Date().getTime() / 1000)) - this.cfg.maxTime;
+        var stop = false;
+        while(!stop && (this._data.length > 0)){
+          if(this._data[0].time < oldestTime) {
+            this._data.shift(); //pops from head
+          }
+          else {
+            stop = true;
+          }
+        }
+      }
       this._draw();
     },
     // experimential... not ready.
@@ -191,10 +243,13 @@
         var latField = this.cfg.latField || 'lat';
         var lngField = this.cfg.lngField || 'lng';
         var valueField = this.cfg.valueField || 'value';
+        var timeField = this.cfg.timeField || 'time'
         var entry = pointOrArray;
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
-        var dataObj = { latlng: latlng };
-        
+        // added: sets 'time' to current time in seconds
+        var dataObj = { latlng: latlng, time: Math.round(new Date().getTime() / 1000)};
+
+
         dataObj[valueField] = entry[valueField];
         this._max = Math.max(this._max, dataObj[valueField]);
         this._min = Math.min(this._min, dataObj[valueField]);
@@ -202,13 +257,24 @@
         if (entry.radius) {
           dataObj.radius = entry.radius;
         }
+
+        // puts input data on array
         this._data.push(dataObj);
+
+        // cleans data for overfilling and decay
+        if (this.cfg.maxSize > 0) {
+          this.removeDataPoints();
+        }
+        if (this.cfg.maxTime > 0) {
+          this.decayDataPoints();
+        }
+        // refreshes heatmap
         this._draw();
       }
     },
     _reset: function () {
       this._origin = this._map.layerPointToLatLng(new L.Point(0, 0));
-      
+
       var size = this._map.getSize();
       if (this._width !== size.x || this._height !== size.y) {
         this._width  = size.x;
@@ -220,7 +286,7 @@
         this._heatmap._renderer.setDimensions(this._width, this._height);
       }
       this._draw();
-    } 
+    }
   });
 
   HeatmapOverlay.CSS_TRANSFORM = (function() {
