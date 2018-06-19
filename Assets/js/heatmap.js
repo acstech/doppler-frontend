@@ -179,7 +179,7 @@ var Store = (function StoreClosure() {
       return this;
     },
     removeData: function() {
-      // TODO: implement
+       // TODO: implement
     },
     setDataMax: function(max) {
       this._max = max;

@@ -48,7 +48,7 @@ func main() {
 				conn.WriteJSON(Coord{
 					Latitude:  "43.029383",
 					Longitude: "83.093763",
-					Count:     "8",
+					Count:     "1",
 				})
 			}
 		}(conn)

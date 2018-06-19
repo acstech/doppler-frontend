@@ -186,7 +186,7 @@ data: [{
 },  {
   lat: 45.2667,
   lng: -66.0667,
-  count: 2
+  count: 1
 }, {
   lat: 42.734,
   lng: -87.8211,
@@ -203,6 +203,10 @@ data: [{
   lat: 41.4881,
   lng: -87.4424,
   count: 1
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 3
 }, {
   lat: 25.72,
   lng: -80.2707,
@@ -491,11 +495,7 @@ count: 2
 lat: 43.75,
 lng: -79.2,
 count: 2
-}, {
-lat: 45.2667,
-lng: -66.0667,
-count: 2
-}, {
+},  {
 lat: 42.9833,
 lng: -81.25,
 count: 2
@@ -544,6 +544,95 @@ lat: 34.1568,
 lng: -118.523,
 count: 1
 }, {
+lat: 44.292,
+lng: -105.5022,
+count: 4
+}, {
+  lat: 41.292, // wyoming
+  lng: -109.5022,
+  count: 2
+}, {
+  lat: 36.292, // wyoming
+  lng: -121.5022,
+  count: 2
+}, {
+  lat: 44.292, // Dakota
+  lng: -100.5022,
+  count: 2
+}, {
+  lat: 44.292, // Dakota rapid city
+  lng: -103.5022,
+  count: 2
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 4
+}, {
+  lat: 35.4881, // new mexico
+  lng: -106.4424,
+  count: 2
+}, {
+  lat: 41.4881, // omaha
+  lng: -95.4424,
+  count: 2
+}, {
+  lat: 43.4881, // iowa city
+  lng: -92.4424,
+  count: 2
+}, {
+  lat: 44.4881, // salem OR
+  lng: -123.4424,
+  count: 2
+}, {
+  lat: 41.4881, // north platte
+  lng: -100.4424,
+  count: 1
+}, {
+  lat: 35.4881, // armilrillo
+  lng: -102.4424,
+  count: 1
+}, {
+  lat: 38.4881, // jefferson city
+  lng: -92.4424,
+  count: 1
+}, {
+  lat: 39.4881, // hannibal
+  lng: -91.4424,
+  count:1
+}, {
+  lat: 38.4881, // pueblo
+  lng: -104.4424,
+  count: 2
+}, //{
+//   lat: 34.4881, // santa rosa NM
+//   lng: -104.4424,
+//   count: 2
+// },  {
+//   lat: 43.4881, // boise Idaho
+//   lng: -116.4424,
+//   count: 1
+// }, {
+//   lat: 46.4881, // kennewick
+//   lng: -119.4424,
+//   count: 1
+// }, {
+//   lat: 47.4881, // seattle
+//   lng: -122.4424,
+//   count: 2
+// }, {
+//   lat: 45.4881, // portland
+//   lng: -122.4424,
+//   count: 1
+// }, {
+//   lat: 30.4881, // lake charles Lousianna
+//   lng: -93.4424,
+//   count: 2
+// }, {
+//   lat: 37.4881, // joplin MO
+//   lng: -94.4424,
+//   count: 2
+// },
+{
 lat: 33.5586,
 lng: -112.095,
 count: 1
@@ -810,21 +899,13 @@ data: [{
   lng: -85.3992,
   count: 1
 },  {
-  lat: 25.6586,
+  lat: 25.6586, // miami
   lng: -80.3568,
-  count: 7
+  count: 4
 }, {
   lat: 33.0975,
   lng: -80.1753,
-  count: 8
-}, {
-  lat: 25.7615,
-  lng: -80.2939,
-  count: 1
-}, {
-  lat: 26.3739,
-  lng: -80.1468,
-  count: 1
+  count: 6
 }, {
   lat: 37.6454,
   lng: -84.8171,
@@ -941,6 +1022,106 @@ data: [{
   lat: 25.72,
   lng: -80.2707,
   count: 7
+}, {
+  lat: 44.292, // wyoming
+  lng: -105.5022,
+  count: 3
+}, {
+  lat: 41.292, // wyoming green river
+  lng: -109.5022,
+  count: 2
+}, {
+  lat: 36.292, // california
+  lng: -121.5022,
+  count: 4
+}, {
+  lat: 44.292, // Dakota
+  lng: -100.5022,
+  count: 5
+}, {
+  lat: 44.292, // Dakota rapid city
+  lng: -103.5022,
+  count: 5
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 5
+}, {
+  lat: 35.4881, // new mexico
+  lng: -106.4424,
+  count: 5
+}, {
+  lat: 41.4881, // omaha
+  lng: -95.4424,
+  count: 5
+}, {
+  lat: 43.4881, // iowa city
+  lng: -92.4424,
+  count: 5
+}, {
+  lat: 44.4881, // salem OR
+  lng: -123.4424,
+  count: 5
+}, {
+  lat: 40.4881, // salt lake city
+  lng: -111.4424,
+  count: 3
+}, {
+  lat: 37.4881, // st george
+  lng: -113.4424,
+  count: 2
+}, {
+  lat: 42.4881, // pocatello
+  lng: -112.4424,
+  count: 3
+}, {
+  lat: 48.4881, // williston
+  lng: -103.4424,
+  count: 1
+}, {
+  lat: 41.4881, // north platte
+  lng: -100.4424,
+  count: 3
+}, {
+  lat: 35.4881, // armilrillo
+  lng: -102.4424,
+  count: 4
+}, {
+  lat: 38.4881, // jefferson city
+  lng: -92.4424,
+  count: 5
+}, {
+  lat: 39.4881, // hannibal
+  lng: -91.4424,
+  count: 6
+}, {
+  lat: 38.4881, // pueblo
+  lng: -104.4424,
+  count: 5
+}, {
+  lat: 43.4881, // boise Idaho
+  lng: -116.4424,
+  count: 4
+}, {
+  lat: 46.4881, // kennewick
+  lng: -119.4424,
+  count: 4
+}, {
+  lat: 47.4881, // seattle
+  lng: -122.4424,
+  count: 4
+}, {
+  lat: 45.4881, // portland
+  lng: -122.4424,
+  count: 4
+}, {
+  lat: 30.4881, // lake charles Lousianna
+  lng: -93.4424,
+  count: 4
+}, {
+  lat: 37.4881, // joplin MO
+  lng: -94.4424,
+  count: 4
 }, {
   lat: 35.8278,
   lng: -78.6421,

@@ -12,7 +12,9 @@
   var cfg = {
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
     // if scaleRadius is false it will be the constant radius used in pixels
-    "radius": 50,
+
+    "radius": 27,
+
     "maxOpacity": 1.0, // put in slider on front-end side to adjust the opacity
 
     // scales the radius based on map zoom
