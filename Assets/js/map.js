@@ -9,7 +9,7 @@
 
 
   // configures the map's settings -- Matt
-  var cfg = {
+  var cfg =     {
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
     // if scaleRadius is false it will be the constant radius used in pixels
 
@@ -57,8 +57,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   //  leaflet map
   var map = new L.Map('map-canvas', {
-    center: new L.LatLng(0, 0),
-    zoom: 1,
+    center: new L.LatLng(36.937, -96.0938),
+    zoom: 5,
     worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
     layers: [baseLayer, heatmapLayer]
   });
@@ -92,5 +92,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     // added to get the realm button so on a click, it changes states
-    document.getElementById("realm").addEventListener("click", stateChange);
+    document.getElementById("enter").addEventListener("click", stateChange);
   });
