@@ -31,19 +31,14 @@
   <script src="Assets/js/map.js"></script> <!--this is the information for our map-->
   <script src="Assets/js/sockets.js"></script>
   <script src="Assets/js/modal.js"></script>
-
-  <script type="text/javascript">
-    $(window).on('load',function(){
-        $('#myModal').modal('show');
-    });
-</script>
+  <script src="Assets/js/animation.js"></script>
 
 </head> <!--end of the header -->
 
 <body>
 
   <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
+  <!-- <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -53,50 +48,72 @@
           </button>
         </div>
         <div class="modal-body">
-          <form idCheck=""> <!--What is this "" for?-->
+          <form idCheck=""> What is this "" for
                 <div class = "form-group">
                    <input type ="text" class = "form-control" name="clientIDBox" placeholder= "ID">
                 </div>
           </form>
         </div>
         <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="submit" id = "enter" class="btn btn-primary" data-dismiss="modal">Enter</button>
         </div>
       </div>
     </div>
-  </div> <!--This is the end of the div for the modal-->
+  </div>  -->
+  <!--This is the end of the div for the modal-->
 
 
+<div id ="wrapper">
 
-<!-- <div class = "text-center">
-  <div class = "list-inline">
-    <br><a href="index.html">Map</a><br><br>
-     <button type ="button" disabled class="dropbtn">Filter</button>
-    <div class="dropdown-content">
-      <button id="realm">Realm Log In</button>
-      make a function in JS that will display the fields according to clientID
+  <div id ="sidebar-wrapper">
+    <!-- <div class = "text-center"> -->
+      <!-- <div class = "list-inline"> -->
+        <ul class = "sidebar-nav">
+          <br><li><a href="index.html" class = "text-danger">Map Reset</a><br><br></li>
+          <!-- <li><button type ="button" disabled class="dropbtn">Filter</button></li> -->
+            <!-- <div class="dropdown-content"> -->
+              <!-- <button id="realm">Realm Log In</button> -->
+              <!-- make a function in JS that will display the fields according to clientID -->
+          <!-- </div> -->
+        </ul>
+    <!-- </div> -->
+  <!-- </div> -->
+</div>
+
+<div id ="restOfPage">
+  <div class ="container-fluid">
+    <div class = "row">
+      <div class = "col-lg-12">
+        <div class = "menu-button">
+          <span class = "menu-toggle">
+            <a href ="#">
+              <svg width="58px" height ="58px">
+                <path d="M0,5 30,5" stroke="#000"
+                stroke-width="5"/>
+                <path d="M0,20 30,20" stroke="#000"
+                stroke-width="5"/>
+                <path d="M0,35 30,35" stroke="#000"
+                stroke-width="5"/>
+              </svg>
+            </a>
+          </span>
+        </div>
+          <!-- <img src="Logo/line.png" height = "58px" width = "58px" href="#" id ="menu-toggle">  -->
+        <div id="map-canvas"></div> <!--This is our map-->
+      </div>
     </div>
   </div>
-</div>-->
+</div> <!--restOfPage-->
 
+</div> <!--This is the div for the wrapper-->
 
+<script>
+  $(".menu-toggle").click(  function(e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+  });
+</script>
 
-<!-- <div class="idChecker">
-  <form idCheck="">
-    ID: <input type ="text" name="clientIDBox">
-    <input type="submit" value="Update">
-  </form>
-</div> This is for the ID checkbox-->
-
-
-
-
-
-
-
-<!--This is our mapID-->
-<br><br><br><div id="map-canvas"></div>
-</div>
 </body>
 </html>

@@ -57,28 +57,28 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   //  leaflet map
   var map = new L.Map('map-canvas', {
-    center: new L.LatLng(36.937, -96.0938),
+    center: new L.LatLng(37.937, -96.0938),
     zoom: 5,
     worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
     layers: [baseLayer, heatmapLayer]
   });
 
-  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
-
-  // opens websocket with serverskt.go, which sends in the data points to map
-  var ws = new WebSocket("ws://localhost:8000/recieve/ws");
-  ws.onopen = function (event){
-    console.log("Connection made!"); // connection succesful
-  };
-
-  // parses json into JS object is added to heatmap
-  ws.onmessage = function(str) {
-    heatmapLayer.addData(JSON.parse(str.data));
-
-    // checks to see if any points have been on the map for over maxTime amount of seconds (set in cfg)
-    heatmapLayer.decayDataPoints();
-    console.log("Someone sent: " + JSON.stringify(str.data));
-  };
+   heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+  //
+  // //opens websocket with serverskt.go, which sends in the data points to map
+  // var ws = new WebSocket(":8000/recieve/ws");
+  // ws.onopen = function (event){
+  //   console.log("Connection made!"); // connection succesful
+  // };
+  //
+  // // parses json into JS object is added to heatmap
+  // ws.onmessage = function(str) {
+  //   heatmapLayer.addData(JSON.parse(str.data));
+  //
+  //   // checks to see if any points have been on the map for over maxTime amount of seconds (set in cfg)
+  //   heatmapLayer.decayDataPoints();
+  //   console.log("Someone sent: " + JSON.stringify(str.data));
+  // };
 
 
   // function for our state change to make the map animated
@@ -92,5 +92,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     // added to get the realm button so on a click, it changes states
-    document.getElementById("enter").addEventListener("click", stateChange);
+    //document.getElementById("enter").addEventListener("click", stateChange); // stateChange must be formatted with out ()
   });

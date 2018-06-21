@@ -17,13 +17,6 @@
   font-family: 'Courier New', Courier, monospace;
 }
 
-/* .idChecker {
-  display: right;
-  padding-left: 1450px;
-  font-family: 'Courier New', Courier, monospace;
-  float: right;
-} */
-
 
 .aboutBody {
   align-content:center;
@@ -135,5 +128,65 @@ ul li {
 
 #map-canvas {
   height: 93vh; /*Use to to make the map load dynamically*/
+}
 
+
+/*testing the sidebar*/
+#sidebar-wrapper {
+  z-index: 1;
+  position: absolute;
+  width: 0;
+  height: 100%;
+  overflow-x: hidden;
+  background: #331a00;
+  opacity: 0.8;
+  transition: all 250ms linear;
+}
+
+
+#restOfPage {
+  width: 100%;
+  position: absolute;
+  padding-bottom: 0;
+  background-color: #e6f3ff;
+  transition: all 250ms linear;
+
+}
+
+ .menu-button {
+  transform: rotate(0deg);
+  transition: transform 1s linear;
+}
+
+.menu-button.open {
+  transform: rotate(90deg);
+  transition: transform 1s linear;
+}
+
+.toggled #sidebar-wrapper { /*Needs to be the same as below*/
+  width: 250px;
+}
+
+.toggled #restOfPage {
+  padding-left: 250px;
+}
+
+.sidebar-nav {
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-nav li {
+  text-indent: 20px;
+  line-height: 40px;
+}
+
+.sidebar-nav li a {
+  display: block;
+  text-decoration: none;
+  color: #ddd;
+}
+
+.sidebar-nav li a:hover {
+  background: black;
 }
