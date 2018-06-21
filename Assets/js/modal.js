@@ -3,7 +3,19 @@ $(document).ready(function(){
     $('#exampleModalCenter').modal({
       //show: true
       keyboard: false
-    })
+    });
     // handles if there are any page size changes
-    $('#myModal').modal('handleUpdate')
-  }); // end of window.onload
+    $('#myModal').modal('handleUpdate');
+
+    $("#mapRESET").click(openMapResetModal);
+});
+
+function openMapResetModal()  {
+  // makes the modal ope
+  $('#resetMapModal').modal({
+    keyboard: false
+  })
+
+  // handles if there are any page size changes
+  $('#resetMapModal').modal('handleUpdate')
+}

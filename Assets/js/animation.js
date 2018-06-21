@@ -1,17 +1,26 @@
-window.onload=function() {
-  (function(document){
-    var div = document.getElementById('menu-button');
-    var icon = document.getElementById('menu-toggle');
-    var open = false;
-
-    div.addEventListener('click', function(){
-      if(open){
-        div.className = 'menu-button';
-      } else{
-        div.className = 'menu-button.open';
+'use strict'
+$(document).ready(function(){
+  var button = '.menu-toggle';
+  var open = false;
+  // add event listener onn the menu button to open and close the menu tab
+    $(button).click(function(){
+      if (!open) {
+        $(button).css({
+         '-moz-transform':'rotate(90deg)',
+         '-webkit-transform':'rotate(90deg)',
+         '-o-transform':'rotate(90deg)',
+         '-ms-transform':'rotate(90deg)',
+         'transform':'rotate(90deg)'
+        });
+      } else {
+        $(button).css({
+           '-moz-transform':'rotate(0deg)',
+           '-webkit-transform':'rotate(0deg)',
+           '-o-transform':'rotate(0deg)',
+           '-ms-transform':'rotate(0deg)',
+           'transform':'rotate(0deg)'
+        });
       }
-
-      open = !open;
-    });
-  })(document);
-}
+    open = !open;
+  });
+});

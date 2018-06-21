@@ -138,9 +138,9 @@ ul li {
   width: 0;
   height: 100%;
   overflow-x: hidden;
-  background: #331a00;
-  opacity: 0.8;
-  transition: all 250ms linear;
+  background: #ffaa80;
+  opacity: 0.7;
+  transition: all 200ms linear;
 }
 
 
@@ -149,18 +149,18 @@ ul li {
   position: absolute;
   padding-bottom: 0;
   background-color: #e6f3ff;
-  transition: all 250ms linear;
+  transition: all 200ms linear;
 
 }
 
- .menu-button {
+ .menu-toggle {
   transform: rotate(0deg);
-  transition: transform 1s linear;
+  transition: transform 150ms linear;
 }
 
-.menu-button.open {
+.menu-toggle.open {
   transform: rotate(90deg);
-  transition: transform 1s linear;
+  transition: transform 150ms linear;
 }
 
 .toggled #sidebar-wrapper { /*Needs to be the same as below*/
@@ -189,4 +189,8 @@ ul li {
 
 .sidebar-nav li a:hover {
   background: black;
+}
+
+#headerInSideBar {
+  background: #ffaa80;
 }

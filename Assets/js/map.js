@@ -58,7 +58,7 @@ $(document).ready(function(){
   //  leaflet map
   var map = new L.Map('map-canvas', {
     center: new L.LatLng(37.937, -96.0938),
-    zoom: 5,
+    zoom: 4,
     worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
     layers: [baseLayer, heatmapLayer]
   });
