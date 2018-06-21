@@ -50,8 +50,8 @@
 
 
 
-// added the document.addEventListener to listen for the map to load
-document.addEventListener("DOMContentLoaded", function(event) {
+// this makes sure that the page is ready before trying to add anything to it
+$(document).ready(function(){
   // heatmap instanciation
   var heatmapLayer = new HeatmapOverlay(cfg);
 
