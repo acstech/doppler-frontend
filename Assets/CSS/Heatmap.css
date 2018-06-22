@@ -140,7 +140,7 @@ ul li {
   overflow-x: hidden;
   background: #ffaa80;
   opacity: 0.7;
-  transition: all 200ms linear;
+  transition: all 75ms linear;
 }
 
 
@@ -149,18 +149,18 @@ ul li {
   position: absolute;
   padding-bottom: 0;
   background-color: #e6f3ff;
-  transition: all 200ms linear;
+  transition: all 67ms linear;
 
 }
 
 .menu-toggle {
   transform: rotate(0deg);
-  transition: transform 150ms linear;
+  transition: transform 67ms linear;
 }
 
 .menu-toggle.open {
   transform: rotate(90deg);
-  transition: transform 150ms linear;
+  transition: transform 50ms linear;
 }
 
 .toggled #sidebar-wrapper { /*Needs to be the same as below*/
@@ -196,31 +196,47 @@ ul li {
   overflow: hidden;
   white-space:nowrap;
   position: inherit;
-  padding-top: 30px;
-  padding-bottom: 10px;
+  padding-top: 20px;
+  padding-bottom: 30px;
+  padding-left: 30px;
 
 }
 
 #realmLogoSidebar {
   white-space:nowrap;
   text-align: center;
-  position: inherit;
+  /* padding-left: 30px; */
 }
 
 .pull-left { /*This is used to make the content in the header that is aligned ot the left*/
   text-align: center;
-  padding-left:10px;
+  /* padding-left:10px; */
   overflow: hidden;
   white-space:nowrap;
+
 }
 
 #mapRESET {
   text-align: center;
-  padding-left:10px;
+  /* padding-left:10px; */
   overflow: hidden;
   white-space:nowrap;
 }
 
 .close {  /*This is used to make the x go away on clientID modal*/
   display: none;
+}
+
+#dropdownMenu2 {
+  text-align: center;
+  background: blue;
+}
+
+#unitedStatesMapRecenter {
+  text-align: center;
+}
+
+.dropdown-item {
+  text-align: center;
+  background: blue;
 }

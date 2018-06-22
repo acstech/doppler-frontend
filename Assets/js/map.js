@@ -95,4 +95,11 @@ function getTimeForMain() {
 
     // added to get the realm button so on a click, it changes states
     //document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
+
+    // function changes the view to the United States
+    function unitedStatesMapRecenterFunc() {
+       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
+      console.log("I was clicked!")
+    }
+    document.getElementById("unitedStatesMapRecenter").addEventListener("click", unitedStatesMapRecenterFunc);
   });

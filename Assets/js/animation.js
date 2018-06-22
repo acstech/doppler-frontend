@@ -1,5 +1,6 @@
 'use strict'
 $(document).ready(function(){
+  displayTime();
   var button = '.menu-toggle';
   var open = false;
   var test = ['Sign In', 'Bible Study', "test", "tester"]
@@ -25,14 +26,14 @@ $(document).ready(function(){
       }
     open = !open;
   });
-  addEvents(test);
+  addEvents(test); // this adds the etst events to the buttons
 });
 
 // addEvents takes in an array and outputs each element as a button for the user to click
 function addEvents( events ) {
-  $('div.pull-left').append('<div><button id="All" class="btn btn-success event" style="width:100px">All</button></div>');
+  $('div.pull-left').append('<div><button id="All" class="btn btn-success event" style="width:175px">All</button></div>');
   $.each(events, function( index, value ) {
-    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success event" style="width:100px; padding-bottom: 10px">' + value + '</button></div>');
+    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success event" style="width:175px">' + value + '</button></div>');
   });
   // add event listener for a click
   $('button.event').click(function(){
@@ -66,7 +67,7 @@ function toggleEvent( eventButton ) {
 }
 
 // this function displays the live time on the page
-(function () {
+function displayTime() {
     function checkTime(i) {
         return (i < 10) ? "0" + i : i;
     }
@@ -91,4 +92,4 @@ function toggleEvent( eventButton ) {
         }, 500);
     }
     startTime();
-})();
+};
