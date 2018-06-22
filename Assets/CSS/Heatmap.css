@@ -153,7 +153,7 @@ ul li {
 
 }
 
- .menu-toggle {
+.menu-toggle {
   transform: rotate(0deg);
   transition: transform 150ms linear;
 }
@@ -191,6 +191,32 @@ ul li {
   background: black;
 }
 
-#headerInSideBar {
+#headerInSideBar  { /*This is needed to make the header the sam ecolor as the sidebar*/
   background: #ffaa80;
+  overflow: hidden;
+  white-space:nowrap;
+  position: inherit;
+  padding-top: 30px;
+  padding-bottom: 10px;
+
+}
+
+#realmLogoSidebar {
+  white-space:nowrap;
+  text-align: center;
+  position: inherit;
+}
+
+.pull-left { /*This is used to make the content in the header that is aligned ot the left*/
+  text-align: left;
+  padding-left:10px;
+  overflow: hidden;
+  white-space:nowrap;
+}
+
+#mapRESET {
+  text-align: center;
+  padding-left:10px;
+  overflow: hidden;
+  white-space:nowrap;
 }

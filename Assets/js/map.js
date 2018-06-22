@@ -80,6 +80,16 @@ $(document).ready(function(){
   //   console.log("Someone sent: " + JSON.stringify(str.data));
   // };
 
+function getTimeForMain() {
+  var date = new Date();
+  var displayDate = date.getTime();
+  document.getElementById("dateDisplay").innerHTML = displayDate;
+}
+// this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
+  function resetMap () {
+    heatmapLayer.setData(emptyData);
+  }
+  document.getElementById("resetButtonFinal").addEventListener("click", resetMap);
 
   // function for our state change to make the map animated
   function stateChange() {
@@ -92,5 +102,5 @@ $(document).ready(function(){
     };
 
     // added to get the realm button so on a click, it changes states
-    //document.getElementById("enter").addEventListener("click", stateChange); // stateChange must be formatted with out ()
+    document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
   });

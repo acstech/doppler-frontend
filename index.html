@@ -55,7 +55,7 @@
           </form>
         </div>
         <div class="modal-footer">
-           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+           <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
           <button type="submit" id = "enter" class="btn btn-primary" data-dismiss="modal">Enter</button>
         </div>
       </div>
@@ -64,15 +64,17 @@
   <!--This is the end of the div for the modal-->
 
 
-<div id ="wrapper">
+<div id ="wrapper"> <!--This wraps the entire page-->
 
   <div id ="sidebar-wrapper">
     <div class = "text-center">
       <div class = "list-inline">
         <ul class = "sidebar-nav">
+          <img id="realmLogoSidebar"src="assets/images/monkimage.png" height="50px" width="80px">
           <div class="jumbotron" id="headerInSideBar">
-            <h6 class = "text-primary">Heatmap Settings</h6>
-          </div>
+
+            <h6 class = "text-primary">Heatmap Settings</h6><hr>
+          </div><hr>
           <div class ="pull-left">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="" id="allDataBox">
@@ -86,17 +88,15 @@
                 <p class = "text-info">Realm Log In</p>
               </label>
             </div>
+            <button id ="stateChangeButton" class="btn btn-primary">Demo</button>
+
+
           </div> <!--End of pull left-->
 
 
           <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-          <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-          <br><br><li><button id ="mapRESET" class = "btn-danger">Map Reset</button></li>
-          <!-- <li><button type ="button" disabled class="dropbtn">Filter</button></li> -->
-            <!-- <div class="dropdown-content"> -->
-              <!-- <button id="realm">Realm Log In</button> -->
-              <!-- make a function in JS that will display the fields according to clientID -->
-          <!-- </div> -->
+          <br><br><br><br><br><br><br><br><br><br><br>
+          <li><hr><button id ="mapRESET" class ="btn-danger">Map Reset</button></li>
         </ul>
     </div>
   </div>
@@ -109,7 +109,7 @@
         <div class = "navbar">
           <span class = "menu-toggle">
             <a href ="#">
-              <svg width="28px" height ="36px"> <!--This sets the navbar height-->
+              <svg width="28px" height ="36px"> <!--This sets the navbar height and below is the nav button-->
                 <path d="M0,5 30,5" stroke="#000"
                 stroke-width="5"/>
                 <path d="M0,15 30,15" stroke="#000"
@@ -119,6 +119,10 @@
               </svg>
             </a>
           </span>
+          <h6><script>
+                  var date = new Date();
+                  document.write(date.getTime());
+              </script></h6>
         </div>
           <!-- <img src="assets/images/line.png" height = "58px" width = "58px" href="#" id ="menu-toggle">  -->
         <div id="map-canvas"></div> <!--This is our map-->
@@ -143,7 +147,7 @@
       </div>
       <div class="modal-footer">
          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="submit" id = "enter" class="btn btn-danger" data-dismiss="modal">Reset</button>
+        <button type="button" id ="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Reset</button>
       </div>
     </div>
   </div>
