@@ -3,8 +3,6 @@ $(document).ready(function(){
   displayTime();
   var button = '.menu-toggle';
   var open = false;
-  var test = ['Sign In', 'Bible Study', "test", "tester"]
-
   // add event listener onn the menu button to open and close the menu tab
     $(button).click(function(){
       if (!open) {
@@ -26,14 +24,14 @@ $(document).ready(function(){
       }
     open = !open;
   });
-  addEvents(test); // this adds the etst events to the buttons
 });
 
 // addEvents takes in an array and outputs each element as a button for the user to click
 function addEvents( events ) {
-  $('div.pull-left').append('<div><button id="All" class="btn btn-success event" style="width:175px">All</button></div>');
+  var allBtn = '<div class="btn-group btn-toggle"> <button class="btn btn btn-default active event" id="All" style="width:55px">All</button><button class="btn btn btn-primary event" id="None" style="width:55px">None</button></div>'
+  $('div.pull-left').append(allBtn);
   $.each(events, function( index, value ) {
-    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success event" style="width:175px">' + value + '</button></div>');
+    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success event opt" style="width:110px; padding-bottom: 10px">' + value + '</button></div>');
   });
   // add event listener for a click
   $('button.event').click(function(){
@@ -45,25 +43,44 @@ function addEvents( events ) {
 function toggleEvent( eventButton ) {
   // if the id is all, check to see if the button is 'active' or not
   if ( eventButton.id == 'All') {
-    if ( eventButton.className.indexOf('success') >= 0) {
-      $('button.event').removeClass( 'btn-success').addClass('btn-danger');
-    } else {
-      $('button.event').removeClass('btn-danger').addClass('btn-success');
-    }
+    // make all event option buttons green
+    $('button.event.opt').removeClass('btn-danger').addClass('btn-success');
+  } else if ( eventButton.id == 'None') {
+    // make all event option buttons red
+    $('button.event.opt').removeClass('btn-success').addClass('btn-danger');
   } else {
     // the button should only change itself by changing from 'active' to inactive or vice-versa
     $(eventButton).toggleClass('btn-success').toggleClass('btn-danger');
     // 'deactivate' All if one of the buttons is toggled to 'inactive' otherwise check to see if all buttons
     // except All are selected
     if (eventButton.className.indexOf('danger') >= 0) {
-        $('button#All.event').removeClass( 'btn-success').addClass('btn-danger');
+      $('button#None.event').addClass('active');
+      $('button#All.event').removeClass('active');
     } else {
-      // check to see if the only button that is 'inactive' is the All button
-      if ($('button.event.btn-danger').length == 1 && $('button.event.btn-danger').attr('id') == 'All') {
-        $('button#All.event').removeClass('btn-danger').addClass('btn-success');
+      // check to see if any button is 'inactive'
+      if ($('button.event.btn-danger').length == 0) {
+        $('button#All.event').addClass('active');
+        $('button#None.event').removeClass('active');
       }
     }
   }
+  sendActiveEventList();
+}
+
+// sendActiveEventList
+function sendActiveEventList() {
+  var events = {'filter':[]};
+  // determine if there is an 'active'
+  if ($('button.event.btn-success').length > 0 ) {
+    // collect all id's for the events that are 'active'
+    $.each($('button.event.btn-success'), function( index, value ) {
+      if (value.id != 'All') {
+        events.filter.push(value.id);
+      }
+    });
+  }
+  // send the the events to the server
+  ws.send(JSON.stringify(events));
 }
 
 // this function displays the live time on the page
@@ -93,3 +110,32 @@ function displayTime() {
     }
     startTime();
 };
+
+// listeners for updating the all and none buttons
+$('.btn-toggle').click(function() {
+  $(this).find('.btn').toggleClass('active');  
+  
+  if ($(this).find('.btn-primary').length>0) {
+    $(this).find('.btn').toggleClass('btn-primary');
+  }
+  if ($(this).find('.btn-danger').length>0) {
+    $(this).find('.btn').toggleClass('btn-danger');
+  }
+  if ($(this).find('.btn-success').length>0) {
+    $(this).find('.btn').toggleClass('btn-success');
+  }
+  if ($(this).find('.btn-info').length>0) {
+    $(this).find('.btn').toggleClass('btn-info');
+  }
+  
+  $(this).find('.btn').toggleClass('btn-default');
+     
+});
+
+$('form').submit(function(){
+var radioValue = $("input[name='options']:checked").val();
+if(radioValue){
+   alert("You selected - " + radioValue);
+ };
+  return false;
+});
