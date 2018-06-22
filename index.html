@@ -25,11 +25,11 @@
   crossorigin="">
   </script>
   <!--plugins used for heatmap layer-->
+  <script src="assets/js/setUpWS.js"></script> <!--sets up web socket before starting anything-->
   <script src="assets/js/heatmap.js"></script> <!--API for the heatmap itself-->
   <script src="assets/js/leaflet-heatmap.js"></script> <!--API for plugin-->
   <script src="assets/js/datapoints.js"></script> <!--this is the information for our map-->
   <script src="assets/js/map.js"></script> <!--this is the information for our map-->
-  <script src="assets/js/sockets.js"></script>
   <script src="assets/js/modal.js"></script>
   <script src="assets/js/animation.js"></script>
 
@@ -50,7 +50,7 @@
         <div class="modal-body">
           <form idCheck=""> <!--What is this "" for-->
                 <div class = "form-group">
-                   <input type ="text" class = "form-control" name="clientIDBox" placeholder= "ID">
+                   <input id ="cIDinput" type ="text" class = "form-control" name="clientIDBox" placeholder="ID" value= "">
                 </div>
           </form>
         </div>
