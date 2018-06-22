@@ -208,7 +208,7 @@ ul li {
 }
 
 .pull-left { /*This is used to make the content in the header that is aligned ot the left*/
-  text-align: left;
+  text-align: center;
   padding-left:10px;
   overflow: hidden;
   white-space:nowrap;
@@ -219,4 +219,8 @@ ul li {
   padding-left:10px;
   overflow: hidden;
   white-space:nowrap;
+}
+
+.close {  /*This is used to make the x go away on clientID modal*/
+  display: none;
 }

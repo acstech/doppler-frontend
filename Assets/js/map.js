@@ -102,5 +102,5 @@ function getTimeForMain() {
     };
 
     // added to get the realm button so on a click, it changes states
-    document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
+    //document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
   });

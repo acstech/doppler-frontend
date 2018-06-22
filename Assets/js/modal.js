@@ -1,7 +1,7 @@
 $(document).ready(function(){
     // makes the modal open when the page loads
     $('#exampleModalCenter').modal({
-      //show: true
+      backdrop: 'static',
       keyboard: false
     });
     // handles if there are any page size changes
