@@ -12,6 +12,7 @@ $(document).ready(function(){
          '-o-transform':'rotate(90deg)',
          '-ms-transform':'rotate(90deg)',
          'transform':'rotate(90deg)'
+
         });
       } else {
         $(button).css({
@@ -22,6 +23,7 @@ $(document).ready(function(){
            'transform':'rotate(0deg)'
         });
       }
+    $(button).toggleClass('open');
     open = !open;
   });
 
