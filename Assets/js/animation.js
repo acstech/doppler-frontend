@@ -1,4 +1,3 @@
-'use strict'
 $(document).ready(function(){
   displayTime();
   var button = '.menu-toggle';
@@ -24,66 +23,84 @@ $(document).ready(function(){
       }
     open = !open;
   });
+  // add listener for the form being submitted
+  $('form').submit(function(){
+    var radioValue = $("input[name='options']:checked").val();
+    if(radioValue){
+       alert("You selected - " + radioValue);
+     };
+      return false;
+    });
 });
 
-// addEvents takes in an array and outputs each element as a button for the user to click
+/** 
+ * addEvents takes in an array and outputs each element as a button for the user to click
+ * @param events is the list pof events to be appended as the user's filtering options
+ */
 function addEvents( events ) {
-  var allBtn = '<div class="btn-group btn-toggle"> <button class="btn btn btn-default active event" id="All" style="width:55px">All</button><button class="btn btn btn-primary event" id="None" style="width:55px">None</button></div>'
+  var allBtn = '<div class="checkbox switcher"><label for="All"><input type="checkbox" id="All" value="" checked><span><small></small></span></label></div>'
   $('div.pull-left').append(allBtn);
   $.each(events, function( index, value ) {
-    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success event opt" style="width:110px; padding-bottom: 10px">' + value + '</button></div>');
+    $('div.pull-left').append('<div><button id="' + value + '" class="btn btn-success opt">' + value + '</button></div>');
   });
   // add event listener for a click
-  $('button.event').click(function(){
+  $('div.pull-left button, div.pull-left input ').click(function(){
     toggleEvent(this);
   });
 }
 
-// toggleEvent determines what to do with an event based on the id of the event clicked
+/** 
+ * toggleEvent determines what to do with an event based on the id of the event clicked 
+ * and sends the updated filter list over the websocket
+ * @param eventButton is the button that was clicked by the user
+ */
 function toggleEvent( eventButton ) {
   // if the id is all, check to see if the button is 'active' or not
   if ( eventButton.id == 'All') {
-    // make all event option buttons green
-    $('button.event.opt').removeClass('btn-danger').addClass('btn-success');
-  } else if ( eventButton.id == 'None') {
-    // make all event option buttons red
-    $('button.event.opt').removeClass('btn-success').addClass('btn-danger');
+    // check to see if all buttons are to be turned on or off
+    if ( eventButton.checked) {
+       // make all event option buttons green
+      $('button.opt').removeClass('btn-danger').addClass('btn-success');
+    } else {
+      $('button.opt').removeClass('btn-success').addClass('btn-danger');
+    }
+   
   } else {
     // the button should only change itself by changing from 'active' to inactive or vice-versa
     $(eventButton).toggleClass('btn-success').toggleClass('btn-danger');
     // 'deactivate' All if one of the buttons is toggled to 'inactive' otherwise check to see if all buttons
     // except All are selected
     if (eventButton.className.indexOf('danger') >= 0) {
-      $('button#None.event').addClass('active');
-      $('button#All.event').removeClass('active');
+      $('input#All').prop( "checked", false );
     } else {
       // check to see if any button is 'inactive'
-      if ($('button.event.btn-danger').length == 0) {
-        $('button#All.event').addClass('active');
-        $('button#None.event').removeClass('active');
+      if ($('button.opt.btn-danger').length == 0) {
+        $('input#All').prop( "checked", true );
       }
     }
   }
   sendActiveEventList();
 }
 
-// sendActiveEventList
+/**
+ *  sendActiveEventList checks to see which events to send back as active 
+ */
 function sendActiveEventList() {
   var events = {'filter':[]};
   // determine if there is an 'active'
-  if ($('button.event.btn-success').length > 0 ) {
+  if ($('button.opt.btn-success').length > 0 ) {
     // collect all id's for the events that are 'active'
-    $.each($('button.event.btn-success'), function( index, value ) {
-      if (value.id != 'All') {
+    $.each($('button.opt.btn-success'), function( index, value ) {
         events.filter.push(value.id);
-      }
     });
   }
   // send the the events to the server
   ws.send(JSON.stringify(events));
 }
 
-// this function displays the live time on the page
+/**
+ * displayTime displays a time for the user that updates every second
+ */
 function displayTime() {
     function checkTime(i) {
         return (i < 10) ? "0" + i : i;
@@ -110,32 +127,3 @@ function displayTime() {
     }
     startTime();
 };
-
-// listeners for updating the all and none buttons
-$('.btn-toggle').click(function() {
-  $(this).find('.btn').toggleClass('active');  
-  
-  if ($(this).find('.btn-primary').length>0) {
-    $(this).find('.btn').toggleClass('btn-primary');
-  }
-  if ($(this).find('.btn-danger').length>0) {
-    $(this).find('.btn').toggleClass('btn-danger');
-  }
-  if ($(this).find('.btn-success').length>0) {
-    $(this).find('.btn').toggleClass('btn-success');
-  }
-  if ($(this).find('.btn-info').length>0) {
-    $(this).find('.btn').toggleClass('btn-info');
-  }
-  
-  $(this).find('.btn').toggleClass('btn-default');
-     
-});
-
-$('form').submit(function(){
-var radioValue = $("input[name='options']:checked").val();
-if(radioValue){
-   alert("You selected - " + radioValue);
- };
-  return false;
-});

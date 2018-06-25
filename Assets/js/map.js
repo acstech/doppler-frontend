@@ -53,53 +53,39 @@ $(document).ready(function(){
     layers: [baseLayer, heatmapLayer]
   });
 
-   heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
 
+  $("#resetButtonFinal").click(resetMap);
 
-  //
-  // //opens websocket with serverskt.go, which sends in the data points to map
-  // var ws = new WebSocket(":8000/recieve/ws");
-  // ws.onopen = function (event){
-  //   console.log("Connection made!"); // connection succesful
-  // };
-  //
-  // // parses json into JS object is added to heatmap
-  // ws.onmessage = function(str) {
-  //   heatmapLayer.addData(JSON.parse(str.data));
-  //
-  //   // checks to see if any points have been on the map for over maxTime amount of seconds (set in cfg)
-  //   heatmapLayer.decayDataPoints();
-  //   console.log("Someone sent: " + JSON.stringify(str.data));
-  // };
-
-function getTimeForMain() {
-  var date = new Date();
-  var displayDate = date.getTime();
-  document.getElementById("dateDisplay").innerHTML = displayDate;
-}
-// this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
-  function resetMap () {
-    heatmapLayer.setData(emptyData);
-  }
-  document.getElementById("resetButtonFinal").addEventListener("click", resetMap);
-
-  // function for our state change to make the map animated
-  function stateChange() {
-    setTimeout (function () {
-        heatmapLayer.addData(eastData.data)}, 1000); // can changed back to heatmapLayer.setData(eastData}, 1000);
-    setTimeout (function () {
-        heatmapLayer.addData(centralData.data)}, 3000);// can changed back to heatmapLayer.setData(centralData}, 1000);
-    setTimeout (function () {
-        heatmapLayer.addData(westData.data)}, 5000);// can changed back to heatmapLayer.setData(westData}, 1000);
-    };
 
     // added to get the realm button so on a click, it changes states
     //document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
 
-    // function changes the view to the United States
-    function unitedStatesMapRecenterFunc() {
-       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
-      console.log("I was clicked!")
+    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
+
+    /** 
+     * resetMap makes the map reset to 0 elements after the "Map Reset" and modal are clicked 
+     */
+    function resetMap () {
+      heatmapLayer.setData(emptyData);
     }
-    document.getElementById("unitedStatesMapRecenter").addEventListener("click", unitedStatesMapRecenterFunc);
+
+    /**
+     * stateChange makes the map animated
+     */
+    function stateChange() {
+      setTimeout (function () {
+          heatmapLayer.addData(eastData.data)}, 1000); // can changed back to heatmapLayer.setData(eastData}, 1000);
+      setTimeout (function () {
+          heatmapLayer.addData(centralData.data)}, 3000);// can changed back to heatmapLayer.setData(centralData}, 1000);
+      setTimeout (function () {
+          heatmapLayer.addData(westData.data)}, 5000);// can changed back to heatmapLayer.setData(westData}, 1000);
+    }
+    /** 
+     *  unitedStatesMapRecenterFunc changes the view to the United States
+     */
+    function unitedStatesMapRecenterFunc() {
+      map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
+    console.log("I was clicked!")
+    }
   });
