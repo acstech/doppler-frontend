@@ -1,4 +1,3 @@
-// 'use strict';
   // the basic map layer using openstreetmap -- Matt
   var baseLayer = L.tileLayer(
     'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
@@ -45,25 +44,33 @@ $(document).ready(function(){
   // heatmap instanciation
    heatmapLayer = new HeatmapOverlay(cfg);
 
+
   //  leaflet map
   var map = new L.Map('map-canvas', {
     center: new L.LatLng(37.937, -96.0938),
     zoom: 4,
     worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
-    layers: [baseLayer, heatmapLayer]
+    layers: [baseLayer, heatmapLayer],
+    zoomControl: false,
   });
 
   // sets the heatmapLayer
   heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
 
+
   $("#resetButtonFinal").click(resetMap);
 
     // for demoing
     document.getElementById("testData").addEventListener("click", stateChange); // stateChange must be formatted with out ()
+    // added to get the realm button so on a click, it changes states
+    //document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
 
+    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
 
+    /**
+     * resetMap makes the map reset to 0 elements after the "Map Reset" and modal are clicked
+     */
 
-    //resetMap makes the map reset to 0 elements after the "Map Reset" and modal are clicked
     function resetMap () {
       heatmapLayer.setData(emptyData);
     }
@@ -77,8 +84,10 @@ $(document).ready(function(){
       setTimeout (function () {
           heatmapLayer.addData(westData.data)}, 5000);// can changed back to heatmapLayer.setData(westData}, 1000);
     }
+    /**
+     *  unitedStatesMapRecenterFunc changes the view to the United States
+     */
 
-     //unitedStatesMapRecenterFunc changes the view to the United States
     function unitedStatesMapRecenterFunc() {
       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
       console.log("I was clicked!")
@@ -116,7 +125,7 @@ $(document).ready(function(){
        heatmapLayer.setData(emptyData);
      }
 
-     document.getElementById("resetButtonFinal").addEventListener("click", resetMap);
+     $("#resetButtonFinal").click(resetMap);
 
   }); // end of document.ready
 

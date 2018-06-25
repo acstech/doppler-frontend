@@ -1,4 +1,3 @@
-
 $(document).ready(function(){
   var connected = false;
 
@@ -13,6 +12,17 @@ $(document).ready(function(){
       addEvents(data)
     } else {
       console.log("Point recieved")
+
+      // console.log(JSON.parse(str.data));
+      // console.log(str);
+      // var dirtyj = JSON.parse(str.data);
+      // var cleanj  = {
+      //   lat: dirtyj.lat,
+      //   lng: dirtyj.lng,
+      //   count: dirtyj.count
+      // }
+      // heatmapLayer.addData(cleanj);
+
     }
   });
   // on open display that the websocket connection succeeded
@@ -31,8 +41,6 @@ $(document).ready(function(){
     }
   });
   // when the connection closes display that the connection has been made
-
-
 
   ws.onclose = function(event) {
     console.log("Connection closed.");

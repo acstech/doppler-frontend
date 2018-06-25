@@ -29,5 +29,6 @@ function openMapResetModal()  {
 function submitClientID() {
   console.log($("#cIDinput").val());
   var clientName = {clientID: $("#cIDinput").val()};
+
   ws.send(JSON.stringify(clientName));
 }
