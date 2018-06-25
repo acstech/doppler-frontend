@@ -2,6 +2,7 @@ $(document).ready(function(){
   displayTime();
   var button = '.menu-toggle';
   var open = false;
+
   // add event listener onn the menu button to open and close the menu tab
     $(button).click(function(){
       if (!open) {
@@ -23,6 +24,7 @@ $(document).ready(function(){
       }
     open = !open;
   });
+
   // add listener for the form being submitted
   $('form').submit(function(){
     var radioValue = $("input[name='options']:checked").val();
@@ -33,7 +35,7 @@ $(document).ready(function(){
     });
 });
 
-/** 
+/**
  * addEvents takes in an array and outputs each element as a button for the user to click
  * @param events is the list pof events to be appended as the user's filtering options
  */
@@ -49,8 +51,8 @@ function addEvents( events ) {
   });
 }
 
-/** 
- * toggleEvent determines what to do with an event based on the id of the event clicked 
+/**
+ * toggleEvent determines what to do with an event based on the id of the event clicked
  * and sends the updated filter list over the websocket
  * @param eventButton is the button that was clicked by the user
  */
@@ -64,7 +66,7 @@ function toggleEvent( eventButton ) {
     } else {
       $('button.opt').removeClass('btn-success').addClass('btn-danger');
     }
-   
+
   } else {
     // the button should only change itself by changing from 'active' to inactive or vice-versa
     $(eventButton).toggleClass('btn-success').toggleClass('btn-danger');
@@ -83,7 +85,7 @@ function toggleEvent( eventButton ) {
 }
 
 /**
- *  sendActiveEventList checks to see which events to send back as active 
+ *  sendActiveEventList checks to see which events to send back as active
  */
 function sendActiveEventList() {
   var events = {'filter':[]};
@@ -98,9 +100,10 @@ function sendActiveEventList() {
   ws.send(JSON.stringify(events));
 }
 
-/**
- * displayTime displays a time for the user that updates every second
- */
+
+
+
+// this function displays the live time on the page
 function displayTime() {
     function checkTime(i) {
         return (i < 10) ? "0" + i : i;

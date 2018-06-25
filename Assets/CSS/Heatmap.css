@@ -1,6 +1,6 @@
 /**** custom fields(variables) ****/
 :root{
-  --checked-filter-all: #269bff; 
+  --checked-filter-all: #269bff;
 }
 
 a:hover {
@@ -57,6 +57,7 @@ ul li {
   background: #ffaa80;
   opacity: 0.7;
   transition: all 75ms linear;
+  white-space:nowrap;
 }
 
 #restOfPage {
@@ -65,7 +66,6 @@ ul li {
   padding-bottom: 0;
   background-color: #e6f3ff;
   transition: all 67ms linear;
-
 }
 
 .menu-toggle {
@@ -117,13 +117,13 @@ ul li {
 #realmLogoSidebar {
   white-space: nowrap;
   text-align: center;
+  padding-top: 8px;
 }
 
 .pull-left { /*This is used to make the content in the header that is aligned ot the left*/
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
-
 }
 
 #mapRESET {
@@ -137,13 +137,13 @@ ul li {
   background: blue;
 }
 
-#unitedStatesMapRecenter {
+.pull-left  .btn {
   text-align: center;
+  margin-bottom: 15px;
 }
 
 .dropdown-item {
-  text-align: center;
-  background: blue;
+  align-content: center;
 }
 /**** all button ****/
 div.checkbox.switcher label, div.radio.switcher label {
@@ -194,6 +194,6 @@ div.checkbox.switcher::before {
   content: "All"
 }
 /**** event buttons ****/
-.opt{
+.opt {
   width:110px;
 }
