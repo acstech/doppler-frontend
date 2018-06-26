@@ -35,12 +35,21 @@ $(document).ready(function(){
      };
       return false;
     });
+
+    // slider for Decay Time
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+      output.innerHTML = slider.value; // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+    }
 });
 
-/**
- * addEvents takes in an array and outputs each element as a button for the user to click
- * @param events is the list pof events to be appended as the user's filtering options
- */
+ //addEvents takes in an array and outputs each element as a button for the user to click
+ //@param events is the list pof events to be appended as the user's filtering options
+
 function addEvents( events ) {
   var allBtn = '<div class="checkbox switcher"><label for="All"><input type="checkbox" id="All" value="" checked><span><small></small></span></label></div>'
   $('div.pull-left').append(allBtn);
@@ -53,11 +62,11 @@ function addEvents( events ) {
   });
 }
 
-/**
- * toggleEvent determines what to do with an event based on the id of the event clicked
- * and sends the updated filter list over the websocket
- * @param eventButton is the button that was clicked by the user
- */
+
+  //toggleEvent determines what to do with an event based on the id of the event clicked
+  //and sends the updated filter list over the websocket
+  //@param eventButton is the button that was clicked by the user
+
 function toggleEvent( eventButton ) {
   // if the id is all, check to see if the button is 'active' or not
   if ( eventButton.id == 'All') {
@@ -101,9 +110,6 @@ function sendActiveEventList() {
   // send the the events to the server
   ws.send(JSON.stringify(events));
 }
-
-
-
 
 // this function displays the live time on the page
 function displayTime() {

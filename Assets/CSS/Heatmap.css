@@ -33,7 +33,7 @@ a:link {
 }
 
 ul {
-  list-style: none;
+  text-align: center;
 }
 
 li {
@@ -58,25 +58,22 @@ ul li {
 
 /*testing the sidebar*/
 #sidebar-wrapper {
-
   z-index: 1;
   position: absolute;
   width: 0;
   height: 100%;
-
   overflow-x: auto;
   background: var(--neutral);
   opacity: 1;
-
   transition: all 300ms ease-in-out;
   white-space:nowrap;
+  vertical-align: middle;
 }
 
 #time {
   font-family: "Open Sans";
   color: white;
   background: rgba(40, 109, 168, 0.7);
-  /* border-style: solid; */
   padding: 3px;
 }
 
@@ -107,19 +104,19 @@ ul li {
   cursor: pointer;
 }
 .toggled #sidebar-wrapper { /*Needs to be the same as below*/
-  width: 300px;
+  width: 390px;
 }
 
 .toggled #restOfPage {
-  padding-left: 300px;
+  padding-left: 390px;
 }
 
 .sidebar-nav {
   background-image: url(../images/connectwork.png);
-  /* margin-bottom: -15000px;
-  padding-bottom: 15000px; */
+  margin-bottom: 0px;
+  padding-bottom: 10px;
   overflow: hidden;
-  /* padding-top: 15px; */
+  padding-top: 15px;
   list-style: none;
   color: white;
 }
@@ -127,6 +124,7 @@ ul li {
 .sidebar-nav li {
   text-indent: 20px;
   line-height: 40px;
+  text-align: center;
 }
 
 .sidebar-nav li a {
@@ -137,6 +135,10 @@ ul li {
 
 .sidebar-nav li a:hover {
   background: black;
+}
+
+.list-inline {
+  padding-left: 0px;
 }
 
 #headerInSideBar  { /*This is needed to make the header the sam ecolor as the sidebar*/
@@ -230,4 +232,45 @@ div.checkbox.switcher::before {
 /**** event buttons ****/
 .opt {
   width:110px;
+}
+
+.decayTimeSlider {
+  width: 100px;
+  display: inline-block;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--popColor);
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--popColor);
+    cursor: pointer;
 }

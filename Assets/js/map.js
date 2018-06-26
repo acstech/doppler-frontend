@@ -2,10 +2,10 @@
   var baseLayer = L.tileLayer(
     'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       attribution: '...',
-      maxZoom: 18
+      maxZoom: 18,
+      minZoom: 4
     }
   );
-
 
   // configures the map's settings -- Matt
   var cfg =     {
@@ -37,45 +37,28 @@
     timeField: 'time',
   };
 
+  // this makes sure that the page is ready before trying to add anything to it
+  $(document).ready(function(){
+    // heatmap instanciation
+     heatmapLayer = new HeatmapOverlay(cfg);
 
+    //  leaflet map
+    var map = new L.Map('map-canvas', {
+      center: new L.LatLng(37.937, -96.0938),
+      zoom: 4,
+      worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
+      layers: [baseLayer, heatmapLayer],
+      zoomControl: false,
+    });
 
-// this makes sure that the page is ready before trying to add anything to it
-$(document).ready(function(){
-  // heatmap instanciation
-   heatmapLayer = new HeatmapOverlay(cfg);
+    // sets the heatmapLayer
+    heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
 
-
-  //  leaflet map
-  var map = new L.Map('map-canvas', {
-    center: new L.LatLng(37.937, -96.0938),
-    zoom: 4,
-    worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
-    layers: [baseLayer, heatmapLayer],
-    zoomControl: false,
-  });
-
-  // sets the heatmapLayer
-  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
-
-
-  $("#resetButtonFinal").click(resetMap);
 
     // for demoing
-    document.getElementById("testData").addEventListener("click", stateChange); // stateChange must be formatted with out ()
-    // added to get the realm button so on a click, it changes states
-    //document.getElementById("stateChangeButton").addEventListener("click", stateChange); // stateChange must be formatted with out ()
+    // $("#testData").click(stateChangeIII);
 
-    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
-
-    /**
-     * resetMap makes the map reset to 0 elements after the "Map Reset" and modal are clicked
-     */
-
-    function resetMap () {
-      heatmapLayer.setData(emptyData);
-    }
-
-      //stateChange makes the map animated
+    //stateChange makes the map animated
     function stateChange() {
       setTimeout (function () {
           heatmapLayer.addData(eastData.data)}, 1000); // can changed back to heatmapLayer.setData(eastData}, 1000);
@@ -83,61 +66,55 @@ $(document).ready(function(){
           heatmapLayer.addData(centralData.data)}, 3000);// can changed back to heatmapLayer.setData(centralData}, 1000);
       setTimeout (function () {
           heatmapLayer.addData(westData.data)}, 5000);// can changed back to heatmapLayer.setData(westData}, 1000);
-    }
-    /**
-     *  unitedStatesMapRecenterFunc changes the view to the United States
-     */
+      }
 
+      function stateChangeII() {
+            heatmapLayer.addData(eastData.data);
+      }
+
+      $("#testData").click(stateChangeII);
+
+      //unitedStatesMapRecenterFunc changes the view to the United States
     function unitedStatesMapRecenterFunc() {
       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
       console.log("I was clicked!")
-    }
-    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
+      }
+      $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
 
     // function changes the view to the South America
     function southAmericaMapRecenterFunc() {
-       map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
+        map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
     }
-
-    $("#southAmericaMapRecenter").click(southAmericaMapRecenterFunc);
+      $("#southAmericaMapRecenter").click(southAmericaMapRecenterFunc);
 
     // function changes the view to the Europe
     function europeMapRecenterFunc() {
-       map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
+        map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
     }
     $("#europeMapRecenter").click(europeMapRecenterFunc);
 
     // function changes the view to the Asia
     function asiaMapRecenterFunc() {
-       map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
+        map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
     }
-    $("#asiaMapRecenter").click(asiaMapRecenterFunc);
+      $("#asiaMapRecenter").click(asiaMapRecenterFunc);
 
-   heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
-
-   function getTimeForMain() {
-     var date = new Date();
-     var displayDate = date.getTime();
-     document.getElementById("dateDisplay").innerHTML = displayDate;
-   }
-   // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
-     function resetMap () {
-       heatmapLayer.setData(emptyData);
-     }
-
-     $("#resetButtonFinal").click(resetMap);
-
+     heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+     // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
+    function resetMap () {
+        heatmapLayer.setData(emptyData);
+    }
+      $("#resetButtonFinal").click(resetMap);
   }); // end of document.ready
 
-// this function is used for puttin glive date and time on front-end
+  // this function is used for puttin glive date and time on front-end
+  function getTimeForMain() {
+    var date = new Date();
+    var displayDate = date.getTime();
+    document.getElementById("dateDisplay").innerHTML = displayDate;
+  }
 
-function getTimeForMain() {
-  var date = new Date();
-  var displayDate = date.getTime();
-  document.getElementById("dateDisplay").innerHTML = displayDate;
-}
-// this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
-
-function resetMap () {
-  heatmapLayer.setData(emptyData);
-}
+  // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
+  function resetMap () {
+    heatmapLayer.setData(emptyData);
+  }
