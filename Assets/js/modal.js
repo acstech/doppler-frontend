@@ -8,7 +8,6 @@ $(document).ready(function(){
     $('#myModal').modal('handleUpdate');
 
     $("#mapRESET").click(openMapResetModal);
-    $("#enter").click(submitClientID);
 });
 
 /**
@@ -21,14 +20,4 @@ function openMapResetModal()  {
   })
   // handles if there are any page size changes
   $('#resetMapModal').modal('handleUpdate')
-}
-
-/**
- * submitClientID gets the user provided clientID and sends it to the server
- */
-function submitClientID() {
-  console.log($("#cIDinput").val());
-  var clientName = {clientID: $("#cIDinput").val()};
-
-  ws.send(JSON.stringify(clientName));
 }

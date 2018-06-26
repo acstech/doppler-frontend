@@ -41,7 +41,6 @@ li {
 }
 
 ul li {
-  display: inline;
   text-align: center;
 }
 /* The container <div> - needed to position the dropdown content */
@@ -122,7 +121,6 @@ ul li {
 }
 
 .sidebar-nav li {
-  text-indent: 20px;
   line-height: 40px;
   text-align: center;
 }
@@ -230,8 +228,8 @@ div.checkbox.switcher::before {
   content: "All"
 }
 /**** event buttons ****/
-.opt {
-  width:110px;
+.select2-results__option {
+  margin: 0px;
 }
 
 .decayTimeSlider {
