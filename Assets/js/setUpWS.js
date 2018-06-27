@@ -6,11 +6,18 @@ $(document).ready(function(){
   var ws = new WebSocket("ws://localhost:8000/receive/ws");
   // log any messages recieved
   ws.addEventListener("message", function(e) {
-    var data = JSON.parse(e.data)
-    // check to see what type of data was recieved
+    var data = JSON.parse(e.data);
+    
     if ( data instanceof Array) {
-      addEvents(data)
+      if (data[0] === "ClientID not found") {
+        $(modaltext).text("ClientID not found")
+        console.log("issue")
+      } else {
+        hideModal()
+        addEvents(data)
+      }
     } else {
+      hideModal()
       var pointArr = JSON.parse(data);
       for (var i = 0; i < pointArr.length; i++){
         heatmapLayer.addData(pointArr[i]);
@@ -77,5 +84,11 @@ $(document).ready(function(){
     console.log($("#cIDinput").val());
     var clientName = {clientID: $("#cIDinput").val()};
     ws.send(JSON.stringify(clientName));
+  }
+
+  function hideModal(){
+    $('#exampleModalCenter').hide()
+    $('body').removeClass('modal-open');
+    $('.modal-backdrop').remove();
   }
 });
