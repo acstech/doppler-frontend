@@ -22,7 +22,7 @@
     //  cap on the amount of points allowed on map before they are removed in FIFO order.
     //  set to -1 if you do not want a cap on points (Try not to let there be
     //  more than 40k points, or program will crash.)
-    "maxSize": 100,
+    "maxSize": 30000,
     // mount of seconds a point stays on the map before being removed
     // set to -1 if you do not want points to decay
     "maxTime": 3600,

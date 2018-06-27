@@ -11,13 +11,11 @@ $(document).ready(function(){
     if ( data instanceof Array) {
       addEvents(data)
     } else {
-
-      var cleanj  = {
-        lat: data.lat,
-        lng: data.lng,
-        count: data.count
-      };
-      heatmapLayer.addData(cleanj);
+      var pointArr = JSON.parse(data);
+      for (var i = 0; i < pointArr.length; i++){
+        heatmapLayer.addData(pointArr[i]);
+      }
+      heatmapLayer._draw();
     }
   });
   // on open display that the websocket connection succeeded
@@ -47,6 +45,7 @@ $(document).ready(function(){
    * @param events is the list pof events to be appended as the user's filtering options
    */
   function addEvents( events ) {
+    $('select.eventList').empty();
     // add all events to the select box as options
     $.each(events, function( index, value ) {
       $('select.eventList').append('<option id="' + index + '" value="' + value + '">' + value + '</option>');

@@ -266,10 +266,10 @@
           this.removeDataPoints();
         }
         if (this.cfg.maxTime > 0) {
-          this.decayDataPoints();
+          // this.decayDataPoints();
         }
         // refreshes heatmap
-        this._draw();
+        // this._draw();
       }
     },
     _reset: function () {
