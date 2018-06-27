@@ -36,9 +36,7 @@ ul {
   text-align: center;
 }
 
-li {
-  margin-right: 35px;
-}
+
 
 ul li {
   text-align: center;
@@ -57,7 +55,6 @@ ul li {
 
 /*testing the sidebar*/
 #sidebar-wrapper {
-  z-index: 1;
   position: absolute;
   width: 0;
   height: 100%;
@@ -95,7 +92,6 @@ ul li {
 }
 
 .menu-toggle.open {
-
   color: white;
 }
 
@@ -115,6 +111,7 @@ ul li {
   margin-bottom: 0px;
   padding-bottom: 10px;
   overflow: hidden;
+  padding-left: 0px;
   padding-top: 15px;
   list-style: none;
   color: white;
@@ -158,6 +155,16 @@ ul li {
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.eventList {
+  padding-bottom: 10px;
+  margin: 10px;
+  white-space: nowrap;
+}
+
+#filterSelect{
+  padding-bottom: 10px;
 }
 
 #mapRESET {
@@ -223,7 +230,8 @@ div.checkbox.switcher label input:checked + span, div.radio.switcher label input
 div.checkbox.switcher label input:checked + span small, div.radio.switcher label input:checked + span small {
   left: 50%;
 }
-.bt
+
+/*.bt*/
 div.checkbox.switcher::before {
   content: "All"
 }
@@ -271,4 +279,13 @@ div.checkbox.switcher::before {
     border: 0;
     background: var(--popColor);
     cursor: pointer;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
 }
