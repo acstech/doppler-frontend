@@ -1,28 +1,29 @@
 'use strict';
 $(document).ready(function(){
   var connected = false;
-
+  var success = false
   // connect to the websocket
   var ws = new WebSocket("ws://localhost:8000/receive/ws");
   // log any messages recieved
   ws.addEventListener("message", function(e) {
     var data = JSON.parse(e.data);
-    
     if ( data instanceof Array) {
-      if (data[0] === "ClientID not found") {
-        $(modaltext).text("ClientID not found")
-        console.log("issue")
+        addEvents(data)
+    } else {
+      if (JSON.stringify(data).indexOf("Error") != -1) {
+        console.log("Error:" + data.Error);
+        if (!success) {
+          $(modaltext).text(data.Error)
+        }
       } else {
         hideModal()
-        addEvents(data)
+        success = true;
+        var pointArr = JSON.parse(data);
+        for (var i = 0; i < pointArr.length; i++){
+          heatmapLayer.addData(pointArr[i]);
+        }
+        heatmapLayer._draw();
       }
-    } else {
-      hideModal()
-      var pointArr = JSON.parse(data);
-      for (var i = 0; i < pointArr.length; i++){
-        heatmapLayer.addData(pointArr[i]);
-      }
-      heatmapLayer._draw();
     }
   });
   // on open display that the websocket connection succeeded
@@ -86,6 +87,9 @@ $(document).ready(function(){
     ws.send(JSON.stringify(clientName));
   }
 
+  /**
+   * hideModal hides the default user modal
+   */
   function hideModal(){
     $('#exampleModalCenter').hide()
     $('body').removeClass('modal-open');
