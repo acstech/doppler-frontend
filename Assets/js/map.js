@@ -107,7 +107,7 @@
 
     // function changes the view to the Southeastern US
     function southeasternUSMapRecenterFunc() {
-        map.setView(new L.LatLng(32.937, -80.0938), 6); // this sets the location and zoom amount
+        map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
     }
       $("#southeasternUSMapRecenter").click(southeasternUSMapRecenterFunc);
 

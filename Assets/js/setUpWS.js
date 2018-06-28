@@ -56,7 +56,7 @@ $(document).ready(function(){
     $('#eventList').empty();
     // add all events to the select box as options
     $.each(events, function( index, value ) {
-        $('#eventList').append('<li><input type="checkbox" id="' + index + '" value="' + value + '" checked>' + value + '</li>');
+        $('#eventList').append('<li><input type="checkbox" id="' + index + '" value="' + value + '" checked>' + "          " + value + '</li>');
     });
     $(".dropdown-events dt a").on('click', function() {
       $(".dropdown-events dd ul").slideToggle('fast');

@@ -1,6 +1,6 @@
 /**** custom fields(variables) ****/
 :root{
-  --filterBackground: gray;
+  --filterBackground: #A9A9A9;
   --popColor: #286DA8;
   --carbon: #A9A9A9;
   --neutral: #EFEFEF;
@@ -317,12 +317,11 @@ hr {
     padding: 0;
 }
 
-#filterSelect > span > span.selection > span > ul > li.select2-selection__choice {
-  color: white;
-  background: #269bff;
-  border: none;
+#filterSelect > dl > dt > a > span {
+  font-size: 18px;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
 }
 
-#filterSelect > span > span.selection > span > ul > li.select2-selection__choice > span {
-  color: red;
+#filterSelect > dl > dt {
+  background: none;
 }
