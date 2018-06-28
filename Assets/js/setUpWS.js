@@ -9,6 +9,7 @@ $(document).ready(function(){
     var data = JSON.parse(e.data);
     if ( data instanceof Array) {
         addEvents(data)
+        hideModal()
     } else {
       if (JSON.stringify(data).indexOf("Error") != -1) {
         console.log("Error:" + data.Error);
@@ -16,7 +17,6 @@ $(document).ready(function(){
           $(modaltext).text(data.Error)
         }
       } else {
-        hideModal()
         success = true;
         var pointArr = JSON.parse(data);
         for (var i = 0; i < pointArr.length; i++){
