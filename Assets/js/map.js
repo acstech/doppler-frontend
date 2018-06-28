@@ -3,7 +3,7 @@
     'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       attribution: '...',
       maxZoom: 18,
-      minZoom: 4
+      minZoom: 3
     }
   );
 
@@ -51,6 +51,12 @@
       zoomControl: false,
     });
 
+    //Sets the max bounds of the map
+    map.setMaxBounds([
+      [85, 180],
+      [-85, -180]
+    ]);
+
     // sets the heatmapLayer
     heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
 
@@ -72,13 +78,13 @@
             heatmapLayer.addData(eastData.data);
       }
 
-      $("#testData").click(stateChangeII);
+      // $("#testData").click(stateChangeII);
 
       //unitedStatesMapRecenterFunc changes the view to the United States
     function unitedStatesMapRecenterFunc() {
       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
       console.log("I was clicked!")
-      }
+    }
       $("#unitedStatesMapRecenter").click(unitedStatesMapRecenterFunc);
 
     // function changes the view to the South America
@@ -91,16 +97,36 @@
     function europeMapRecenterFunc() {
         map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
     }
-    $("#europeMapRecenter").click(europeMapRecenterFunc);
+      $("#europeMapRecenter").click(europeMapRecenterFunc);
 
     // function changes the view to the Asia
     function asiaMapRecenterFunc() {
         map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
     }
-      $("#asiaMapRecenter").click(asiaMapRecenterFunc);
+      $("#asiaMapRecenter").click(asiaMapRecenterFunc); //northWesternUSMapRecenter
 
-     heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
-     // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
+    // function changes the view to the Southeastern US
+    function southeasternUSMapRecenterFunc() {
+        map.setView(new L.LatLng(32.937, -80.0938), 6); // this sets the location and zoom amount
+    }
+      $("#southeasternUSMapRecenter").click(southeasternUSMapRecenterFunc);
+
+    // function changes the view to the Southeastern US
+    function northWesternUSMapRecenterFunc() {
+        map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
+    }
+      $("#northWesternUSMapRecenter").click(northWesternUSMapRecenterFunc);
+
+    // function changes the view to the Southeastern US
+    function worldMapRecenterFunc() {
+        map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
+    }
+      $("#worldMapRecenter").click(worldMapRecenterFunc);
+
+    // Sets the heatmapLayer
+    heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+
+    // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
     function resetMap () {
         heatmapLayer.setData(emptyData);
     }
@@ -112,9 +138,4 @@
     var date = new Date();
     var displayDate = date.getTime();
     document.getElementById("dateDisplay").innerHTML = displayDate;
-  }
-
-  // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
-  function resetMap () {
-    heatmapLayer.setData(emptyData);
   }

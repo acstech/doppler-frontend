@@ -7,7 +7,7 @@ $(document).ready(function(){
     // handles if there are any page size changes
     $('#myModal').modal('handleUpdate');
 
-    $("#mapRESET").click(openMapResetModal);
+    $('#filterSubmit').click(openMapResetModal);
 });
 
 /**

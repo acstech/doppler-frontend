@@ -3,7 +3,7 @@ $(document).ready(function(){
   var button = '.menu-toggle';
   var open = false;
 
-  // add event listener onn the menu button to open and close the menu tab
+  // add event listener on the menu button to open and close the menu tab
     $(button).click(function(){
       if (!open) {
         $(button).css({

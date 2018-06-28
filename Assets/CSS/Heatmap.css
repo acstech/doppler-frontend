@@ -64,6 +64,9 @@ ul li {
   transition: all 300ms ease-in-out;
   white-space:nowrap;
   vertical-align: middle;
+  -moz-box-shadow:    inset 0 0 10px #000000;
+  -webkit-box-shadow: inset 0 0 10px #000000;
+  box-shadow:         inset 0 0 10px #000000;
 }
 
 #time {
@@ -114,7 +117,7 @@ ul li {
   padding-left: 0px;
   padding-top: 15px;
   list-style: none;
-  color: white;
+  color: white
 }
 
 .sidebar-nav li {
@@ -319,4 +322,14 @@ hr {
     border-top: 1px solid #ccc;
     margin: 1em 0;
     padding: 0;
+}
+
+#filterSelect > span > span.selection > span > ul > li.select2-selection__choice {
+  color: white;
+  background: #269bff;
+  border: none;
+}
+
+#filterSelect > span > span.selection > span > ul > li.select2-selection__choice > span {
+  color: red;
 }

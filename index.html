@@ -64,7 +64,7 @@
           <p id="modaltext"> </p>
         </div>
         <div class="modal-footer">
-          <button type="submit" id="enter" class="btn btn-primary" >Enter</button>
+          <button type="submit" id="enter" class="btn btn-primary">Enter</button>
         </div>
       </div>
     </div>
@@ -92,14 +92,14 @@
             </div>
             <hr>
             <div class="pull-left">
-              <p class="text-light">Select Filters Below</p>
+              <p class="text-light">Select Event Filters Below</p>
               <hr>
               <div id="filterSelect">
-                <dl class="dropdown-events"> 
+                <dl class="dropdown-events">
                   <dt>
                     <a href="#">
-                      <span class="hida">Filters</span>    
-                      <p class="multiSel"></p>  
+                      <span class="hida">Filters</span>
+                      <p class="multiSel"></p>
                     </a>
                   </dt>
                   <dd>
@@ -127,30 +127,32 @@
             </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                 <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
+                <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
+                <button class="dropdown-item" id="northWesternUSMapRecenter" type="button">Pacific North West US</button>
                 <button class="dropdown-item" id="southAmericaMapRecenter" type="button">South America</button>
                 <button class="dropdown-item" id="europeMapRecenter" type="button">Europe</button>
                 <button class="dropdown-item" id="asiaMapRecenter" type="button">Asia</button>
+                <!-- <button class="dropdown-item" id="worldMapRecenter" type="button">World</button> -->
               </div>
             </div>
             <br><br><br><br><br><br><br><br><br><br>
             <hr>
             <div class="decayTimeSlider">
-              <h6>Decay Time</h6>
+              <h6>Decay Rate</h6>
               <input type="range" min="1" max="600" value="1" class="slider" id="myRange">
               <p><span id="demo"></span> seconds</p>
             </div>
             <hr>
-            <div id="testDataDiv">
+            <!-- <div id="testDataDiv">
               <button id="testData" class="btn btn-primary">Demo</button>
 
-            </div>
+            </div> -->
 
 
-            <br><br><br><br><br><br><br><br><br><br>
             <br><br><br><br><br><br><br><br><br><br><br>
             <hr>
             <li>
-              <button id="mapRESET" class="btn-danger">Map Reset</button></li<hr>
+              <!-- <button id="mapRESET" class="btn-danger">Map Reset</button></li> -->
           </ul>
         </div>
       </div>
@@ -171,15 +173,15 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="resetMapTitle">Are You Sure You Want To Reset The Map?</h5>
+          <h5 class="modal-title" id="resetMapTitle">Are You Sure You Want To Change Filters?</h5>
           </button>
         </div>
         <div class="modal-body">
-          <p class="text-danger">Reseting the map will result in a loss of data for the previous active period!</p>
+          <p class="text-danger">Changing Filters Will Result In A Map Reset!!</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Reset</button>
+          <button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>
         </div>
       </div>
     </div>
@@ -198,18 +200,18 @@
           <p class="text-danger" id="errorMessage"></p>
         </div>
         <div class="modal-footer">
-          <button type="button" id="" class="btn btn-primary" data-dismiss="modal">Ok</button>
+          <button type="button" id="" class="btn btn-primary" data-dismiss="modal">Okay</button>
         </div>
       </div>
     </div>
   </div>
   <!--This is the div for the wrapper-->
   <script>
-  $("#sidebar-wrapper").slideReveal({
-    trigger: $("#toggle"),
-    push: true,
-    width: 390
-  });
+    $("#sidebar-wrapper").slideReveal({
+      trigger: $("#toggle"),
+      push: true,
+      width: 390
+    });
   </script>
 </body>
 

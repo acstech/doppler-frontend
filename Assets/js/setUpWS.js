@@ -61,16 +61,16 @@ $(document).ready(function(){
     $(".dropdown-events dt a").on('click', function() {
       $(".dropdown-events dd ul").slideToggle('fast');
     });
-    
+
     $(".dropdown-events dd ul li a").on('click', function() {
       $(".dropdown-events dd ul").hide();
     });
-    
+
     $(document).bind('click', function(e) {
       var $clicked = $(e.target);
       if (!$clicked.parents().hasClass("dropdown-events")) $(".dropdown-events dd ul").hide();
     });
-    $('.pull-left #filterSubmit').click(function() {sendActiveEventList()});
+    $('#resetButtonFinal').click(function() {sendActiveEventList()});
   }
 
   /**
