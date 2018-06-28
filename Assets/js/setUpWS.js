@@ -46,6 +46,13 @@ $(document).ready(function(){
   ws.onclose = function(event) {
     console.log("Connection closed.");
     connected = false;
+    hideModal();
+    $('#errorMapModal').modal({
+      backdrop: 'static',
+      keyboard: false
+    });
+    // handles if there are any page size changes
+    $('#errorMapModal').modal('handleUpdate');
   }
   $("#enter").click(submitClientID);
   /**
