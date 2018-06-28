@@ -53,12 +53,23 @@ $(document).ready(function(){
    * @param events is the list pof events to be appended as the user's filtering options
    */
   function addEvents( events ) {
-    $('select.eventList').empty();
+    $('#eventList').empty();
     // add all events to the select box as options
     $.each(events, function( index, value ) {
-      $('select.eventList').append('<option id="' + index + '" value="' + value + '">' + value + '</option>');
+        $('#eventList').append('<li><input type="checkbox" id="' + index + '" value="' + value + '" checked>' + value + '</li>');
     });
-    $('select.eventList').select2();
+    $(".dropdown-events dt a").on('click', function() {
+      $(".dropdown-events dd ul").slideToggle('fast');
+    });
+    
+    $(".dropdown-events dd ul li a").on('click', function() {
+      $(".dropdown-events dd ul").hide();
+    });
+    
+    $(document).bind('click', function(e) {
+      var $clicked = $(e.target);
+      if (!$clicked.parents().hasClass("dropdown-events")) $(".dropdown-events dd ul").hide();
+    });
     $('.pull-left #filterSubmit').click(function() {sendActiveEventList()});
   }
 
@@ -68,10 +79,10 @@ $(document).ready(function(){
   function sendActiveEventList() {
     var events = {'filter':[]};
     // determine if there is an 'active'
-    if ($('.select2-selection__choice').length > 0 ) {
+    if ($('#eventList li input:checked').length > 0 ) {
       // collect all id's for the events that are 'active'
-      $.each($('.select2-selection__choice'), function( index, value ) {
-          events.filter.push(value.title);
+      $.each($('#eventList li input:checked'), function( index, value ) {
+          events.filter.push(value.value);
       });
     }
     // send the the events to the server
