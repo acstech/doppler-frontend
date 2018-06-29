@@ -36,6 +36,7 @@
   <script src="assets/js/setUpWS.js"></script>
 </head>
 <!--end of the header -->
+
 <body>
 
   <!-- Modal -->
@@ -89,7 +90,7 @@
                 <dl class="dropdown-events">
                   <dt>
                     <a href="#">
-                      <span class="hida">Filters</span>
+                      <span class="hida">Filters <span class="glyphicon glyphicon-menu-down"></span></span>
                       <p class="multiSel"></p>
                     </a>
                   </dt>
@@ -102,6 +103,7 @@
               <button class="btn btn-primary" id="filterSubmit">Submit</button>
             </div>
             <!--End of pull left-->
+            <br><br>
             <hr>
             <div class="viewTitle">
               <p class="text-light"> Switch To Different Location</p>
@@ -150,12 +152,8 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-<<<<<<< HEAD
           <h5 class="modal-title" id="resetMapTitle">Are You Sure You Want To Change Filters?</h5>
           </button>
-=======
-          <h5 class="modal-title" id="resetMapTitle">Are You Sure You Want To Reset The Map?</h5>
->>>>>>> 8494b3ebf271482910846ce316d0a9f4adc4a128
         </div>
         <div class="modal-body">
           <p class="text-danger">Changing Filters Will Result In A Map Reset!!</p>
@@ -176,7 +174,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <p class="text-danger" id="errorMessage">505: Unable to connect to live data.</p>
+          <p class="text-danger" id="errorMessage">505: Unable to connect to live data. <br /><br />Please reload the page to try again.</p>
         </div>
         <div class="modal-footer">
           <button type="button" id="" class="btn btn-primary" data-dismiss="modal">Okay</button>
@@ -189,8 +187,10 @@
     $("#sidebar-wrapper").slideReveal({
       trigger: $("#toggle"),
       push: true,
-      width: 390
+      width: 390,
+      autoEscape: false
     });
   </script>
 </body>
+
 </html>

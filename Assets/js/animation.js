@@ -76,8 +76,8 @@ function displayTime() {
 };
 
 // tim's sidebar
-$("#sidebar-wrapper").slideReveal({
-  trigger: $("#toggle"),
-  push: false,
-  overlay: true
-});
+// $("#sidebar-wrapper").slideReveal({
+//   trigger: $("#toggle"),
+//   push: false,
+//   overlay: true
+// });
