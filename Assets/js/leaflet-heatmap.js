@@ -158,13 +158,6 @@
     // clears data and inserts new data
     setData: function(data) {
 
-      // cut down the size of the input if it exceeds the maxSize limit
-      if(this.maxSize > 0){
-        while (data.data.length > this.maxSize){
-          data.data.shift();
-        }
-      }
-
       this._max = data.max || this._max;
       this._min = data.min || this._min;
       var latField = this.cfg.latField || 'lat';
@@ -175,6 +168,12 @@
       // transform data to latlngs
       var data = data.data;
       var len = data.length;
+      // cut down the size of the input if it exceeds the maxSize limit
+      if(this.maxSize > 0){
+        if (len > this.maxSize){
+          len = this.maxSize;
+        }
+      }
       var d = [];
 
       while (len--) {
@@ -185,9 +184,10 @@
         var dataObj = { latlng: latlng, time: Math.round(new Date().getTime() / 1000)};
         //dataObj[timeField] = entry[timeField]
         dataObj[valueField] = entry[valueField];
-        if (entry.radius) {
-          dataObj.radius = entry.radius;
-        }
+        // don't use a radius so this is unneeded
+        // if (entry.radius) {
+        //   dataObj.radius = entry.radius;
+        // }
         d.push(dataObj);
       }
       this._data = d;

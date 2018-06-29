@@ -7,6 +7,7 @@ $(document).ready(function(){
   // log any messages recieved
   ws.addEventListener("message", function(e) {
     var data = JSON.parse(e.data);
+    var updated = 0;
     if ( data instanceof Array) {
         addEvents(data)
         hideModal()
@@ -19,10 +20,29 @@ $(document).ready(function(){
       } else {
         success = true;
         var pointArr = JSON.parse(data);
-        for (var i = 0; i < pointArr.length; i++){
-          heatmapLayer.addData(pointArr[i]);
+        var dataKeys = Object.keys(pointArr);
+        var dataValues = Object.values(pointArr);
+        for (var i = 0; i < dataKeys.length; i++){
+          var index = dataKeys[i];
+          var value = dataValues[i];
+          value.count = parseInt(value.count) * 100;
+           if (dataMap.has(index)) {
+             dataMap.get(index).count += parseInt(value.count);
+             updated++;
+           } else {
+             dataMap.set(index, value);
+           }
         }
-        heatmapLayer._draw();
+        // if any point has been updated, reset the map and add the whole map to it
+        if ( updated !== 0 ) {
+          heatmapLayer.setData({'data': Array.from(dataMap.values())});
+        } else {
+          // add the values array to the heatmap because all points are new
+          for (var i = 0; i < dataValues.length; i++){
+            heatmapLayer.addData(dataValues[i]);
+          }
+        }
+        
       }
     }
   });

@@ -6,7 +6,7 @@
       minZoom: 3
     }
   );
-
+  var frequency = 1000; // is used to keep track of the user input for the time interval for decay
   // configures the map's settings -- Matt
   var cfg =     {
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
@@ -41,6 +41,7 @@
   $(document).ready(function(){
     // heatmap instanciation
      heatmapLayer = new HeatmapOverlay(cfg);
+     dataMap = new Map();
 
     //  leaflet map
     var map = new L.Map('map-canvas', {
@@ -58,7 +59,7 @@
     ]);
 
     // sets the heatmapLayer
-    heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+    heatmapLayer.setData({max: 800, min:100, data:[{lat: -181, lng: -181}]});
 
 
     // for demoing
@@ -129,8 +130,31 @@
     // this function makes the map reset to 0 elements after the "Map Reset" and modal are clicked
     function resetMap () {
         heatmapLayer.setData(emptyData);
+        dataMap.clear(); // remove all data from storage
     }
-      $("#resetButtonFinal").click(resetMap);
+    // add event listener for reseting the maps points
+    $("#resetButtonFinal").click(resetMap);
+    // slider for Decay Time
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+        output.innerHTML = slider.value; // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+        frequency = this.value * 1000;
+        clearInterval(interval);
+        interval = setInterval(myFunction, frequency);
+    }
+    // set up a timer for the decay function to avoid hitting the amount of max points
+    myFunction = function(){
+        clearInterval(interval);
+        dataMap.forEach(decay)
+        console.log(frequency);
+        heatmapLayer.setData({'data':Array.from(dataMap.values())});
+        interval = setInterval(myFunction, frequency);
+    }
+    interval = setInterval(myFunction, frequency);
   }); // end of document.ready
 
   // this function is used for puttin glive date and time on front-end
@@ -138,4 +162,33 @@
     var date = new Date();
     var displayDate = date.getTime();
     document.getElementById("dateDisplay").innerHTML = displayDate;
+  }
+
+  /**
+   * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
+   * count property of the value after having the decayMath function applied to it
+   * @param value is the value of the key/value pair stored in the map (it should have a count property)
+   * @param key is the key of the key/value pair stored in the map
+   * @param map is the map that the key/value pair is from
+   */
+  function decay(value, key, map) {
+    // check to see if decaying the point will give it a count of 0 or less, if so remove it
+    // floor is used to allow for different decay rates
+    var nCount = Math.floor(decayMath(value.count));
+    if ( nCount <= 0 ) {
+      console.log('delete');
+      map.delete(key);
+    } else { // set the new count
+      console.log('update')
+      map.get(key).count = nCount;
+    }
+  }
+
+  /**
+   * decayMath decays the given integer by subtracting one from it and return that value
+   * @param count
+   * @returns an integer that is one less than count 
+   */
+  function decayMath( count ) {
+    return count - 25;
   }
