@@ -40,9 +40,9 @@
 
     // try to connect to the websosket, if there is an error display the error modal
     try {
-      ws = new WebSocket("ws://localhost:8000/receive/ws"); 
+      ws = new WebSocket("ws://localhost:8000/receive/ws");
       // if an error occurs opening the websocket the modal will not load
-      createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody, 
+      createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
                   false, startModalBtn ); // creates the starting modal
       // starting modal opens
       $('#startModal').modal();
@@ -133,7 +133,7 @@
      */
     function errorModal( msg ) {
       hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('errorModal', 'An error occurred.', true, errorModalBody, 
+      createModal('errorModal', 'An error occurred.', true, errorModalBody,
                   false, errorModalBtn); // creates error modal
       // add error message
       $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
@@ -195,7 +195,7 @@
         checked = "checked";
       }
       $.each(events, function( index, value ) {
-        if ( !eventMap.has(value)) { // the value does not already exist, so add it to the list  
+        if ( !eventMap.has(value)) { // the value does not already exist, so add it to the list
           listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '>' + value + '</li>';
           eventMap.set(value,value);
           if ( success ) { // if the events being added are not the initial batch display the message
@@ -248,7 +248,7 @@
      */
     function createModal ( ID, title, forceStay, modalBody, cancel, submitBtn) {
       // create the modal html in string representation
-      var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';; 
+      var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';;
       if ( forceStay ) {
         modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false" data-backdrop="static" data-keyboard="false" >';
       }
@@ -310,4 +310,18 @@
       }
       startTime();
     }
+
+    // Get the input field fo hitting enter on keyboard to enter site
+    var input = document.getElementById("cIDinput");
+    var enter = document.getElementById("enter");
+    // Execute a function when the user releases a key on the keyboard
+    $(input).bind('keyup', function(event) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Trigger the button element with a click
+      $(enter).click();
+    }
+    });
   });
