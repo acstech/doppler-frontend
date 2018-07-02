@@ -75,6 +75,13 @@
             } else { // open error modal for the user
               errorModal(data.Error);
             }
+          } else if (JSON.stringify(data).indexOf("Success") != -1) {
+            console.log("Success:" + data.Success);
+            if (!success) {
+              $('#modaltext').text(data.Success);
+            } else { // open error modal for the user
+              successModal(data.Success);
+            }
           } else { // if point(s) recieved
             addPoints(data);
           }
@@ -144,6 +151,19 @@
       });
     }
 
+    function successModal ( msg ) {
+      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
+      createModal('successModal', 'Success', true, errorModalBody, 
+                  false, errorModalBtn); // creates error modal
+      // add error message
+      $('#errorMessage').html(msg);
+      $('#successModal').modal();
+      // remove the modal from the DOM after 4 seconds
+      $('#errorDismiss').click(function(){
+        hideModal('successModal');
+      });
+    }
+
     /**
      * addPoints takes in an obejct, parses that data into JSON, adds the relevant data to a map, and
      * then decides how to add the points to the map
@@ -191,8 +211,10 @@
       // add all events to the select box as options
       var listEvents = eventList.html(); // gets all current event list items in string form
       // if the events that are to be added are the first, then add them as checked
-      if ( eventMap.size === 0 ) {
+      if ( eventMap.size === 0 && !success ) {
         checked = "checked";
+      } else { 
+        checked = ""
       }
       $.each(events, function( index, value ) {
         if ( !eventMap.has(value)) { // the value does not already exist, so add it to the list

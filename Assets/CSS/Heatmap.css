@@ -229,6 +229,17 @@ hr {
   width: 272px;
 }
 
+#eventList {
+  max-width: 272px;
+  min-height: 50px;
+  max-height: 200px;
+  background: black;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
+  overflow: overlay;
+}
+
 .dropdown-events dt a span,
 .multiSel span {
   cursor: pointer;
