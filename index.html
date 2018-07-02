@@ -31,38 +31,11 @@
   <!--this is the information for our map-->
   <script src="assets/js/map.js"></script>
   <!--this is the information for our map-->
-  <script src="assets/js/modal.js"></script>
-  <script src="assets/js/animation.js"></script>
-  <script src="assets/js/setUpWS.js"></script>
+  <script src="assets/js/startUp.js"></script>
 </head>
 <!--end of the header -->
 
 <body>
-
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Please Enter Your Client ID:</h5>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form idCheck="">
-            <div class="form-group">
-              <input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">
-            </div>
-          </form>
-          <p id="modaltext"> </p>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" id="enter" class="btn btn-primary">Enter</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--This is the end of the div for the modal-->
-
   <div id="wrapper">
     <!--This wraps the entire page-->
     <div class="navbar fixed-top navbar-light">
@@ -70,7 +43,6 @@
       <i class="fas fa-bars fa-2x"></i>
     </span>
       <div id="time">
-
       </div>
     </div>
     <div id="sidebar-wrapper">
@@ -79,7 +51,6 @@
           <ul class="sidebar-nav">
             <i class="fas fa-cogs fa-3x"></i>
             <div class="jumbotron" id="headerInSideBar">
-
               <h6 class="text-light">Heatmap Settings</h6>
             </div>
             <hr>
@@ -99,6 +70,9 @@
                       <ul id="eventList">
                       </ul>
                     </div>
+                  </dd>
+                </dl>
+                <p id="newEvent"></p>
               </div>
               <button class="btn btn-primary" id="filterSubmit">Submit</button>
             </div>
@@ -109,13 +83,11 @@
               <p class="text-light"> Switch To Different Location</p>
               <hr>
             </div>
-
-
             <div class="dropdown">
               <!--This is the drop down for the United States-->
               <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Map View
-            </button>
+              </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                 <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
                 <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
@@ -138,7 +110,6 @@
         </div>
       </div>
     </div>
-
     <div id="restOfPage">
       <div class="container-fluid" style="padding: 0px">
         <div id="map-canvas"></div>
@@ -147,50 +118,7 @@
     </div>
   </div>
   <!--restOfPage-->
-  <!-- Reset Map Modal -->
-  <div class="modal fade" id="resetMapModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="resetMapTitle">Are You Sure You Want To Change Filters?</h5>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p class="text-danger">Changing Filters Will Result In A Map Reset!!</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Error Map Modal -->
-  <div class="modal fade" id="errorMapModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="errorMapTitle">An error occurred.</h5>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p class="text-danger" id="errorMessage">505: Unable to connect to live data. <br /><br />Please reload the page to try again.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="" class="btn btn-primary" data-dismiss="modal">Okay</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <!--This is the div for the wrapper-->
-  <script>
-    $("#sidebar-wrapper").slideReveal({
-      trigger: $("#toggle"),
-      push: true,
-      width: 390,
-      autoEscape: false
-    });
-  </script>
 </body>
 
 </html>

@@ -163,7 +163,6 @@
       var latField = this.cfg.latField || 'lat';
       var lngField = this.cfg.lngField || 'lng';
       var valueField = this.cfg.valueField || 'value';
-      var timeField = this.cfg.timeField || 'time';
 
       // transform data to latlngs
       var data = data.data;
@@ -180,9 +179,7 @@
         var entry = data[len];
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
 
-        // gives inserted data the current time (UNIX) and passes the object into the data array
-        var dataObj = { latlng: latlng, time: Math.round(new Date().getTime() / 1000)};
-        //dataObj[timeField] = entry[timeField]
+        var dataObj = { latlng: latlng };
         dataObj[valueField] = entry[valueField];
         // don't use a radius so this is unneeded
         // if (entry.radius) {
@@ -197,11 +194,6 @@
         this.removeDataPoints();
       }
 
-      // removes decayed data
-      if (this.cfg.maxTime > 0) {
-        this.decayDataPoints();
-      }
-
       this._draw();
     },
     // removes data from the head until there are under maxSize data points
@@ -209,28 +201,6 @@
       while (this._data.length > this.cfg.maxSize) {
         this._data.shift(); // pops the head off the array
       }
-    },
-    // pops head off of data array once
-    removeData: function(){
-        this._data.shift();
-        this._draw();
-    },
-    // removes data from the head if they are more than maxTime seconds old
-    decayDataPoints: function(){
-      if (this.cfg.maxTime > 0) {
-        // gets the oldest time a point can be before it is removed
-        var oldestTime = (Math.round(new Date().getTime() / 1000)) - this.cfg.maxTime;
-        var stop = false;
-        while(!stop && (this._data.length > 0)){
-          if(this._data[0].time < oldestTime) {
-            this._data.shift(); //pops from head
-          }
-          else {
-            stop = true;
-          }
-        }
-      }
-      this._draw();
     },
     // experimential... not ready.
     addData: function(pointOrArray) {
@@ -243,20 +213,18 @@
         var latField = this.cfg.latField || 'lat';
         var lngField = this.cfg.lngField || 'lng';
         var valueField = this.cfg.valueField || 'value';
-        var timeField = this.cfg.timeField || 'time'
         var entry = pointOrArray;
         var latlng = new L.LatLng(entry[latField], entry[lngField]);
-        // added: sets 'time' to current time in seconds
-        var dataObj = { latlng: latlng, time: Math.round(new Date().getTime() / 1000)};
+        var dataObj = { latlng: latlng} ;
 
 
         dataObj[valueField] = entry[valueField];
         this._max = Math.max(this._max, dataObj[valueField]);
         this._min = Math.min(this._min, dataObj[valueField]);
-
-        if (entry.radius) {
-          dataObj.radius = entry.radius;
-        }
+        // radius is currently no tbeing used
+        // if (entry.radius) {
+        //   dataObj.radius = entry.radius;
+        // }
 
         // puts input data on array
         this._data.push(dataObj);
@@ -264,9 +232,6 @@
         // cleans data for overfilling and decay
         if (this.cfg.maxSize > 0) {
           this.removeDataPoints();
-        }
-        if (this.cfg.maxTime > 0) {
-          // this.decayDataPoints();
         }
         // refreshes heatmap
         // this._draw();
