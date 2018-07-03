@@ -24,7 +24,7 @@
   const cfg =     {
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
     // if scaleRadius is false it will be the constant radius used in pixels
-    "radius": 27,
+    "radius": 20,
     "maxOpacity": 1.0, // put in slider on front-end side to adjust the opacity
     // scales the radius based on map zoom
     "scaleRadius": false,
@@ -44,7 +44,9 @@
     // which field name in your data represents the longitude - default "lng"
     lngField: 'lng',
     // which field name in your data represents the data value - default "value"
-    valueField: 'count'
+    valueField: 'count',
+
+    blur: 1
   };
   // global variables not limited to this file
    heatmapLayer = new HeatmapOverlay(cfg); // heatmap instanciation
@@ -63,7 +65,7 @@
     [-85, -180]
   ]);
   // sets the heatmapLayer
-  heatmapLayer.setData({max: 800, min:1, data:[{lat: -181, lng: -181}]});
+  heatmapLayer.setData({max: 3200, min:1, data:[{lat: 0, lng: 0, count: 3200}]});
   // add location event listeners
   $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
   $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
@@ -84,51 +86,51 @@
       interval = setInterval(timer, frequency);
   });
 
-  /** 
-   * unitedStatesMapRecenter changes the view to the United States 
+  /**
+   * unitedStatesMapRecenter changes the view to the United States
    */
   function unitedStatesMapRecenter() {
     map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
   }
-  
-  /** 
+
+  /**
    * southAmericaMapRecenter changes the view to the South America
    */
   function southAmericaMapRecenter() {
       map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
   }
-    
-  /** 
+
+  /**
    * europeMapRecenter changes the view to the Europe
    */
   function europeMapRecenter() {
       map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
   }
 
-  /** 
+  /**
    * asiaMapRecenter changes the view to the Asia
    */
   function asiaMapRecenter() {
       map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
   }
-    
-  /** 
+
+  /**
    * southeasternUSMapRecenter changes the view to the Southeastern US
    */
   function southeasternUSMapRecenter() {
       map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
   }
 
-  /** 
+  /**
    * northWesternUSMapRecenter changes the view to the Northwestern US
-   */ 
+   */
   function northWesternUSMapRecenter() {
       map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
   }
 
-  /** 
+  /**
    * worldMapRecenter recenters the map
-   */ 
+   */
   function worldMapRecenter() {
       map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
   }
@@ -154,7 +156,7 @@
   /**
    * decayMath decays the given integer by subtracting 25 from it and returns that value
    * @param {int} count
-   * @returns {int} is 25 less than count 
+   * @returns {int} is 25 less than count
    */
   function decayMath( count ) {
     return count - 25;
