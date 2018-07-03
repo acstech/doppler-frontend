@@ -25,7 +25,7 @@
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
     // if scaleRadius is false it will be the constant radius used in pixels
     "radius": 20,
-    "maxOpacity": 1.0, // put in slider on front-end side to adjust the opacity
+    "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
     // scales the radius based on map zoom
     "scaleRadius": false,
     // if set to false the heatmap uses the global maximum for colorization
@@ -65,7 +65,8 @@
     [-85, -180]
   ]);
   // sets the heatmapLayer
-  heatmapLayer.setData({max: 3200, min:1, data:[{lat: 0, lng: 0, count: 3200}]});
+  heatmapLayer.setData({max: 3200, min:1, data:[{lat: 0, lng: 0, count: 6400}]});
+
   // add location event listeners
   $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
   $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
@@ -75,7 +76,7 @@
   $("#northWesternUSMapRecenter").click(northWesternUSMapRecenter);
   $("#worldMapRecenter").click(worldMapRecenter);
   // Sets the heatmapLayer
-  heatmapLayer.setData({max: 8, data:[{lat: -181, lng: 0}]});
+  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
   // slider for Decay Time
   output.text( slider.val()); // Display the default slider value
   // Update the current slider value (each time you drag the slider handle)

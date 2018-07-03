@@ -153,7 +153,7 @@
 
     function successModal ( msg ) {
       hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('successModal', 'Success', true, errorModalBody, 
+      createModal('successModal', 'Success', true, errorModalBody,
                   false, errorModalBtn); // creates error modal
       // add error message
       $('#errorMessage').html(msg);
@@ -213,12 +213,12 @@
       // if the events that are to be added are the first, then add them as checked
       if ( eventMap.size === 0 && !success ) {
         checked = "checked";
-      } else { 
+      } else {
         checked = ""
       }
       $.each(events, function( index, value ) {
         if ( !eventMap.has(value)) { // the value does not already exist, so add it to the list
-          listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '>' + value + '</li>';
+          listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> ' + value + '</li>';
           eventMap.set(value,value);
           if ( success ) { // if the events being added are not the initial batch display the message
             newEvent.text("New Event Filter Recieved").fadeIn();
