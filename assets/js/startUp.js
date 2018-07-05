@@ -21,7 +21,7 @@
                             '</div></form><p id="modaltext"> </p>',
           startModalBtn =   '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
           errorModalBody =  '<p class="text-danger" id="errorMessage"></p>',
-          errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Ok</button>',
+          errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
           resetModalBody =  'Changing Filters Will Result In A Map Reset!!',
           resetModalBtn =   '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
     // add toggle to sidebar

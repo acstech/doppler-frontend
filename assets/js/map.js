@@ -74,6 +74,7 @@
   $("#worldMapRecenter").click(worldMapRecenter);
   // Sets the heatmapLayer
 //  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+
   // slider for Decay Time
   output.text( slider.val()); // Display the default slider value
   // Update the current slider value (each time you drag the slider handle)
