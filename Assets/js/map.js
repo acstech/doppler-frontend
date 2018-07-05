@@ -65,7 +65,7 @@
     [-85, -180]
   ]);
   // sets the heatmapLayer
-  heatmapLayer.setData({max: 3200, min:1, data:[{lat: 0, lng: 0, count: 6400}]});
+  heatmapLayer.setData({max: 300, min:1, data:[{lat: 0, lng: 0, count: 6400}]});
 
   // add location event listeners
   $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
@@ -76,7 +76,7 @@
   $("#northWesternUSMapRecenter").click(northWesternUSMapRecenter);
   $("#worldMapRecenter").click(worldMapRecenter);
   // Sets the heatmapLayer
-  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
+//  heatmapLayer.setData({max: 8, data:[{lat: 0, lng: 0}]});
   // slider for Decay Time
   output.text( slider.val()); // Display the default slider value
   // Update the current slider value (each time you drag the slider handle)

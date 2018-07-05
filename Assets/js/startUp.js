@@ -170,13 +170,14 @@
      * @param {Object} data is an object that contains data such as lat, lng, and count
      */
     function addPoints(data) {
-      var updated = false,
-          pointArr = JSON.parse(data),
+      var pointArr = JSON.parse(data),
           dataKeys = Object.keys(pointArr),
           dataValues = Object.values(pointArr),
           size = dataKeys.length,
           index,
           value;
+
+      // goes through array and adds points based on if they already existed or not
       for (var i = 0; i < size; i++){
         index = dataKeys[i];
         value = dataValues[i];
@@ -184,23 +185,22 @@
         // check whether or not the 'bucket' already exists
         if (dataMap.has(index)) {
           // update the count of the 'bucket'
-          dataMap.get(index).count += parseInt(value.count);
-          updated = true; // the map
+          value.count = dataMap.get(index).count + value.count;
+          dataMap.set(index, value);
+
+          // update the max and min for rendering the points relatively
+          heatmapLayer._max = Math.max(heatmapLayer._max, dataMap.get(index).count);
+          heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
         } else { // the 'bucket' is missing so add the new 'bucket'
           dataMap.set(index, value);
+
+          // update the max and min for rendering the points relatively
+          heatmapLayer._max = Math.max(heatmapLayer._max, dataMap.get(index).count);
+          heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
         }
       }
-      // if any point has been updated, reset the map and add the whole map to it
-      if ( updated ) {
-        heatmapLayer.setData({'data': Array.from(dataMap.values())});
-      } else {
-        // add the values array to the heatmap because all points are new
-        for ( i = 0; i < size; i++){
-          heatmapLayer.addData(dataValues[i]);
-        }
-        // draw the map so that the data is shown on the map
-        heatmapLayer._draw();
-      }
+      // redraw the heatmap
+      heatmapLayer._draw();
     }
 
     /**

@@ -95,6 +95,7 @@
       this._update();
     },
     _update: function() {
+      var valueField = this.cfg.valueField || 'value';
       var bounds, zoom, scale;
       var generatedData = { max: this._max, min: this._min, data: [] };
 
@@ -102,7 +103,7 @@
       zoom = this._map.getZoom();
       scale = Math.pow(2, zoom);
 
-      if (this._data.length == 0) {
+      if (dataMap.size == 0) {
         if (this._heatmap) {
           this._heatmap.setData(generatedData);
         }
@@ -111,40 +112,26 @@
 
 
       var latLngPoints = [];
-      var radiusMultiplier = this.cfg.scaleRadius ? scale : 1;
+
       var localMax = 0;
       var localMin = 0;
-      var valueField = this.cfg.valueField;
-      var len = this._data.length;
 
-      while (len--) {
-        var entry = this._data[len];
-        var value = entry[valueField];
-        var latlng = entry.latlng;
+      var mapVar = this._map;
 
+      function convertLatLngtoPixels(value, key, map) {
 
-        // we don't wanna render points that are not even on the map ;-)
-        if (!bounds.contains(latlng)) {
-          continue;
-        }
-        // local max is the maximum within current bounds
-        localMax = Math.max(value, localMax);
-        localMin = Math.min(value, localMin);
+        localMax = Math.max(value[valueField], localMax);
+        localMax = Math.max(value[valueField], localMin);
 
-        var point = this._map.latLngToContainerPoint(latlng);
+        var point = mapVar.latLngToContainerPoint(L.latLng(value.lat, value.lng));
         var latlngPoint = { x: Math.round(point.x), y: Math.round(point.y) };
-        latlngPoint[valueField] = value;
+        latlngPoint[valueField] = value[valueField];
 
-        var radius;
-
-        if (entry.radius) {
-          radius = entry.radius * radiusMultiplier;
-        } else {
-          radius = (this.cfg.radius || 2) * radiusMultiplier;
-        }
-        latlngPoint.radius = radius;
         latLngPoints.push(latlngPoint);
       }
+
+      dataMap.forEach(convertLatLngtoPixels)
+
       if (this.cfg.useLocalExtrema) {
         generatedData.max = localMax;
         generatedData.min = localMin;
@@ -181,10 +168,7 @@
 
         var dataObj = { latlng: latlng };
         dataObj[valueField] = entry[valueField];
-        // don't use a radius so this is unneeded
-        // if (entry.radius) {
-        //   dataObj.radius = entry.radius;
-        // }
+
         d.push(dataObj);
       }
       this._data = d;
@@ -200,41 +184,6 @@
     removeDataPoints: function(){
       while (this._data.length > this.cfg.maxSize) {
         this._data.shift(); // pops the head off the array
-      }
-    },
-    // experimential... not ready.
-    addData: function(pointOrArray) {
-      if (pointOrArray.length > 0) {
-        var len = pointOrArray.length;
-        while(len--) {
-          this.addData(pointOrArray[len]);
-        }
-      } else {
-        var latField = this.cfg.latField || 'lat';
-        var lngField = this.cfg.lngField || 'lng';
-        var valueField = this.cfg.valueField || 'value';
-        var entry = pointOrArray;
-        var latlng = new L.LatLng(entry[latField], entry[lngField]);
-        var dataObj = { latlng: latlng} ;
-
-
-        dataObj[valueField] = entry[valueField];
-        this._max = Math.max(this._max, dataObj[valueField]);
-        this._min = Math.min(this._min, dataObj[valueField]);
-        // radius is currently no tbeing used
-        // if (entry.radius) {
-        //   dataObj.radius = entry.radius;
-        // }
-
-        // puts input data on array
-        this._data.push(dataObj);
-
-        // cleans data for overfilling and decay
-        if (this.cfg.maxSize > 0) {
-          this.removeDataPoints();
-        }
-        // refreshes heatmap
-        // this._draw();
       }
     },
     _reset: function () {
