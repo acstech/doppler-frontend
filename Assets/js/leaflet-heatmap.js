@@ -123,7 +123,7 @@
         localMax = Math.max(value[valueField], localMax);
         localMax = Math.max(value[valueField], localMin);
 
-        var point = mapVar.latLngToContainerPoint(L.latLng(value.lat, value.lng));
+        var point = mapVar.latLngToContainerPoint(L.latLng(value.latlng));
         var latlngPoint = { x: Math.round(point.x), y: Math.round(point.y) };
         latlngPoint[valueField] = value[valueField];
 

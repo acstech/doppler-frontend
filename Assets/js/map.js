@@ -14,9 +14,6 @@
   timer = function(){ // set up a timer for the decay function to avoid hitting the amount of max points
     clearInterval(interval);
     dataMap.forEach(decay);
-    console.log(frequency);
-    heatmapLayer.setData({'data':Array.from(dataMap.values())});
-    console.log(heatmapLayer._data.length + " vs. " + dataMap.size);
     interval = setInterval(timer, frequency);
   },
   interval = setInterval(timer, frequency);
