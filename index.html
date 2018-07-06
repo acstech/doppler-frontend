@@ -11,7 +11,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-  <link rel="shortcut icon" href="assets/images/favicon_realm.ico">
+  <link rel="icon" href="assets/images/favicon_realm.ico" type="image/">
   <link rel="stylesheet" type="text/css" href="assets/css/Heatmap.css">
   <!--link to the styling-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="" />
@@ -26,8 +26,6 @@
   <script src="assets/js/heatmap.js"></script>
   <!--API for the heatmap itself-->
   <script src="assets/js/leaflet-heatmap.js"></script>
-  <!--API for plugin-->
-  <script src="assets/js/datapoints.js"></script>
   <!--this is the information for our map-->
   <script src="assets/js/map.js"></script>
   <!--this is the information for our map-->
@@ -79,71 +77,50 @@
               <ul id="eventList">
               </ul>
             </div>
-            <hr>
-            <div class="pull-left">
-              <p class="text-light">Select Event Filters Below</p>
-              <hr>
-              <div id="filterSelect">
-                <dl class="dropdown-events">
-                  <dt>
-                    <a href="#">
-                      <span class="hida">Filters <span class="glyphicon glyphicon-menu-down"></span></span>
-                      <p class="multiSel"></p>
-                    </a>
-                  </dt>
-                  <dd>
-                    <div class="mutliSelect">
-                      <ul id="eventList">
-                      </ul>
-                    </div>
-                  </dd>
-                </dl>
-                <p id="newEvent"></p>
-              </div>
-              <button class="btn btn-primary" id="filterSubmit">Submit</button>
-            </div>
-            <!--End of pull left-->
-            <br><br>
-            <hr>
-            <div class="viewTitle">
-              <p class="text-light"> Switch To Different Location</p>
-              <hr>
-            </div>
-            <div class="dropdown">
-              <!--This is the drop down for the United States-->
-              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Map View
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
-                <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
-                <button class="dropdown-item" id="northWesternUSMapRecenter" type="button">Pacific North West US</button>
-                <button class="dropdown-item" id="southAmericaMapRecenter" type="button">South America</button>
-                <button class="dropdown-item" id="europeMapRecenter" type="button">Europe</button>
-                <button class="dropdown-item" id="asiaMapRecenter" type="button">Asia</button>
-                <!-- <button class="dropdown-item" id="worldMapRecenter" type="button">World</button> -->
-              </div>
-            </div>
-            <br><br><br>
-            <hr>
-            <div class="decayTimeSlider">
-              <h6>Decay Rate</h6>
-              <input type="range" min="1" max="600" value="1" class="slider" id="myRange">
-              <p><span id="demo"></span> seconds</p>
-            </div>
-            <hr>
-          </ul>
+            <p id="newEvent"></p>
+          </div>
+          <button class="btn btn-primary" id="filterSubmit">Submit</button>
         </div>
-      </div>
-    </div>
-    <div id="restOfPage">
-      <div class="container-fluid" style="padding: 0px">
-        <div id="map-canvas"></div>
-        <!--This is our map-->
-      </div>
+        <!--End of pull left--> <br>
+        <hr>
+        <div class="viewTitle">
+          <p class="text-light"> Switch To Different Location</p>
+          <hr>
+        </div>
+        <div class="dropdown">
+          <!--This is the drop down for the United States-->
+          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Map View
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2" >
+            <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
+            <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
+            <button class="dropdown-item" id="northWesternUSMapRecenter" type="button">Pacific North West US</button>
+            <button class="dropdown-item" id="southAmericaMapRecenter" type="button">South America</button>
+            <button class="dropdown-item" id="europeMapRecenter" type="button">Europe</button>
+            <button class="dropdown-item" id="asiaMapRecenter" type="button">Asia</button>
+            <!-- <button class="dropdown-item" id="worldMapRecenter" type="button">World</button> -->
+          </div>
+        </div>
+        <br><br><br>
+        <hr>
+        <div class="decayTimeSlider">
+          <h6>Decay Rate</h6>
+          <input type="range" min="1" max="600" value="1" class="slider" id="myRange">
+          <p><span id="demo"></span> seconds</p>
+        </div>
+        <hr>
+      </ul>
     </div>
   </div>
   <!--restOfPage-->
+  <div id="restOfPage">
+    <div class="container-fluid" style="padding: 0px">
+      <div id="map-canvas"></div>
+      <!--This is our map-->
+    </div>
+  </div>
+</div>
   <!--This is the div for the wrapper-->
 </body>
 
