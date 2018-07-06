@@ -52,6 +52,7 @@ hr {
   background-image: url(../images/connectwork.png);
   opacity: 1;
   white-space:nowrap;
+  text-align: center;
 }
 #sidebar-wrapper > ul > div.dropdown.show > div {
   background: black!important; /*Changes the background of the dropdown list to black*/
