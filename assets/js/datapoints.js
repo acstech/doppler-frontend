@@ -1,0 +1,1406 @@
+// don't forget to include leaflet-heatmap.js
+var emptyData = { // empty map on load
+max: 8,
+data: [{
+  lat: 24.6408,
+  lng: 46.7728,
+  count: 0
+}]
+};
+
+// our testing datapoints for the map's heatmap overlay
+var eastData = {
+max: 8,
+data: [{
+  lat: 24.6408,
+  lng: 46.7728,
+  count: 3
+}, {
+  lat: 50.75,
+  lng: -1.55,
+  count: 1
+}, {
+  lat: 52.6333,
+  lng: 1.75,
+  count: 1
+}, {
+  lat: 48.15,
+  lng: 9.4667,
+  count: 1
+}, {
+  lat: 52.35,
+  lng: 4.9167,
+  count: 2
+}, {
+  lat: 60.8,
+  lng: 11.1,
+  count: 1
+},   {
+  lat: 38.2085,
+  lng: -85.6918,
+  count: 1
+}, {
+  lat: 30.5449,
+  lng: -90.8083,
+  count: 1
+}, {
+  lat: 44.735,
+  lng: -89.61,
+  count: 1
+}, {
+  lat: 45.2673,
+  lng: -93.0196,
+  count: 1
+}, {
+  lat: 43.4314,
+  lng: -83.9784,
+  count: 1
+}, {
+  lat: 43.7279,
+  lng: -86.284,
+  count: 1
+},  {
+  lat: 39.501,
+  lng: -87.3919,
+  count: 1
+},  {
+  lat: 30.2316,
+  lng: -85.502,
+  count: 1
+}, {
+  lat: 39.1703,
+  lng: -75.5456,
+  count: 3
+},   {
+  lat: 41.8014,
+  lng: -87.6005,
+  count: 1
+},  {
+  lat: 40.5494,
+  lng: -89.6252,
+  count: 1
+}, {
+  lat: 42.6105,
+  lng: -71.2306,
+  count: 1
+}, {
+  lat: 40.0973,
+  lng: -85.671,
+  count: 1
+}, {
+  lat: 40.3987, //20
+  lng: -86.8642,
+  count: 1
+}, {
+  lat: 40.4224,
+  lng: -86.8031,
+  count: 1
+},   {
+  lat: 41.3969,
+  lng: -87.3274,
+  count: 1
+}, {
+  lat: 41.7364,
+  lng: -89.7043,
+  count: 1
+}, {
+  lat: 42.3425,
+  lng: -71.0677,
+  count: 1
+}, {
+  lat: 33.8042,
+  lng: -83.8893,
+  count: 1
+},  {
+  lat: 41.0957,
+  lng: -80.5052,
+  count: 1
+},  {
+  lat: 40.2851,
+  lng: -75.9523,
+  count: 2
+}, {
+  lat: 42.4235,
+  lng: -85.3992,
+  count: 1
+},  {
+  lat: 25.6586,
+  lng: -80.3568, // miami
+  count: 3
+}, {
+  lat: 33.0975,
+  lng: -80.1753, // sc
+  count: 3
+}, {
+  lat: 25.7615,
+  lng: -80.2939,
+  count: 1
+}, {
+  lat: 26.3739,
+  lng: -80.1468,
+  count: 1
+}, {
+  lat: 37.6454,
+  lng: -84.8171,
+  count: 1
+}, {
+  lat: 33.5547,
+  lng: -84.1872,
+  count: 1
+}, {
+  lat: 41.4789,
+  lng: -81.6473,
+  count: 1
+}, {
+  lat: 35.0911,
+  lng: -89.651,
+  count: 1
+}, {
+  lat: 39.8062,
+  lng: -86.1407,
+  count: 1
+}, {
+  lat: 46.15,
+  lng: -60.1667,
+  count: 1
+}, {
+  lat: 36.0679,
+  lng: -86.7194,
+  count: 1
+}, {
+  lat: 43.45, //40
+  lng: -80.5,
+  count: 1
+},   {
+  lat: 43.75,
+  lng: -79.2,
+  count: 2
+}, {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 2
+}, {
+  lat: 42.9833,
+  lng: -81.25,
+  count: 2
+},  {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 1
+}, {
+  lat: 42.734,
+  lng: -87.8211,
+  count: 1
+}, {
+  lat: 39.9738,
+  lng: -86.1765,
+  count: 1
+}, {
+  lat: 42.2843,
+  lng: -85.2293,
+  count: 1
+},  {
+  lat: 41.4881,
+  lng: -87.4424,
+  count: 1
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 3
+}, {
+  lat: 25.72, //50 points in eastData
+  lng: -80.2707,
+  count: 1
+}, {
+  lat: 24.6408,
+  lng: 46.7728,
+  count: 3
+}, {
+  lat: 50.75,
+  lng: -1.55,
+  count: 1
+}, {
+  lat: 52.6333,
+  lng: 1.75,
+  count: 1
+}, {
+  lat: 48.15,
+  lng: 9.4667,
+  count: 1
+}, {
+  lat: 52.35,
+  lng: 4.9167,
+  count: 2
+}, {
+  lat: 60.8,
+  lng: 11.1,
+  count: 1
+},   {
+  lat: 38.2085,
+  lng: -85.6918,
+  count: 1
+}, {
+  lat: 30.5449,
+  lng: -90.8083,
+  count: 1
+}, {
+  lat: 44.735,
+  lng: -89.61,
+  count: 1
+}, {
+  lat: 45.2673,
+  lng: -93.0196,
+  count: 1
+}, {
+  lat: 43.4314,
+  lng: -83.9784,
+  count: 1
+}, {
+  lat: 43.7279,
+  lng: -86.284,
+  count: 1
+},  {
+  lat: 39.501,
+  lng: -87.3919,
+  count: 1
+},  {
+  lat: 30.2316,
+  lng: -85.502,
+  count: 1
+}, {
+  lat: 39.1703,
+  lng: -75.5456,
+  count: 3
+},   {
+  lat: 41.8014,
+  lng: -87.6005,
+  count: 1
+},  {
+  lat: 40.5494,
+  lng: -89.6252,
+  count: 1
+}, {
+  lat: 42.6105,
+  lng: -71.2306,
+  count: 1
+}, {
+  lat: 40.0973,
+  lng: -85.671,
+  count: 1
+}, {
+  lat: 40.3987, //20
+  lng: -86.8642,
+  count: 1
+}, {
+  lat: 40.4224,
+  lng: -86.8031,
+  count: 1
+},   {
+  lat: 41.3969,
+  lng: -87.3274,
+  count: 1
+}, {
+  lat: 41.7364,
+  lng: -89.7043,
+  count: 1
+}, {
+  lat: 42.3425,
+  lng: -71.0677,
+  count: 1
+}, {
+  lat: 33.8042,
+  lng: -83.8893,
+  count: 1
+},  {
+  lat: 41.0957,
+  lng: -80.5052,
+  count: 1
+},  {
+  lat: 40.2851,
+  lng: -75.9523,
+  count: 2
+}, {
+  lat: 42.4235,
+  lng: -85.3992,
+  count: 1
+},  {
+  lat: 25.6586,
+  lng: -80.3568, // miami
+  count: 3
+}, {
+  lat: 33.0975,
+  lng: -80.1753, // sc
+  count: 3
+}, {
+  lat: 25.7615,
+  lng: -80.2939,
+  count: 1
+}, {
+  lat: 26.3739,
+  lng: -80.1468,
+  count: 1
+}, {
+  lat: 37.6454,
+  lng: -84.8171,
+  count: 1
+}, {
+  lat: 33.5547,
+  lng: -84.1872,
+  count: 1
+}, {
+  lat: 41.4789,
+  lng: -81.6473,
+  count: 1
+}, {
+  lat: 35.0911,
+  lng: -89.651,
+  count: 1
+}, {
+  lat: 39.8062,
+  lng: -86.1407,
+  count: 1
+}, {
+  lat: 46.15,
+  lng: -60.1667,
+  count: 1
+}, {
+  lat: 36.0679,
+  lng: -86.7194,
+  count: 1
+}, {
+  lat: 43.45, //40
+  lng: -80.5,
+  count: 1
+},   {
+  lat: 43.75,
+  lng: -79.2,
+  count: 2
+}, {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 2
+}, {
+  lat: 42.9833,
+  lng: -81.25,
+  count: 2
+},  {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 1
+}, {
+  lat: 42.734,
+  lng: -87.8211,
+  count: 1
+}, {
+  lat: 39.9738,
+  lng: -86.1765,
+  count: 1
+}, {
+  lat: 42.2843,
+  lng: -85.2293,
+  count: 1
+},  {
+  lat: 41.4881,
+  lng: -87.4424,
+  count: 1
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 3
+}, {
+  lat: 25.72, //50 points in eastData
+  lng: -80.2707,
+  count: 1
+},{
+  lat: 24.6408,
+  lng: 46.7728,
+  count: 3
+}, {
+  lat: 50.75,
+  lng: -1.55,
+  count: 1
+}, {
+  lat: 52.6333,
+  lng: 1.75,
+  count: 1
+}, {
+  lat: 48.15,
+  lng: 9.4667,
+  count: 1
+}, {
+  lat: 52.35,
+  lng: 4.9167,
+  count: 2
+}, {
+  lat: 60.8,
+  lng: 11.1,
+  count: 1
+},   {
+  lat: 38.2085,
+  lng: -85.6918,
+  count: 1
+}, {
+  lat: 30.5449,
+  lng: -90.8083,
+  count: 1
+}, {
+  lat: 44.735,
+  lng: -89.61,
+  count: 1
+}, {
+  lat: 45.2673,
+  lng: -93.0196,
+  count: 1
+}, {
+  lat: 43.4314,
+  lng: -83.9784,
+  count: 1
+}, {
+  lat: 43.7279,
+  lng: -86.284,
+  count: 1
+},  {
+  lat: 39.501,
+  lng: -87.3919,
+  count: 1
+},  {
+  lat: 30.2316,
+  lng: -85.502,
+  count: 1
+}, {
+  lat: 39.1703,
+  lng: -75.5456,
+  count: 3
+},   {
+  lat: 41.8014,
+  lng: -87.6005,
+  count: 1
+},  {
+  lat: 40.5494,
+  lng: -89.6252,
+  count: 1
+}, {
+  lat: 42.6105,
+  lng: -71.2306,
+  count: 1
+}, {
+  lat: 40.0973,
+  lng: -85.671,
+  count: 1
+}]
+};
+
+
+
+// this is our test data for button
+var centralData = {
+max: 8,
+data: [{
+lat: 47.5036,
+lng: -94.685,
+count: 1
+},  {
+lat: 30.5449,
+lng: -90.8083,
+count: 1
+}, {
+lat: 39.7437,
+lng: -104.979,
+count: 1
+}, {
+lat: 30.0041,
+lng: -95.2984,
+count: 2
+}, {
+lat: 29.7755,
+lng: -95.4152,
+count: 1
+}, {
+lat: 35.6784,
+lng: -97.4944,
+count: 3
+},  {
+lat: 34.6574,
+lng: -92.5295,
+count: 2
+}, {
+lat: 24.6408,
+lng: 46.7728,
+count: 1
+}, {
+lat: 50.75,
+lng: -1.55,
+count: 1
+}, {
+lat: 52.6333,
+lng: 1.75,
+count: 1
+}, {
+lat: 48.15,
+lng: 9.4667,
+count: 1
+}, {
+lat: 52.35,
+lng: 4.9167,
+count: 2
+}, {
+lat: 60.8,
+lng: 11.1,
+count: 1
+},  {
+lat: 42.1818,
+lng: -71.1962,
+count: 1
+}, {
+lat: 42.0477,
+lng: -74.1227,
+count: 1
+}, {
+lat: 40.0326,
+lng: -75.719,
+count: 1
+}, {
+lat: 40.7128,
+lng: -73.2962,
+count: 1
+}, {
+lat: 27.9003,
+lng: -82.3024,
+count: 1
+}, {
+lat: 38.2085,
+lng: -85.6918,
+count: 1
+}, {
+lat: 30.5449,
+lng: -90.8083,
+count: 1
+}, {
+lat: 44.735,
+lng: -89.61,
+count: 1
+}, {
+lat: 41.4201,
+lng: -75.6485,
+count: 2
+}, {
+lat: 39.4209,
+lng: -74.4977,
+count: 1
+},   {
+lat: 45.2673,
+lng: -93.0196,
+count: 1
+}, {
+lat: 41.1215,
+lng: -89.4635,
+count: 1
+}, {
+lat: 43.4314,
+lng: -83.9784,
+count: 1
+}, {
+lat: 43.7279,
+lng: -86.284,
+count: 1
+}, {
+lat: 40.7168,
+lng: -73.9861,
+count: 1
+},  {
+lat: 39.501,
+lng: -87.3919,
+count: 3
+}, {
+lat: 38.757,
+lng: -77.1487,
+count: 1
+},  {
+lat: 30.2316,
+lng: -85.502,
+count: 1
+}, {
+lat: 39.1703,
+lng: -75.5456,
+count: 5
+},   {
+lat: 41.8014,
+lng: -87.6005,
+count: 1
+},  {
+lat: 40.5494,
+lng: -89.6252,
+count: 1
+}, {
+lat: 42.6105,
+lng: -71.2306,
+count: 1
+}, {
+lat: 40.0973,
+lng: -85.671,
+count: 1
+}, {
+lat: 40.3987,
+lng: -86.8642,
+count: 1
+}, {
+lat: 40.4224,
+lng: -86.8031,
+count: 3
+},   {
+lat: 41.3969,
+lng: -87.3274,
+count: 2
+}, {
+lat: 41.7364,
+lng: -89.7043,
+count: 2
+}, {
+lat: 42.3425,
+lng: -71.0677,
+count: 1
+}, {
+lat: 33.8042,
+lng: -83.8893,
+count: 1
+},  {
+lat: 41.0957,
+lng: -80.5052,
+count: 1
+},  {
+lat: 40.2851,
+lng: -75.9523,
+count: 2
+}, {
+lat: 42.4235,
+lng: -85.3992,
+count: 1
+},  {
+lat: 25.6586,
+lng: -80.3568, // miami
+count: 2
+}, {
+lat: 33.0975,
+lng: -80.1753, // sc
+count: 3
+}, {
+lat: 25.7615,
+lng: -80.2939,
+count: 1
+}, {
+lat: 26.3739,
+lng: -80.1468,
+count: 1
+}, {
+lat: 37.6454,
+lng: -84.8171,
+count: 1
+}, {
+lat: 34.2321,
+lng: -77.8835,
+count: 1
+}, {
+lat: 34.6774,
+lng: -82.928,
+count: 1
+}, {
+lat: 39.9744,
+lng: -86.0779,
+count: 1
+},  {
+lat: 33.5547,
+lng: -84.1872,
+count: 1
+}, {
+lat: 27.2498,
+lng: -80.3797,
+count: 1
+}, {
+lat: 41.4789,
+lng: -81.6473,
+count: 1
+}, {
+lat: 41.813,
+lng: -87.7134,
+count: 1
+}, {
+lat: 41.8917,
+lng: -87.9359,
+count: 1
+}, {
+lat: 35.0911,
+lng: -89.651,
+count: 1
+}, {
+lat: 41.758,
+lng: -72.7444,
+count: 1
+}, {
+lat: 39.8062,
+lng: -86.1407,
+count: 1
+}, {
+lat: 41.872,
+lng: -88.1662,
+count: 1
+}, {
+lat: 34.1404,
+lng: -81.3369,
+count: 1
+}, {
+lat: 46.15,
+lng: -60.1667,
+count: 1
+}, {
+lat: 36.0679,
+lng: -86.7194,
+count: 1
+}, {
+lat: 43.45,
+lng: -80.5,
+count: 1
+}, {
+lat: 44.3833,
+lng: -79.7,
+count: 1
+}, {
+lat: 45.4167,
+lng: -75.7,
+count: 2
+}, {
+lat: 43.75,
+lng: -79.2,
+count: 2
+},  {
+lat: 42.9833,
+lng: -81.25,
+count: 2
+}, {
+lat: 44.25,
+lng: -79.4667,
+count: 3
+}, {
+lat: 45.2667,
+lng: -66.0667,
+count: 2
+}, {
+lat: 42.734,
+lng: -87.8211,
+count: 1
+}, {
+lat: 39.9738,
+lng: -86.1765,
+count: 1
+}, {
+lat: 42.2843,
+lng: -85.2293,
+count: 1
+},  {
+lat: 41.4881,
+lng: -87.4424,
+count: 1
+}, {
+lat: 25.72,
+lng: -80.2707,
+count: 5
+}, {
+lat: 35.8278,
+lng: -78.6421,
+count: 1
+}, {
+lat: 47.7294,
+lng: -116.757,
+count: 2
+}, {
+lat: 35.5498,
+lng: -118.917,
+count: 1
+}, {
+lat: 34.1568,
+lng: -118.523,
+count: 1
+}, {
+lat: 44.292,
+lng: -105.5022,
+count: 4
+}, {
+  lat: 41.292, // wyoming
+  lng: -109.5022,
+  count: 2
+}, {
+  lat: 36.292, // wyoming
+  lng: -121.5022,
+  count: 2
+}, {
+  lat: 44.292, // Dakota
+  lng: -100.5022,
+  count: 2
+}, {
+  lat: 44.292, // Dakota rapid city
+  lng: -103.5022,
+  count: 2
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 4
+}, {
+  lat: 35.4881, // new mexico
+  lng: -106.4424,
+  count: 2
+}, {
+  lat: 41.4881, // omaha
+  lng: -95.4424,
+  count: 2
+}, {
+  lat: 43.4881, // iowa city
+  lng: -92.4424,
+  count: 2
+}, {
+  lat: 44.4881, // salem OR
+  lng: -123.4424,
+  count: 2
+}, {
+  lat: 41.4881, // north platte
+  lng: -100.4424,
+  count: 1
+}, {
+  lat: 35.4881, // armilrillo
+  lng: -102.4424,
+  count: 1
+}, {
+  lat: 38.4881, // jefferson city
+  lng: -92.4424,
+  count: 1
+}, {
+  lat: 39.4881, // hannibal
+  lng: -91.4424,
+  count:1
+}, {
+  lat: 38.4881, // pueblo
+  lng: -104.4424,
+  count: 2
+}, //{
+//   lat: 34.4881, // santa rosa NM
+//   lng: -104.4424,
+//   count: 2
+// },  {
+//   lat: 43.4881, // boise Idaho
+//   lng: -116.4424,
+//   count: 1
+// }, {
+//   lat: 46.4881, // kennewick
+//   lng: -119.4424,
+//   count: 1
+// }, {
+//   lat: 47.4881, // seattle
+//   lng: -122.4424,
+//   count: 2
+// }, {
+//   lat: 45.4881, // portland
+//   lng: -122.4424,
+//   count: 1
+// }, {
+//   lat: 30.4881, // lake charles Lousianna
+//   lng: -93.4424,
+//   count: 2
+// }, {
+//   lat: 37.4881, // joplin MO
+//   lng: -94.4424,
+//   count: 2
+// },
+{
+lat: 33.5586,
+lng: -112.095,
+count: 1
+}]
+};
+
+
+var westData = {
+max: 8,
+data: [{
+  lat: 47.7294,
+  lng: -116.757,
+  count: 1
+}, {
+  lat: 47.7294,
+  lng: -116.757,
+  count: 2
+}, {
+  lat: 35.5498,
+  lng: -118.917,
+  count: 1
+}, {
+  lat: 34.1568,
+  lng: -118.523,
+  count: 1
+}, {
+  lat: 33.5586,
+  lng: -112.095,
+  count: 1
+}, {
+  lat: 33.223,
+  lng: -117.107,
+  count: 1
+}, {
+  lat: 37.8754,
+  lng: -121.687,
+  count: 7
+}, {
+  lat: 38.4493,
+  lng: -122.709,
+  count: 1
+}, {
+  lat: 47.2166,
+  lng: -122.451,
+  count: 1
+}, {
+  lat: 32.2369,
+  lng: -110.956,
+  count: 1
+}, {
+  lat: 36.6859,
+  lng: -121.629,
+  count: 2
+}, {
+  lat: 46.8841,
+  lng: -123.995,
+  count: 1
+}, {
+  lat: 39.7437,
+  lng: -104.979,
+  count: 1
+}, {
+  lat: 34.3667,
+  lng: -118.478,
+  count: 3
+}, {
+  lat: 33.7438,
+  lng: -117.866,
+  count: 1
+}, {
+  lat: 37.5741,
+  lng: -122.321,
+  count: 1
+}, {
+  lat: 34.5873,
+  lng: -118.245,
+  count: 1
+}, {
+  lat: 47.5036,
+  lng: -94.685,
+  count: 1
+},  {
+  lat: 30.5449,
+  lng: -90.8083,
+  count: 1
+}, {
+  lat: 39.7437, // denver
+  lng: -104.979,
+  count: 4
+}, {
+  lat: 30.0041,
+  lng: -95.2984,
+  count: 2
+}, {
+  lat: 29.7755,
+  lng: -95.4152,
+  count: 1
+}, {
+  lat: 35.6784, // OKC
+  lng: -97.4944,
+  count: 3
+},  {
+  lat: 34.6574,
+  lng: -92.5295,
+  count: 2
+}, {
+  lat: 24.6408,
+  lng: 46.7728,
+  count: 3
+}, {
+  lat: 50.75,
+  lng: -1.55,
+  count: 1
+}, {
+  lat: 52.6333,
+  lng: 1.75,
+  count: 1
+}, {
+  lat: 48.15,
+  lng: 9.4667,
+  count: 1
+}, {
+  lat: 52.35,
+  lng: 4.9167,
+  count: 2
+}, {
+  lat: 60.8,
+  lng: 11.1,
+  count: 1
+},  {
+  lat: 42.1818,
+  lng: -71.1962,
+  count: 1
+}, {
+  lat: 42.0477,
+  lng: -74.1227,
+  count: 1
+}, {
+  lat: 40.0326,
+  lng: -75.719,
+  count: 1
+}, {
+  lat: 40.7128,
+  lng: -73.2962,
+  count: 2
+}, {
+  lat: 27.9003,
+  lng: -82.3024,
+  count: 1
+}, {
+  lat: 38.2085,
+  lng: -85.6918,
+  count: 1
+}, {
+  lat: 30.5449,
+  lng: -90.8083,
+  count: 1
+}, {
+  lat: 44.735,
+  lng: -89.61,
+  count: 1
+}, {
+  lat: 41.4201,
+  lng: -75.6485,
+  count: 2
+}, {
+  lat: 39.4209,
+  lng: -74.4977,
+  count: 1
+},   {
+  lat: 45.2673,
+  lng: -93.0196,
+  count: 1
+}, {
+  lat: 41.1215,
+  lng: -89.4635,
+  count: 1
+}, {
+  lat: 43.4314,
+  lng: -83.9784,
+  count: 1
+}, {
+  lat: 43.7279,
+  lng: -86.284,
+  count: 1
+}, {
+  lat: 40.7168,
+  lng: -73.9861,
+  count: 1
+}, {
+  lat: 47.7294,
+  lng: -116.757,
+  count: 2
+}, {
+  lat: 34.1568,
+  lng: -118.523,
+  count: 1
+}, {
+  lat: 39.501,
+  lng: -87.3919,
+  count: 3
+}, {
+  lat: 38.757,
+  lng: -77.1487,
+  count: 1
+},  {
+  lat: 30.2316,
+  lng: -85.502,
+  count: 1
+}, {
+  lat: 39.1703,
+  lng: -75.5456,
+  count: 8
+},   {
+  lat: 41.8014,
+  lng: -87.6005,
+  count: 1
+},  {
+  lat: 40.5494,
+  lng: -89.6252,
+  count: 1
+}, {
+  lat: 42.6105,
+  lng: -71.2306,
+  count: 1
+}, {
+  lat: 40.0973,
+  lng: -85.671,
+  count: 1
+}, {
+  lat: 40.3987,
+  lng: -86.8642,
+  count: 1
+}, {
+  lat: 40.4224,
+  lng: -86.8031,
+  count: 4
+},   {
+  lat: 41.3969,
+  lng: -87.3274,
+  count: 2
+}, {
+  lat: 41.7364,
+  lng: -89.7043,
+  count: 2
+}, {
+  lat: 42.3425,
+  lng: -71.0677,
+  count: 1
+}, {
+  lat: 33.8042,
+  lng: -83.8893,
+  count: 1
+},  {
+  lat: 41.0957,
+  lng: -80.5052,
+  count: 1
+},  {
+  lat: 40.2851,
+  lng: -75.9523,
+  count: 2
+}, {
+  lat: 42.4235,
+  lng: -85.3992,
+  count: 1
+},  {
+  lat: 25.6586, // miami
+  lng: -80.3568,
+  count: 4
+}, {
+  lat: 33.0975,
+  lng: -80.1753,
+  count: 6
+}, {
+  lat: 37.6454,
+  lng: -84.8171,
+  count: 1
+}, {
+  lat: 34.2321,
+  lng: -77.8835,
+  count: 1
+}, {
+  lat: 34.6774,
+  lng: -82.928,
+  count: 1
+}, {
+  lat: 39.9744,
+  lng: -86.0779,
+  count: 1
+},  {
+  lat: 33.5547,
+  lng: -84.1872,
+  count: 1
+}, {
+  lat: 27.2498,
+  lng: -80.3797,
+  count: 1
+}, {
+  lat: 41.4789,
+  lng: -81.6473,
+  count: 1
+}, {
+  lat: 41.813,
+  lng: -87.7134,
+  count: 1
+}, {
+  lat: 41.8917,
+  lng: -87.9359,
+  count: 1
+}, {
+  lat: 35.0911,
+  lng: -89.651,
+  count: 1
+}, {
+  lat: 41.758,
+  lng: -72.7444,
+  count: 1
+}, {
+  lat: 39.8062,
+  lng: -86.1407,
+  count: 1
+}, {
+  lat: 41.872,
+  lng: -88.1662,
+  count: 1
+}, {
+  lat: 34.1404,
+  lng: -81.3369,
+  count: 1
+}, {
+  lat: 46.15,
+  lng: -60.1667,
+  count: 1
+}, {
+  lat: 36.0679,
+  lng: -86.7194,
+  count: 1
+}, {
+  lat: 43.45,
+  lng: -80.5,
+  count: 1
+}, {
+  lat: 44.3833,
+  lng: -79.7,
+  count: 1
+}, {
+  lat: 45.4167,
+  lng: -75.7,
+  count: 2
+}, {
+  lat: 43.75,
+  lng: -79.2,
+  count: 2
+}, {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 3
+}, {
+  lat: 42.9833,
+  lng: -81.25,
+  count: 2
+}, {
+  lat: 44.25,
+  lng: -79.4667,
+  count: 3
+}, {
+  lat: 45.2667,
+  lng: -66.0667,
+  count: 2
+}, {
+  lat: 42.734,
+  lng: -87.8211,
+  count: 1
+}, {
+  lat: 39.9738,
+  lng: -86.1765,
+  count: 1
+}, {
+  lat: 42.2843,
+  lng: -85.2293,
+  count: 1
+},  {
+  lat: 41.4881,
+  lng: -87.4424,
+  count: 1
+}, {
+  lat: 25.72,
+  lng: -80.2707,
+  count: 7
+}, {
+  lat: 44.292, // wyoming
+  lng: -105.5022,
+  count: 3
+}, {
+  lat: 41.292, // wyoming green river
+  lng: -109.5022,
+  count: 2
+}, {
+  lat: 36.292, // california
+  lng: -121.5022,
+  count: 4
+}, {
+  lat: 44.292, // Dakota
+  lng: -100.5022,
+  count: 5
+}, {
+  lat: 44.292, // Dakota rapid city
+  lng: -103.5022,
+  count: 5
+}, {
+  lat: 38.4881, // west virginia
+  lng: -81.4424,
+  count: 5
+}, {
+  lat: 35.4881, // new mexico
+  lng: -106.4424,
+  count: 5
+}, {
+  lat: 41.4881, // omaha
+  lng: -95.4424,
+  count: 5
+}, {
+  lat: 43.4881, // iowa city
+  lng: -92.4424,
+  count: 5
+}, {
+  lat: 44.4881, // salem OR
+  lng: -123.4424,
+  count: 5
+}, {
+  lat: 40.4881, // salt lake city
+  lng: -111.4424,
+  count: 3
+}, {
+  lat: 37.4881, // st george
+  lng: -113.4424,
+  count: 2
+}, {
+  lat: 42.4881, // pocatello
+  lng: -112.4424,
+  count: 3
+}, {
+  lat: 48.4881, // williston
+  lng: -103.4424,
+  count: 1
+}, {
+  lat: 41.4881, // north platte
+  lng: -100.4424,
+  count: 3
+}, {
+  lat: 35.4881, // armilrillo
+  lng: -102.4424,
+  count: 4
+}, {
+  lat: 38.4881, // jefferson city
+  lng: -92.4424,
+  count: 5
+}, {
+  lat: 39.4881, // hannibal
+  lng: -91.4424,
+  count: 6
+}, {
+  lat: 38.4881, // pueblo
+  lng: -104.4424,
+  count: 5
+}, {
+  lat: 43.4881, // boise Idaho
+  lng: -116.4424,
+  count: 4
+}, {
+  lat: 46.4881, // kennewick
+  lng: -119.4424,
+  count: 4
+}, {
+  lat: 47.4881, // seattle
+  lng: -122.4424,
+  count: 4
+}, {
+  lat: 45.4881, // portland
+  lng: -122.4424,
+  count: 4
+}, {
+  lat: 30.4881, // lake charles Lousianna
+  lng: -93.4424,
+  count: 4
+}, {
+  lat: 37.4881, // joplin MO
+  lng: -94.4424,
+  count: 4
+}, {
+  lat: 35.8278,
+  lng: -78.6421,
+  count: 1
+}]
+};

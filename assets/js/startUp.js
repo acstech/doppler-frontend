@@ -11,8 +11,8 @@
         clientSubmit, // makes manipulating the clientSubmit button easy
         eventList = $('#eventList'),
         eventMap = new Map(), // makes adding new events during runtime simple and fast
+        eventUL = $(".dropdown-events dd ul"), // makes element manipulation faster due to one DOM lookup
         newEvent = $('#newEvent'), // makes element manipulation faster due to one DOM lookup
-        filterNone = false, // determines whether or not to let new points in if they come through the websocket
         fade = function() {
           newEvent.fadeOut();
         },
@@ -100,6 +100,15 @@
         errorModal('505: Unable to connect to live data.');
       };
       clientSubmit.click(submitClientID);
+      // add event listeners for the drop down that make it show and hide
+      $(".dropdown-events dt a").click( function() {
+        eventUL.slideToggle('fast');
+      });
+
+      $(document).bind('click', function(e) {
+        var $clicked = $(e.target);
+        if (!$clicked.parents().hasClass("dropdown-events")) eventUL.hide();
+      });
     } catch(err) {
       errorModal('505: Unable to connect to live data.');
     }
@@ -163,19 +172,6 @@
       });
     }
 
-    function successModal ( msg ) {
-      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('successModal', 'Success', true, errorModalBody, 
-                  false, errorModalBtn); // creates error modal
-      // add error message
-      $('#errorMessage').html(msg);
-      $('#successModal').modal();
-      // remove the modal from the DOM after 4 seconds
-      $('#errorDismiss').click(function(){
-        hideModal('successModal');
-      });
-    }
-
     /**
      * addPoints takes in an obejct, parses that data into JSON, adds the relevant data to a map, and
      * then decides how to add the points to the map
@@ -190,7 +186,7 @@
           value;
 
       // goes through array and adds points based on if they already existed or not
-      for (var i = 0; i < size && !filterNone; i++){
+      for (var i = 0; i < size; i++){
         index = dataKeys[i];
         value = dataValues[i];
         value.count = parseInt(value.count) * 4; // scale the point so it does not decay too quickly
@@ -257,9 +253,6 @@
           $.each(activeEvents, function( index, value ) {
               events.filter.push(value.value);
           });
-          filterNone = false; // a filter is 'active' so allow data in
-        } else {
-          filterNone = true; // keep any straggling data from being displayed
         }
         // send the the events to the server
         ws.send(JSON.stringify(events));

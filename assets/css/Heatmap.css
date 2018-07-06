@@ -1,5 +1,6 @@
 /**** custom fields(variables) ****/
-:root {
+:root{
+  --filterBackground: #A9A9A9;
   --popColor: #286DA8;
   --carbon: #A9A9A9;
   --neutral: #EFEFEF;
@@ -64,8 +65,8 @@ hr {
   white-space:nowrap;
 }
 
-#sidebar-wrapper > ul > div.dropdown.show > div {
-  background: black!important; /*Changes the background of the dropdown list to black*/
+#sidebar-wrapper > div > div > ul > div.dropdown.show > div {
+  background: black; /*Changes the background of the dropdown list to black*/
 }
 
 #time {
@@ -188,6 +189,10 @@ hr {
   text-align: center;
 }
 
+.list-inline {
+  padding-left: 0px;
+}
+
 #headerInSideBar  { /*This is needed to make the header the sam ecolor as the sidebar*/
   background: transparent;
   overflow: hidden;
@@ -196,11 +201,27 @@ hr {
   padding: 20px 30px 30px 30px;
 }
 
+.pull-left { /*This is used to make the content in the header that is aligned ot the left*/
+  text-align: center;
+  white-space: nowrap;
+}
+
+.eventList {
+  padding-bottom: 10px; /**/
+  margin: 10px;
+  white-space: nowrap;
+}
+
+#filterSelect {
+  padding-bottom: 10px;
+  margin-left: 15%;
+}
+
 #dropdownMenu2 {
   text-align: center;
 }
 
-#sidebar-wrapper > ul > div.dropdown > div {
+#sidebar-wrapper > div > div > ul > div.dropdown > div {
   padding: 0 0 0 0; /* no padding in the map view dropdown*/
 }
 
@@ -214,29 +235,52 @@ hr {
   background: var(--popColor);
 }
 
+.pull-left .btn {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
 .dropdown-item {
   align-content: center;
 }
-/**** event list ****/
-#filterSelect {
-  padding-bottom: 10px;
-  margin-left: 15%;
-}
 
-#newEvent { /* new event notification */
-  text-align: center;
-  padding-right: 40px;
-  transition: all 300ms ease-in-out;
-}
-
-.mutliSelect {
+/**** event buttons ****/
+.dropdown-events {
   position: relative;
   top: 50%;
 }
 
-.mutliSelect ul li {
-  padding: 5px;
-  margin-top: -8px;
+.dropdown-events dd,
+.dropdown-events dt {
+  margin: 0px;
+  padding: 0px;
+}
+
+.dropdown-events ul {
+  margin: -1px 0 0 0;
+}
+
+.dropdown-events dd {
+  position: relative;
+}
+
+.dropdown-events a,
+.dropdown -eventsa:visited {
+  color: #fff;
+  text-decoration: none;
+  outline: none;
+  font-size: 12px;
+}
+
+.dropdown-events dt a {
+  background-color: var(--filterBackground);
+  display: block;
+  padding: 8px 20px 5px 10px;
+  min-height: 25px;
+  line-height: 24px;
+  overflow: hidden;
+  border: 0;
+  width: 272px;
 }
 
 #eventList {
@@ -244,18 +288,137 @@ hr {
   min-height: 50px;
   max-height: 200px;
   background: black;
-  border: 1px solid #ccc;
-  padding: 2px 15px 2px 5px;
-  margin: -1px 0 0 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
   overflow: overlay;
 }
-/**** event scrollbar ****/
-#eventList::-webkit-scrollbar { 
+
+.dropdown-events dt a span,
+.multiSel span {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 3px 2px 0;
+}
+
+.dropdown-events dd ul {
+  background-color: var(--filterBackground);
+  border: 0;
+  color: #fff;
+  display: none;
+  left: 0px;
+  padding: 2px 15px 2px 5px;
+  position: absolute;
+  top: 2px;
+  width: 280px;
+  list-style: none;
+  height: 100px;
+  overflow: auto;
+}
+
+.dropdown-events span.value {
+  display: none;
+}
+
+.dropdown-events dd ul li a {
+  padding: 5px;
+  display: block;
+}
+
+.dropdown-events dd ul li a:hover {
+  background-color: #fff;
+}
+
+.decayTimeSlider {
+  width: 100px;
+  display: inline-block;
+}
+
+.slider {
+    -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+    -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--popColor);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--popColor);
+  cursor: pointer;
+}
+
+#filterSelect > dl > dt > a > span {
+  font-size: 18px;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+
+}
+
+#filterSelect > dl > dt {
+  background: none;
+  margin-right: 0px;
+}
+
+#filterSelect > dl > dt > a {
+  background: transparent;
+  border-style: solid;
+  border-width: 0.5px;
+  border-color: #cccccc;
+  margin-right: 0px;
+  padding-right: 3px; /*This adjusts the filter location*/
+  padding-top: 16px;
+  padding-bottom: 0px;
+}
+
+#filterSelect > dl > dt > a > span > span {
+  color: white;
+}
+
+#newEvent {
+  text-align: center;
+  padding-right: 40px;
+  transition: all 300ms ease-in-out;
+}
+
+#eventList {
+  max-width: 272px;
+  min-height: 50px;
+  max-height: 200px;
+  background: black;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
+  overflow: overlay;
+}
+
+#eventList::-webkit-scrollbar { /*THis makes the scroll bar in the filters list any color*/
   width: .5em;
 }
 
 #eventList::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }
 
@@ -264,55 +427,13 @@ hr {
   outline: 1px solid slategrey;
 }
 
-/**** decay slider ****/
-.decayTimeSlider {
-  width: 100px;
-  display: inline-block;
-}
-
-.slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 10px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 0;
-    background: var(--popColor);
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 0;
-    background: var(--popColor);
-    cursor: pointer;
-}
-/**** scrollbar for the body ****/
 .body::-webkit-scrollbar { /*This makes the scroll bar in the filters list any color*/
-    width: .5em;
+  width: .5em;
 }
 
 .body::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }
 
 .body::-webkit-scrollbar-thumb {
