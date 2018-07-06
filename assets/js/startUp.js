@@ -201,14 +201,29 @@
           heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
         } else { // the 'bucket' is missing so add the new 'bucket'
           dataMap.set(index, value);
+          count++;
 
           // update the max and min for rendering the points relatively
           heatmapLayer._max = Math.max(heatmapLayer._max, dataMap.get(index).count);
           heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
         }
       }
+      if(count > heatmapLayer.cfg.maxPoints){
+        clearPoints(count - heatmapLayer.cfg.maxPoints);
+      }
       // redraw the heatmap
       heatmapLayer._draw();
+    }
+
+    function clearPoints(numPoints){
+      var iterator = dataMap.entries();
+      // var iteratorRunner = iterator.next();
+      for(var i = 0; i <= numPoints; i++){
+            dataMap.delete(iterator.next().value[0]);
+            count--;
+            // iterator = iteratorRunner;
+            // iteratorRunner = iterator.next();
+      }
     }
 
     /**
@@ -308,6 +323,7 @@
      */
     function resetMap () {
       dataMap.clear(); // remove all data from storage
+      count = 0;
       heatmapLayer._max = 32;
       heatmapLayer._min = 0;
       heatmapLayer._draw();

@@ -39,6 +39,7 @@
     latField: 'lat',
     // which field name in your data represents the longitude - default "lng"
     lngField: 'lng',
+    maxPoints: 35000, // will remove points when exceeded
     // which field name in your data represents the data value - default "value"
     valueField: 'count',
     blur: 1
@@ -62,7 +63,7 @@
   ]);
 
   // sets the heatmapLayer
-
+  count = 0;
   heatmapLayer._max = 32;
 
   // add location event listeners
@@ -149,6 +150,7 @@
     var nCount = Math.floor(decayMath(value.count));
     if ( nCount <= 0 ) {
       map.delete(key);
+      count--;
     } else { // set the new count
       map.get(key).count = nCount;
     }
@@ -158,6 +160,7 @@
    * @param {int} count
    * @returns {int} is 25 less than count
    */
+
   function decayMath( count ) {
     return count - 1;
   }

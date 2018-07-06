@@ -52,7 +52,6 @@ hr {
   background-image: url(../images/connectwork.png);
   opacity: 1;
   white-space:nowrap;
-  text-align: center;
 }
 #sidebar-wrapper > ul > div.dropdown.show > div {
   background: black!important; /*Changes the background of the dropdown list to black*/
@@ -63,9 +62,11 @@ hr {
   background: rgba(40, 109, 168, 0.7);
   padding: 3px;
 }
+
 #wrapper > div.navbar.fixed-bottom.navbar-light {
   height: 50px!important;
 }
+
 #legend {
   height: 50px;
   width: 450px;
@@ -74,10 +75,12 @@ hr {
   bottom: 15px;
   right: 10px;
 }
+
 #legend:hover {
   cursor: default;
     -webkit-user-select: none;
 }
+
 #colors {
   font-family: "Open Sans";
   color: white;
@@ -92,6 +95,7 @@ hr {
   top: 50%;
   left: 50%;
 }
+
 #keytext {
   font-family: "Open Sans";
   text-align: left;
@@ -101,6 +105,7 @@ hr {
   padding-left: 165px;
   display: inline-block;
 }
+
 #colors1 {
   font-family: "Open Sans";
   color: black;
@@ -109,6 +114,7 @@ hr {
   padding-left: 70px; /*Change these values to keep it onptop if change is needed*/
   padding-right: 54px;
 }
+
 #colors2 {
   font-family: "Open Sans";
   color: black;
@@ -116,6 +122,7 @@ hr {
   display: inline-block;
   padding-right: 53px; /*Change these values to keep it onptop if change is needed*/
 }
+
 #colors3 {
   font-family: "Open Sans";
   color: black;
@@ -137,6 +144,7 @@ hr {
 .fa-cogs {
   padding-top: 15px; /*The settings glyphicon in menu */
 }
+
 #toggleMenu {
   color: white;
   position: absolute;
@@ -144,6 +152,7 @@ hr {
   left: 16px;
   /* padding-left: 16px; */
 }
+
 #toggleMenu:hover {
   cursor: pointer;
 }
@@ -212,6 +221,7 @@ hr {
   margin: -1px 0 0 0;
   overflow: overlay;
 }
+
 /**** event scrollbar ****/
 #eventList::-webkit-scrollbar {
   width: .5em;
@@ -273,10 +283,12 @@ hr {
   background-color: #cccccc;
   outline: 1px solid slategrey;
 }
+
 #restOfPage > div.navbar.fixed-top.navbar-light {
   background-color: transparent!important;
 }
 /*Testing for the ticker*/
+
 .tickerBackground {
   -webkit-user-select: none;
   position: sticky;
@@ -305,11 +317,13 @@ hr {
   cursor: default;
   text-align: center;
 }
+
 #wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee {
   height: 30px;
   padding-top: 3px;
   position: sticky;
 }
+
 /*TEST SCROLL 2*/
 .ticker {
  height: 30px;
