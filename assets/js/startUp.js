@@ -145,9 +145,9 @@
       // add error message
       $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
       $('#errorModal').modal();
-      // remove the modal from the DOM after 4 seconds
+      // refreshes page
        $('#errorDismiss').click(function(){
-        hideModal('errorModal');
+        location.reload();
       });
     }
 
