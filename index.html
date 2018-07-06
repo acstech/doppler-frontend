@@ -65,12 +65,19 @@
       <span id="toggleMenu" class="menu-toggle-sidebar"> <!--Second menu button-->
         <i class="fas fa-bars fa-2x"></i>
       </span>
-      <div class="text-center">
-        <div class="list-inline">
-          <ul class="sidebar-nav">
-            <i class="fas fa-cogs fa-3x"></i>
-            <div class="jumbotron" id="headerInSideBar">
-              <h6 class="text-light">Heatmap Settings</h6>
+      <ul class="sidebar-nav">
+        <i class="fas fa-cogs fa-3x"></i>
+        <div class="jumbotron" id="headerInSideBar">
+          <h6 class="text-light">Heatmap Settings</h6>
+        </div>
+        <hr>
+        <div class="pull-left">
+          <p class="text-light">Select Event Filters Below</p>
+          <hr>
+          <div id="filterSelect">
+            <div class="mutliSelect">
+              <ul id="eventList">
+              </ul>
             </div>
             <hr>
             <div class="pull-left">

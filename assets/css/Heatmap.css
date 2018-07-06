@@ -63,6 +63,7 @@ hr {
   background-image: url(../images/connectwork.png);
   opacity: 1;
   white-space:nowrap;
+  text-align: center;
 }
 
 #sidebar-wrapper > div > div > ul > div.dropdown.show > div {
@@ -165,9 +166,10 @@ hr {
 
 #toggleMenu {
   color: white;
-  position: inherit;
+  position: absolute;
   top: 0.5rem;
-  padding-left: 16px;
+  left: 16px;
+  /* padding-left: 16px; */
 }
 
 #toggleMenu:hover {
@@ -459,7 +461,6 @@ hr {
   width: 600px;
   height: 30px;
 }
-
 
 .tickerBackground span {
   float: left;
