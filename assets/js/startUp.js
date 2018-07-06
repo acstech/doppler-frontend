@@ -32,7 +32,7 @@
       push: false,
       width: 390,
       autoEscape: true,
-      overlayColor: "rgba(0,0,0,0.3)",
+      overlayColor: "rgba(0,0,0,0.6)",
       overlay: true
     });
 
