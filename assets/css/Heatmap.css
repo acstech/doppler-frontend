@@ -386,7 +386,7 @@ hr {
   outline: 1px solid slategrey;
 }
 
-#ESPNScroll {
+/* #ESPNScroll {
   display: grid;
   overflow: hidden;
   font-family: "Open Sans";
@@ -397,104 +397,56 @@ hr {
   margin-bottom: 0px;
   width: 700px;
   height: 30px;
-}
+} */
 
 #restOfPage > div.navbar.fixed-top.navbar-light {
   background-color: transparent!important;
 }
 
-/*Testing for the ticker*/
 
-.ticker {
+/*Testing for the ticker
+*
+*
+*
+*/
+
+.tickerBackground {
   -webkit-user-select: none;
   overflow: hidden;
   white-space: nowrap;
   font-family: "Open Sans";
   color: white;
   background: rgba(40, 109, 168, 0.7);
-  padding-left: 5px;
-  padding-bottom: 10px;
   margin-bottom: 0px;
-  width: 700px;
+  width: 600px;
   height: 30px;
-  /* animation: slideshow 10s linear infinite; */
-  /* -webkit-animation-iteration-count: infinite; here if needed for further testing
-            animation-iteration-count: infinite;
-    -webkit-animation-timing-function: linear;
-            animation-timing-function: linear;
-   -webkit-animation-name: ticker;
-           animation-name: ticker;
-    -webkit-animation-duration: $duration;
-            animation-duration: $duration; */
 }
 
 
-.ticker span {
+.tickerBackground span {
   float: left;
   color: white;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 4px 10px 10px 10px;
+  border-radius: 1px;
   font: 16px;
-  /* -webkit-font-smoothing: antialiased;
-  -webkit-user-select: none; */
-  cursor: pointer;
+  height: 30px;
+  cursor: default;
   border-right: solid white;
-  padding-left: 10%;
-  /* -webkit-animate:scroll 5s infinite linear; */
   font-family: "Open Sans";
 }
 
-@-webkit-keyframes scroll {
-  0% {
-    --webkit-transform: translate(0,0);
-  }
-  100% {
-    --webkit-transform: translate(-100%, 0);
-  }
-
-}
-
-#wrapper > div.navbar.fixed-top > div.ticker-wrap > div > span:hover {
+#wrapper > div.navbar.fixed-top > div.tickerBackground > div > span:hover {
   cursor: default;
   text-align: center;
 }
 
-#wrapper > div.navbar.fixed-top > div.ticker > span {
-  padding: 3px 5px 6px 0;
-  cursor:default;
-}
-
-.ticker ul {
-  float: right;
-  padding-left: 20px;
-  width: 600px;
-  /* animation: ticker 10s cubic-bezier(1, 0, 1, 0) infinite; */
-  /* -webkit-transition: all 600ms cubic-bezier(0.39, 0.575, 0.565, 1); here if need for further testing
-  transition:         all 600ms cubic-bezier(0.39, 0.575, 0.565, 1); */
-  -webkit-user-select: none
-
-}
-
-.ticker ul li {
-  line-height: 30px;
-  list-style: none
-}
-
-.ticker ul li a {
-  color: white;
-  cursor: default;
-  text-decoration: none;
-  font: 14px;
-    -webkit-font-smoothing: antialiased;
-    -webkit-user-select: none;
-}
-
-#wrapper > div.navbar.fixed-top > div.ticker > marquee > a {
+#wrapper > div.navbar.fixed-top > div.tickerBackground > > div > marquee > a {
   color: white;
   cursor: default;
 }
 
-#wrapper > div.navbar.fixed-top > div.ticker > marquee {
+#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee {
+  height: 30px;
   padding-top: 3px;
 }
 
@@ -506,4 +458,18 @@ hr {
    100% {margin-right: 50%}
 } */
 
-/*TEST SCROLL 2  */
+/*TEST SCROLL 2
+*
+*
+*
+*/
+
+.ticker {
+ height: 30px;
+ overflow: hidden;
+ position: relative;
+ float: right;
+ width: 600px;
+ -webkit-user-select: none
+}
+
