@@ -146,6 +146,7 @@
       $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
       $('#errorModal').modal();
       // refreshes page
+
        $('#errorDismiss').click(function(){
         location.reload();
       });
@@ -361,7 +362,7 @@
       startTime();
     }
 
-    // Get the input field fo hitting enter on keyboard to enter site
+    // Get the input field fo hitting enter on keyboard to enter sites
     var input = document.getElementById("cIDinput");
     var enter = document.getElementById("enter");
     // Execute a function when the user releases a key on the keyboard

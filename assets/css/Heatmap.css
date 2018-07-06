@@ -84,48 +84,71 @@ hr {
   padding: 3px;
 }
 
-#colors{
+#wrapper > div.navbar.fixed-bottom.navbar-light {
+  height: 50px!important;
+}
+
+#legend {
+  height: 50px;
+  width: 450px;
+  position: absolute;
+  display: inline-block;
+  bottom: 15px;
+  right: 10px;
+}
+
+#colors {
   font-family: "Open Sans";
   color: white;
   background: linear-gradient(to right, blue, green, yellow, red);
-  position: absolute;
-  left: 1200px;
-  bottom: 5px;
+  position: relative;
+  text-align: center;
+  padding-right: 100px;
   height: 20px;
-  width: 14%;
+  width: 35%;
   text-align: left;
+  display: inline-block;
+  top: 50%;
+  left: 50%;
 }
 
-#keytext{
+#keytext {
   font-family: "Open Sans";
+  text-align: left;
   color: grey;
   position: absolute;
-  left: 1140px;
-  bottom: 5px;
+  padding-top: 23px; /*Change these values to keep it onptop if change is needed*/
+  padding-left: 165px;
+  display: inline-block;
 }
 
-#colors1{
+#colors1 {
   font-family: "Open Sans";
   color: grey;
-  position: absolute;
-  left: 1200px;
-  bottom: 24px;
+  position: relative;
+  display: inline-block;
+  padding-left: 70px; /*Change these values to keep it onptop if change is needed*/
+  padding-right: 54px;
+
 }
 
-#colors2{
+#colors2 {
   font-family: "Open Sans";
   color: grey;
-  position: absolute;
-  left: 1280px;
-  bottom: 24px;
+  position: relative;
+  display: inline-block;
+  padding-right: 53px; /*Change these values to keep it onptop if change is needed*/
+  /* right: 100px;
+  bottom: 25px; */
 }
 
-#colors3{
+#colors3 {
   font-family: "Open Sans";
   color: grey;
-  position: absolute;
-  left: 1380px;
-  bottom: 24px;
+  position: relative;
+  display: inline-block;
+  /* right: 100px;
+  bottom: 25px; */
 }
 
 #restOfPage {
@@ -516,4 +539,3 @@ hr {
  width: 600px;
  -webkit-user-select: none
 }
-
