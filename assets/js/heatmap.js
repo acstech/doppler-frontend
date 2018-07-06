@@ -160,9 +160,12 @@ var Store = (function StoreClosure() {
       return this;
     },
     setData: function(data) {
+      if (typeof data.data == "undefined"){
+        var pointsLen = 0;
+      } else {
       var dataPoints = data.data;
       var pointsLen = dataPoints.length;
-
+      }
 
       // reset data arrays
       this._data = [];

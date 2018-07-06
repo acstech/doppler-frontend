@@ -29,18 +29,12 @@
     "radius": 20,
     "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
     // scales the radius based on map zoom
+
     "scaleRadius": false,
     // if set to false the heatmap uses the global maximum for colorization
     // if activated: uses the data maximum within the current map boundaries
     //   (there will always be a red spot with useLocalExtremas true)
     "useLocalExtrema": false,
-    //  cap on the amount of points allowed on map before they are removed in FIFO order.
-    //  set to -1 if you do not want a cap on points (Try not to let there be
-    //  more than 40k points, or program will crash.)
-    "maxSize": 30000,
-    // mount of seconds a point stays on the map before being removed
-    // set to -1 if you do not want points to decay
-    "maxTime": 3600,
     // which field name in your data represents the latitude - default "lat"
     latField: 'lat',
     // which field name in your data represents the longitude - default "lng"
@@ -50,8 +44,9 @@
     blur: 1
   };
   // global variables not limited to this file
-   heatmapLayer = new HeatmapOverlay(cfg); // heatmap instanciation
-   dataMap = new Map();
+  heatmapLayer = new HeatmapOverlay(cfg); // heatmap instanciation
+  dataMap = new Map(); // stores data points for O(1) access, allowing for easily updating counts
+
   //  leaflet map
   var map = new L.Map('map-canvas', {
     center: new L.LatLng(37.937, -96.0938),
@@ -65,8 +60,11 @@
     [85, 180],
     [-85, -180]
   ]);
+
   // sets the heatmapLayer
-  heatmapLayer.setData({max: 800, min:1, data:[{lat: 0, lng: 0, count: 0}]});
+
+  heatmapLayer._max = 32;
+    
   // add location event listeners
   $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
   $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
@@ -78,6 +76,7 @@
 
   // slider for Decay Time
   output.text( slider.val()); // Display the default slider value
+
   // Update the current slider value (each time you drag the slider handle)
   slider.on('input', function() {
       output.text( this.value );
@@ -159,6 +158,6 @@
    * @returns {int} is 25 less than count
    */
   function decayMath( count ) {
-    return count - 25;
+    return count - 1;
   }
 });

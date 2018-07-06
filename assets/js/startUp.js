@@ -164,6 +164,32 @@
       });
     }
 
+    function successModal ( msg ) {
+      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
+      createModal('successModal', 'Success', true, errorModalBody,
+                  false, errorModalBtn); // creates error modal
+      // add error message
+      $('#errorMessage').html(msg);
+      $('#successModal').modal();
+      // remove the modal from the DOM after 4 seconds
+      $('#errorDismiss').click(function(){
+        hideModal('successModal');
+      });
+    }
+
+    function successModal ( msg ) {
+      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
+      createModal('successModal', 'Success', true, errorModalBody,
+                  false, errorModalBtn); // creates error modal
+      // add error message
+      $('#errorMessage').html(msg);
+      $('#successModal').modal();
+      // remove the modal from the DOM after 4 seconds
+      $('#errorDismiss').click(function(){
+        hideModal('successModal');
+      });
+    }
+
     /**
      * addPoints takes in an obejct, parses that data into JSON, adds the relevant data to a map, and
      * then decides how to add the points to the map
@@ -181,7 +207,7 @@
       for (var i = 0; i < size; i++){
         index = dataKeys[i];
         value = dataValues[i];
-        value.count = parseInt(value.count) * 100; // scale the point so it does not decay too quickly
+        value.count = parseInt(value.count) * 4; // scale the point so it does not decay too quickly
         // check whether or not the 'bucket' already exists
         if (dataMap.has(index)) {
           // update the count of the 'bucket'
@@ -299,8 +325,10 @@
      * resetMap removes all points on the map after the user confirms that the map is to be reset
      */
     function resetMap () {
-      heatmapLayer.setData(emptyData);
       dataMap.clear(); // remove all data from storage
+      heatmapLayer._max = 32;
+      heatmapLayer._min = 0;
+      heatmapLayer._draw();
       hideModal('resetModal');
     }
 
