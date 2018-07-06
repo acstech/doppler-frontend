@@ -40,7 +40,7 @@
       this._el = L.DomUtil.create('div', 'leaflet-zoom-hide');
       this._data = [];
       this._max = 32;
-      this._min = 0;
+      this._min = 1;
       this.cfg.container = this._el;
     },
 
@@ -68,7 +68,7 @@
       // the zoom changed or the map has been moved
       map.on('moveend', this._reset, this);
       this._max = 32;
-      this._min = 0;
+      this._min = 1;
       this._draw();
     },
 

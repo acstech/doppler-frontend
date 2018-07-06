@@ -64,7 +64,7 @@
   // sets the heatmapLayer
 
   heatmapLayer._max = 32;
-    
+
   // add location event listeners
   $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
   $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
@@ -126,7 +126,8 @@
   function worldMapRecenter() {
       map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
   }
-  function adjustZoomGrade(level) {
+
+  function adjustZoomGrade() {
     var a = heatmapLayer._max / 4;
     var b = heatmapLayer._min;
     var c = a / 2;

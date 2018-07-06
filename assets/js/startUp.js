@@ -4,6 +4,7 @@
     var success = false, // keeps track of whether an error occurred during client validation
         ws, // websocket
         sidebarToggle = $('.menu-toggle'), // makes one traversal to get the DOM element
+        menuSidebarToggle = $('#toggleMenu'),
         body = $('body'), // speeds up the appending an element to the body DOM element
         timeDisplay = $('#time'), // find the id time once for speeding up later DOM manipulation
         clientID, // is used to reduce DOM element lookup
@@ -24,19 +25,25 @@
           errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
           resetModalBody =  'Changing Filters Will Result In A Map Reset!!',
           resetModalBtn =   '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
-    // add toggle to sidebar
+
+    // add toggle and overlay to sidebar
     $("#sidebar-wrapper").slideReveal({
       trigger: $("#toggle"),
-      push: true,
+      push: false,
       width: 390,
-      autoEscape: false
+      autoEscape: true,
+      overlayColor: "rgba(0,0,0,0.3)",
+      overlay: true
     });
+
+    // this allows the second button to close the menu
+    $('#toggleMenu').click(closeMenu)
+    function closeMenu(){
+      $('#sidebar-wrapper').slideReveal("toggle");
+    }
+
     // start showing the time to the user
     displayTime();
-    // add event listener on the menu button to open and close the menu tab
-    sidebarToggle.click(function(){
-      sidebarToggle.toggleClass('open');
-    });
 
     // try to connect to the websosket, if there is an error display the error modal
     try {
@@ -149,32 +156,6 @@
 
        $('#errorDismiss').click(function(){
         location.reload();
-      });
-    }
-
-    function successModal ( msg ) {
-      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('successModal', 'Success', true, errorModalBody,
-                  false, errorModalBtn); // creates error modal
-      // add error message
-      $('#errorMessage').html(msg);
-      $('#successModal').modal();
-      // remove the modal from the DOM after 4 seconds
-      $('#errorDismiss').click(function(){
-        hideModal('successModal');
-      });
-    }
-
-    function successModal ( msg ) {
-      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('successModal', 'Success', true, errorModalBody,
-                  false, errorModalBtn); // creates error modal
-      // add error message
-      $('#errorMessage').html(msg);
-      $('#successModal').modal();
-      // remove the modal from the DOM after 4 seconds
-      $('#errorDismiss').click(function(){
-        hideModal('successModal');
       });
     }
 
@@ -365,6 +346,7 @@
     // Get the input field fo hitting enter on keyboard to enter sites
     var input = document.getElementById("cIDinput");
     var enter = document.getElementById("enter");
+
     // Execute a function when the user releases a key on the keyboard
     $(input).bind('keyup', function(event) {
       // Cancel the default action, if needed
