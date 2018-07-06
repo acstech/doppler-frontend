@@ -84,6 +84,50 @@ hr {
   padding: 3px;
 }
 
+#colors{
+  font-family: "Open Sans";
+  color: white;
+  background: linear-gradient(to right, blue, green, yellow, red);
+  position: absolute;
+  left: 1200px;
+  bottom: 5px;
+  height: 20px;
+  width: 14%;
+  text-align: left;
+}
+
+#keytext{
+  font-family: "Open Sans";
+  color: grey;
+  position: absolute;
+  left: 1140px;
+  bottom: 5px;
+}
+
+#colors1{
+  font-family: "Open Sans";
+  color: grey;
+  position: absolute;
+  left: 1200px;
+  bottom: 24px;
+}
+
+#colors2{
+  font-family: "Open Sans";
+  color: grey;
+  position: absolute;
+  left: 1280px;
+  bottom: 24px;
+}
+
+#colors3{
+  font-family: "Open Sans";
+  color: grey;
+  position: absolute;
+  left: 1380px;
+  bottom: 24px;
+}
+
 #restOfPage {
   width: 100%;
   position: absolute;
