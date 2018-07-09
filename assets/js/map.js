@@ -134,8 +134,8 @@
     var c = a / 2;
     key.html('Events');
     key1.html(b);
-    key2.html(c);
-    key3.html(a);
+    key2.html(Math.ceil(c));
+    key3.html(Math.ceil(a));
   }
   /**
    * decay takes in a value, a key, and a map and determines if a point should stay on it based on the

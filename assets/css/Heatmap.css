@@ -55,6 +55,15 @@ hr {
   text-align: center;
   overflow: auto; /*Makes sidebar scrollable*/
 }
+
+#sidebar-wrapper > ul > div.pull-left > p {
+  cursor: default;
+    -webkit-user-select: none;
+}
+#sidebar-wrapper > ul > div.viewTitle {
+  cursor: default;
+    -webkit-user-select: none;
+}
 #sidebar-wrapper > ul > div.dropdown.show > div {
   background: black!important; /*Changes the background of the dropdown list to black*/
 }
@@ -177,6 +186,8 @@ hr {
   white-space:nowrap;
   position: inherit;
   padding: 20px 30px 30px 30px;
+  cursor: default;
+    -webkit-user-select: none;
 }
 #dropdownMenu2 {
   text-align: center;
@@ -204,6 +215,8 @@ hr {
   text-align: center;
   padding-right: 40px;
   transition: all 300ms ease-in-out;
+  cursor: default;
+    -webkit-user-select: none;
 }
 .mutliSelect {
   position: relative;
@@ -222,6 +235,8 @@ hr {
   padding: 2px 15px 2px 5px;
   margin: -1px 0 0 0;
   overflow: overlay;
+  cursor: default;
+    -webkit-user-select: none;
 }
 
 /**** event scrollbar ****/
@@ -240,6 +255,8 @@ hr {
 .decayTimeSlider {
   width: 100px;
   display: inline-block;
+  cursor: default;
+    -webkit-user-select: none;
 }
 .slider {
     -webkit-appearance: none;
