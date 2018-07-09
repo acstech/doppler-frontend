@@ -1,9 +1,60 @@
   'use strict';
   // none of these varaibles or functions are accessible outside of this document ready function
+  //var  heatmapLayer._data = new Map(); // stores data points for O(1) access, allowing for easily updating counts
   $(document).ready(function(){
-    var success = false, // keeps track of whether an error occurred during client validation
+    const cfg = { // configures the map's settings -- Matt
+                  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+                  // if scaleRadius is false it will be the constant radius used in pixels
+                  "radius": 20,
+                  "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
+                  // scales the radius based on map zoom
+
+                  "scaleRadius": false,
+                  // if set to false the heatmap uses the global maximum for colorization
+                  // if activated: uses the data maximum within the current map boundaries
+                  //   (there will always be a red spot with useLocalExtremas true)
+                  "useLocalExtrema": false,
+                  // which field name in your data represents the latitude - default "lat"
+                  latField: 'lat',
+                  // which field name in your data represents the longitude - default "lng"
+                  lngField: 'lng',
+                  maxPoints: 35000, // will remove points when exceeded
+                  // which field name in your data represents the data value - default "value"
+                  valueField: 'count',
+                  blur: 1
+                },
+          startModalBody =  '<div class="form-group">' +
+                            '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
+                            '</div><p id="modaltext"> </p>',
+          startModalBtn =   '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
+          errorModalBody =  '<p class="text-danger" id="errorMessage"></p>',
+          errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
+          resetModalBody =  'Changing Filters Will Result In A Map Reset!!',
+          resetModalBtn =   '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
+    var baseLayer = L.tileLayer( // the basic map layer using openstreetmap -- Matt
+                    'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                      attribution: '...',
+                      maxZoom: 18,
+                      minZoom: 3
+                    }
+                  ),
+        frequency = 300000, // is used to keep track of the user input for the time interval for decay
+        slider = $("#myRange"),
+        output = $("#demo"),
+        key = $('#keytext'),
+        key1 = $('#colors1'),
+        key2 = $('#colors2'),
+        key3 = $('#colors3'),
+        heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
+        timer = function(){ // set up a timer for the decay function to avoid hitting the amount of max points
+          clearInterval(interval);
+          heatmapLayer._data.forEach(decay);
+          interval = setInterval(timer, frequency);
+        },
+        interval = setInterval(timer, frequency),
+        success = false, // keeps track of whether an error occurred during client validation
         ws, // websocket
-        sidebarToggle = $('.menu-toggle'), // makes one traversal to get the DOM element
+        sidebarWrapper = $('#sidebar-wrapper'), // makes one traversal to get the DOM element
         menuSidebarToggle = $('#toggleMenu'),
         body = $('body'), // speeds up the appending an element to the body DOM element
         timeDisplay = $('#time'), // find the id time once for speeding up later DOM manipulation
@@ -11,23 +62,52 @@
         clientSubmit, // makes manipulating the clientSubmit button easy
         eventList = $('#eventList'),
         eventMap = new Map(), // makes adding new events during runtime simple and fast
-        eventUL = $(".dropdown-events dd ul"), // makes element manipulation faster due to one DOM lookup
         newEvent = $('#newEvent'), // makes element manipulation faster due to one DOM lookup
         fade = function() {
           newEvent.fadeOut();
         },
-        checked = ''; // determines whether or not an event comes in as checked or not
-    const startModalBody =  '<form idCheck=""><div class="form-group">' +
-                            '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
-                            '</div></form><p id="modaltext"> </p>',
-          startModalBtn =   '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
-          errorModalBody =  '<p class="text-danger" id="errorMessage"></p>',
-          errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
-          resetModalBody =  'Changing Filters Will Result In A Map Reset!!',
-          resetModalBtn =   '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
+        checked = '', // determines whether or not an event comes in as checked or not
+        marquee = $('#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee'),
+        map = new L.Map('map-canvas', { // leaflet map
+          center: new L.LatLng(37.937, -96.0938),
+          zoom: 4,
+          worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
+          layers: [baseLayer, heatmapLayer],
+          zoomControl: false,
+        }),
+        count = 0; 
+  
+    // sets the max bounds of the map
+    map.setMaxBounds([
+      [85, 180],
+      [-85, -180]
+    ]);
+
+    // sets the heatmapLayer
+    heatmapLayer._max = 32;
+    adjustZoomGrade(); // setup legend text
+    // add location event listeners
+    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
+    $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
+    $("#europeMapRecenter").click(europeMapRecenter);
+    $("#asiaMapRecenter").click(asiaMapRecenter); //northWesternUSMapRecenter
+    $("#southeasternUSMapRecenter").click(southeasternUSMapRecenter);
+    $("#northWesternUSMapRecenter").click(northWesternUSMapRecenter);
+    $("#worldMapRecenter").click(worldMapRecenter);
+
+    // slider for Decay Time
+    output.text( slider.val()); // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.on('input', function() {
+        output.text( this.value );
+        frequency = this.value * 1000;
+        clearInterval(interval);
+        interval = setInterval(timer, frequency);
+    });
 
     // add toggle and overlay to sidebar
-    $("#sidebar-wrapper").slideReveal({
+    sidebarWrapper.slideReveal({
       trigger: $("#toggle"),
       push: false,
       width: 390,
@@ -37,10 +117,9 @@
     });
 
     // this allows the second button to close the menu
-    $('#toggleMenu').click(closeMenu)
-    function closeMenu(){
-      $('#sidebar-wrapper').slideReveal("toggle");
-    }
+    menuSidebarToggle.click(function() {
+      sidebarWrapper.slideReveal("toggle");
+    });
 
     // start showing the time to the user
     displayTime();
@@ -64,6 +143,14 @@
           clientSubmit.prop("disabled",true);
         }
       });
+      // Execute a function when the user releases a key on the keyboard
+      clientID.bind('keyup', function(event) {
+        // get the first and only clientSubmit button from the array and make sure that it is not disabled
+        if (event.keyCode === 13 && !clientSubmit[0].disabled) { 
+          // Trigger the button element with a click
+          clientSubmit.click();
+        }
+      });
       // on open display that the websocket connection succeeded
       ws.onopen = function (event) {
         console.log("Connection made!");
@@ -82,15 +169,9 @@
             } else { // open error modal for the user
               errorModal(data.Error);
             }
-          } else if (JSON.stringify(data).indexOf("Success") != -1) {
-            console.log("Success:" + data.Success);
-            if (!success) {
-              $('#modaltext').text(data.Success);
-            } else { // open error modal for the user
-              successModal(data.Success);
-            }
           } else { // if point(s) recieved
             addPoints(data);
+            adjustZoomGrade(); // update ledgend
           }
         }
       });
@@ -100,19 +181,10 @@
         errorModal('505: Unable to connect to live data.');
       };
       clientSubmit.click(submitClientID);
-      // add event listeners for the drop down that make it show and hide
-      $(".dropdown-events dt a").click( function() {
-        eventUL.slideToggle('fast');
-      });
-
-      $(document).bind('click', function(e) {
-        var $clicked = $(e.target);
-        if (!$clicked.parents().hasClass("dropdown-events")) eventUL.hide();
-      });
     } catch(err) {
       errorModal('505: Unable to connect to live data.');
     }
-
+    /**** functions from this point on ****/
     /**
      * openMapResetModal opens a modal for resetting the map
      */
@@ -153,22 +225,8 @@
       $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
       $('#errorModal').modal();
       // refreshes page
-
-       $('#errorDismiss').click(function(){
-        location.reload();
-      });
-    }
-
-    function successModal ( msg ) {
-      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('successModal', 'Success', true, errorModalBody,
-                  false, errorModalBtn); // creates error modal
-      // add error message
-      $('#errorMessage').html(msg);
-      $('#successModal').modal();
-      // remove the modal from the DOM after 4 seconds
       $('#errorDismiss').click(function(){
-        hideModal('successModal');
+        location.reload();
       });
     }
 
@@ -184,28 +242,27 @@
           size = dataKeys.length,
           index,
           value;
-
       // goes through array and adds points based on if they already existed or not
       for (var i = 0; i < size; i++){
         index = dataKeys[i];
         value = dataValues[i];
         value.count = parseInt(value.count) * 4; // scale the point so it does not decay too quickly
         // check whether or not the 'bucket' already exists
-        if (dataMap.has(index)) {
+        if (heatmapLayer._data.has(index)) {
           // update the count of the 'bucket'
-          value.count = dataMap.get(index).count + value.count;
-          dataMap.set(index, value);
+          value.count = heatmapLayer._data.get(index).count + value.count;
+          heatmapLayer._data.set(index, value);
 
           // update the max and min for rendering the points relatively
-          heatmapLayer._max = Math.max(heatmapLayer._max, dataMap.get(index).count);
-          heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
+          heatmapLayer._max = Math.max(heatmapLayer._max, heatmapLayer._data.get(index).count);
+          heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
         } else { // the 'bucket' is missing so add the new 'bucket'
-          dataMap.set(index, value);
+          heatmapLayer._data.set(index, value);
           count++;
 
           // update the max and min for rendering the points relatively
-          heatmapLayer._max = Math.max(heatmapLayer._max, dataMap.get(index).count);
-          heatmapLayer._min = Math.min(heatmapLayer._min, dataMap.get(index).count);
+          heatmapLayer._max = Math.max(heatmapLayer._max, heatmapLayer._data.get(index).count);
+          heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
         }
       }
       if(count > heatmapLayer.cfg.maxPoints){
@@ -215,14 +272,15 @@
       heatmapLayer._draw();
     }
 
+    /**
+     * clearPoints takes in the amount of points tp remove and removes it from the heatmapLayer._data
+     * @param {int} numPoints the number of points to remove
+     */
     function clearPoints(numPoints){
-      var iterator = dataMap.entries();
-      // var iteratorRunner = iterator.next();
+      var iterator = heatmapLayer._data.entries();
       for(var i = 0; i <= numPoints; i++){
-            dataMap.delete(iterator.next().value[0]);
+            heatmapLayer._data.delete(iterator.next().value[0]);
             count--;
-            // iterator = iteratorRunner;
-            // iteratorRunner = iterator.next();
       }
     }
 
@@ -251,6 +309,10 @@
       });
       eventList.html(listEvents); // saves time on DOM lookup because it is all added at once
       eventList.height( eventMap.size * 40 + 'px' ); // dynamically allocate the height of the event list
+      // make sure that the ticker has the appropriate values on statrt up
+      if ( !success ) {
+        updateTicker(events);
+      }
       success = true; // the error messages should be displayed in the error modal
     }
 
@@ -269,6 +331,7 @@
               events.filter.push(value.value);
           });
         }
+        updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
      }
@@ -322,7 +385,7 @@
      * resetMap removes all points on the map after the user confirms that the map is to be reset
      */
     function resetMap () {
-      dataMap.clear(); // remove all data from storage
+      heatmapLayer._data.clear(); // remove all data from storage
       count = 0;
       heatmapLayer._max = 32;
       heatmapLayer._min = 0;
@@ -359,18 +422,99 @@
       startTime();
     }
 
-    // Get the input field fo hitting enter on keyboard to enter sites
-    var input = document.getElementById("cIDinput");
-    var enter = document.getElementById("enter");
-
-    // Execute a function when the user releases a key on the keyboard
-    $(input).bind('keyup', function(event) {
-      // Cancel the default action, if needed
-      event.preventDefault();
-      // Number 13 is the "Enter" key on the keyboard
-      if (event.keyCode === 13) {
-        // Trigger the button element with a click
-        $(enter).click();
+    /**
+     * updateTicker takes in an array of events and sets the ticker's text to that
+     * @param {Array} events is an array of event name
+     */
+    function updateTicker( events ) {
+      var tickerText = '',
+          eventsLen = events.length;
+      // set up the ticker text
+      for ( var i = 0; i < eventsLen; i++ ) {
+        tickerText += events[i] + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
       }
-    });
+      // put the text in the marquee
+      marquee.html(tickerText);
+    }
+    /**
+     * unitedStatesMapRecenter changes the view to the United States
+     */
+    function unitedStatesMapRecenter() {
+      map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
+    }
+    /**
+     * southAmericaMapRecenter changes the view to the South America
+     */
+    function southAmericaMapRecenter() {
+        map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
+    }
+    /**
+     * europeMapRecenter changes the view to the Europe
+     */
+    function europeMapRecenter() {
+        map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
+    }
+    /**
+     * asiaMapRecenter changes the view to the Asia
+     */
+    function asiaMapRecenter() {
+        map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
+    }
+    /**
+     * southeasternUSMapRecenter changes the view to the Southeastern US
+     */
+    function southeasternUSMapRecenter() {
+        map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
+    }
+    /**
+     * northWesternUSMapRecenter changes the view to the Northwestern US
+     */
+    function northWesternUSMapRecenter() {
+        map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
+    }
+    /**
+     * worldMapRecenter recenters the map
+     */
+    function worldMapRecenter() {
+        map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
+    }
+    /**
+     * adjustZoomFrade updates the values in the heatmap legend
+     */
+    function adjustZoomGrade() {
+      var a = heatmapLayer._max / 4;
+      var b = heatmapLayer._min;
+      var c = a / 2;
+      key.html('Events');
+      key1.html(b);
+      key2.html(c);
+      key3.html(a);
+    }
+    /**
+     * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
+     * count property of the value after having the decayMath function applied to it
+     * @param {Objetc} value is the value of the key/value pair stored in the map (it should have a count property)
+     * @param {String} key is the key of the key/value pair stored in the map
+     * @param {Objetc} map is the map that the key/value pair is from
+     */
+    function decay(value, key, map) {
+      // check to see if decaying the point will give it a count of 0 or less, if so remove it
+      // floor is used to allow for different decay rates
+      var nCount = Math.floor(decayMath(value.count));
+      if ( nCount <= 0 ) {
+        map.delete(key);
+        count--;
+      } else { // set the new count
+        map.get(key).count = nCount;
+      }
+    }
+    /**
+     * decayMath decays the given integer by subtracting 1 from it and returns that value
+     * @param {int} count
+     * @returns {int} is 1 less than count
+     */
+
+    function decayMath( count ) {
+      return count - 1;
+    }
   });

@@ -38,7 +38,7 @@
     initialize: function (config) {
       this.cfg = config;
       this._el = L.DomUtil.create('div', 'leaflet-zoom-hide');
-      this._data = [];
+      this._data = new Map();
       this._max = 32;
       this._min = 1;
       this.cfg.container = this._el;
@@ -105,7 +105,7 @@
       zoom = this._map.getZoom();
       scale = Math.pow(2, zoom);
 
-      if (dataMap.size == 0) {
+      if (this._data.size == 0) {
         if (this._heatmap) {
           this._heatmap.setData(generatedData);
         }
@@ -132,7 +132,7 @@
         latLngPoints.push(latlngPoint);
       }
 
-      dataMap.forEach(convertLatLngtoPixels)
+      this._data.forEach(convertLatLngtoPixels)
 
       if (this.cfg.useLocalExtrema) {
         generatedData.max = localMax;

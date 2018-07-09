@@ -6,11 +6,9 @@ The frontend of the Doppler-Heatmap application. This repository contains all th
 
 ## Testing
 
-Run `docker build . -t acst/doppler-frontend:latest`
+Run `docker build . -t acstintern/doppler-frontend:latest` if either the index file or the asset files have been changed.
 
 Then go to doppler-events/ and `run docker-compose up -d`
-
-_Note: All the docker images (doppler-events, doppler-api, doppler-frontend) must have been built at least once in order for docker-compose up -d to work._
 
 To receive messages and send over a web-socket connection, doppler-events and doppler-frontend must be running.
 
