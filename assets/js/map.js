@@ -27,25 +27,27 @@
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
     // if scaleRadius is false it will be the constant radius used in pixels
     "radius": 20,
-    "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
-    // scales the radius based on map zoom
+    blur: 1
+    "maxOpacity": 1.0, // put in slider on front-end side to adjust the opacity
 
+    // scales the radius based on map zoom
     "scaleRadius": false,
+
     // if set to false the heatmap uses the global maximum for colorization
     // if activated: uses the data maximum within the current map boundaries
     //   (there will always be a red spot with useLocalExtremas true)
     "useLocalExtrema": false,
-    // which field name in your data represents the latitude - default "lat"
+
+    // Field names for input for the latitude, longitude, and value
     latField: 'lat',
-    // which field name in your data represents the longitude - default "lng"
     lngField: 'lng',
-    maxPoints: 35000, // will remove points when exceeded
-    // which field name in your data represents the data value - default "value"
     valueField: 'count',
-    blur: 1
+
+    maxPoints: 35000, // will remove points when exceeded
   };
+
   // global variables not limited to this file
-  heatmapLayer = new HeatmapOverlay(cfg); // heatmap instanciation
+  heatmapLayer = new HeatmapOverlay(cfg); // heatmap instantiation
   dataMap = new Map(); // stores data points for O(1) access, allowing for easily updating counts
 
   //  leaflet map
@@ -76,7 +78,7 @@
   $("#worldMapRecenter").click(worldMapRecenter);
 
   // slider for Decay Time
-  output.text( slider.val()); // Display the default slider value
+  output.text(slider.val()); // Display the default slider value
 
   // Update the current slider value (each time you drag the slider handle)
   slider.on('input', function() {
@@ -128,6 +130,7 @@
       map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
   }
 
+  // adjusts legend's numbers to change with the changing max
   function adjustZoomGrade() {
     var a = heatmapLayer._max / 4;
     var b = heatmapLayer._min;
@@ -137,12 +140,13 @@
     key2.html(Math.ceil(c));
     key3.html(Math.ceil(a));
   }
+
   /**
    * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
    * count property of the value after having the decayMath function applied to it
-   * @param {Objetc} value is the value of the key/value pair stored in the map (it should have a count property)
+   * @param {Object} value is the value of the key/value pair stored in the map (it should have a count property)
    * @param {String} key is the key of the key/value pair stored in the map
-   * @param {Objetc} map is the map that the key/value pair is from
+   * @param {Object} map is the map that the key/value pair is from
    */
   function decay(value, key, map) {
     // check to see if decaying the point will give it a count of 0 or less, if so remove it
@@ -155,6 +159,7 @@
       map.get(key).count = nCount;
     }
   }
+
   /**
    * decayMath decays the given integer by subtracting 1 from it and returns that value
    * @param {int} count
