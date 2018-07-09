@@ -75,8 +75,8 @@
           layers: [baseLayer, heatmapLayer],
           zoomControl: false,
         }),
-        count = 0; 
-  
+        count = 0;
+
     // sets the max bounds of the map
     map.setMaxBounds([
       [85, 180],
@@ -146,7 +146,7 @@
       // Execute a function when the user releases a key on the keyboard
       clientID.bind('keyup', function(event) {
         // get the first and only clientSubmit button from the array and make sure that it is not disabled
-        if (event.keyCode === 13 && !clientSubmit[0].disabled) { 
+        if (event.keyCode === 13 && !clientSubmit[0].disabled) {
           // Trigger the button element with a click
           clientSubmit.click();
         }
@@ -486,9 +486,9 @@
       var b = heatmapLayer._min;
       var c = a / 2;
       key.html('Events');
-      key1.html(b);
-      key2.html(c);
-      key3.html(a);
+      key1.html(Math.ceil(b));
+      key2.html(Math.ceil(c));
+      key3.html(Math.ceil(a));
     }
     /**
      * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
