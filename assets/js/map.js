@@ -156,9 +156,9 @@
     }
   }
   /**
-   * decayMath decays the given integer by subtracting 25 from it and returns that value
+   * decayMath decays the given integer by subtracting 1 from it and returns that value
    * @param {int} count
-   * @returns {int} is 25 less than count
+   * @returns {int} is 1 less than count
    */
 
   function decayMath( count ) {

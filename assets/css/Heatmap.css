@@ -53,6 +53,7 @@ hr {
   opacity: 1;
   white-space:nowrap;
   text-align: center;
+  overflow: auto; /*Makes sidebar scrollable*/
 }
 #sidebar-wrapper > ul > div.dropdown.show > div {
   background: black!important; /*Changes the background of the dropdown list to black*/
@@ -160,7 +161,7 @@ hr {
 .sidebar-nav {
   margin-bottom: 0px;
   padding-bottom: 10px;
-  overflow: hidden;
+  overflow: auto;
   padding-left: 0px;
   padding-top: 15px;
   list-style: none;
