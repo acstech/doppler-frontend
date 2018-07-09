@@ -2,26 +2,26 @@
   $(document).ready(function() {
     // the basic map layer using openstreetmap -- Matt
   var baseLayer = L.tileLayer(
-    'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution: '...',
-      maxZoom: 18,
-      minZoom: 3
-    }
-  ),
-  frequency = 1000, // is used to keep track of the user input for the time interval for decay
-  slider = $("#myRange"),
-  output = $("#demo"),
-  key = $('#keytext'),
-  key1 = $('#colors1'),
-  key2 = $('#colors2'),
-  key3 = $('#colors3'),
-  timer = function(){ // set up a timer for the decay function to avoid hitting the amount of max points
-    clearInterval(interval);
-    dataMap.forEach(decay);
+                  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                  attribution: '...',
+                  maxZoom: 18,
+                  minZoom: 3
+                  }
+                ),
+    frequency = 300000, // is used to keep track of the user input for the time interval for decay
+    slider = $("#myRange"),
+    output = $("#demo"),
+    key = $('#keytext'),
+    key1 = $('#colors1'),
+    key2 = $('#colors2'),
+    key3 = $('#colors3'),
+    timer = function(){ // set up a timer for the decay function to avoid hitting the amount of max points
+      clearInterval(interval);
+      dataMap.forEach(decay);
+      interval = setInterval(timer, frequency);
+      adjustZoomGrade();
+    },
     interval = setInterval(timer, frequency);
-    adjustZoomGrade();
-  },
-  interval = setInterval(timer, frequency);
   // configures the map's settings -- Matt
   const cfg =     {
     // radius should be small ONLY if scaleRadius is true (or small radius is intended)
