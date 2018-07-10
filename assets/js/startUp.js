@@ -29,7 +29,7 @@
       errorModalBtn = '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
       resetModalBody = 'Changing Filters Will Result In A Map Reset!!',
       resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
-      decayModalBody = 'Changing The Decay Will Increase Or Decrease The Rate Points Disappear Off The Map!',
+      decayModalBody = 'Decay Change: Results In A Faster Or Slower Decay Of Map Points.<br><br>Refresh Change: Results In a Faster Or Slower Map Update.',
       decayModalBtn = '<button type="button" id="decayButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
     var baseLayer = L.tileLayer( // the basic map layer using openstreetmap -- Matt
         'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -221,7 +221,7 @@
      * openDecayModal opens a modal for changing decay rate
      */
     function openDecayModal() {
-      createModal('decayModal', 'Are You Sure You Want To Change The Decay Rate?', false,
+      createModal('decayModal', 'Are You Sure You Want To Change The Decay And Refresh Rate?', false,
         decayModalBody, true, decayModalBtn); // create reset modal for future use
       // makes the modal open
       $('#decayModal').modal({
@@ -553,12 +553,4 @@
     function decayMath(count) {
       return count - 1;
     }
-
-
-
-
-    Calendar.setup({
-          dateField      : 'date',
-          triggerElement : 'calendarButton'
-        });
   });
