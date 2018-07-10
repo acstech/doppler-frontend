@@ -4,25 +4,31 @@
   --carbon: #A9A9A9;
   --neutral: #EFEFEF;
 }
+
 /**** DOM elemet CSS ****/
 body {
   width: 100%;
   margin: 0%;
 }
+
 a:hover {
   color: limegreen;
 }
+
 a:visited {
   color: black;
 }
+
 a:active {
   color: green;
   text-decoration: underline;
 }
+
 a:link {
   color: black;
   text-decoration: none;
 }
+
 hr {
   display: block;
   height: 1px;
@@ -31,23 +37,28 @@ hr {
   margin: 1em 0;
   padding: 0;
 }
+
 .heading a {
   display: inline;
 }
+
 /* The container <div> - needed to position the dropdown content */
 .dropdown {
   position: relative;
   display: inline-block;
 }
+
 .btn-primary,
 .btn-primary:hover,
 .btn-primary:active,
 .btn-primary:visited {
   background-color: var(--popColor) !important;
 }
+
 #map-canvas {
   height: 100vh; /*Use to to make the map load dynamically*/
 }
+
 #sidebar-wrapper { /*The entire sidebar*/
   background-image: url(../images/connectwork.png);
   opacity: 1;
@@ -60,13 +71,20 @@ hr {
   cursor: default;
     -webkit-user-select: none;
 }
+
 #sidebar-wrapper > ul > div.viewTitle {
   cursor: default;
     -webkit-user-select: none;
 }
+
 #sidebar-wrapper > ul > div.dropdown.show > div {
   background: black!important; /*Changes the background of the dropdown list to black*/
 }
+
+#sidebar-wrapper > ul > div.dropdown > div {
+  padding: 0 0 0 0; /* no padding in the map view dropdown*/
+}
+
 #time {
   font-family: "Open Sans";
   color: white;
@@ -86,7 +104,8 @@ hr {
   position: absolute;
   display: inline-block;
   bottom: 15px;
-  right: 10px;
+  right: 1px;
+  padding: 0 0 5px 0;
 }
 
 #legend:hover {
@@ -142,18 +161,26 @@ hr {
   position: relative;
   display: inline-block;
 }
+
 #restOfPage {
   width: 100%;
   position: absolute;
   padding-bottom: 0;
   background-color: var(--neutral);
 }
+
+#restOfPage > div.navbar.fixed-top.navbar-light {
+  background-color: transparent!important;
+}
+
 .menu-toggle {
   color: var(--popColor);
 }
+
 .menu-toggle:hover {
   cursor: pointer;
 }
+
 .fa-cogs {
   padding-top: 15px; /*The settings glyphicon in menu */
 }
@@ -178,10 +205,12 @@ hr {
   list-style: none;
   color: white
 }
+
 .sidebar-nav li {
   line-height: 40px;
   text-align: center;
 }
+
 #headerInSideBar  { /*This is needed to make the header the sam ecolor as the sidebar*/
   background: transparent;
   overflow: hidden;
@@ -191,28 +220,31 @@ hr {
   cursor: default;
     -webkit-user-select: none;
 }
+
 #dropdownMenu2 {
   text-align: center;
 }
-#sidebar-wrapper > ul > div.dropdown > div {
-  padding: 0 0 0 0; /* no padding in the map view dropdown*/
-}
+
 .dropdown.show
 .dropdown-item { /*This makes the font color of the dropdown white*/
   color: white;
 }
+
 .dropdown.show
 .dropdown-item:hover { /*This makes the font color of the dropdown white*/
   background: var(--popColor);
 }
+
 .dropdown-item {
   align-content: center;
 }
+
 /**** event list ****/
 #filterSelect {
   padding-bottom: 10px;
   margin-left: 15%;
 }
+
 #newEvent { /* new event notification */
   text-align: center;
   padding-right: 40px;
@@ -220,21 +252,24 @@ hr {
   cursor: default;
     -webkit-user-select: none;
 }
+
 .mutliSelect {
   position: relative;
   top: 50%;
 }
+
 .mutliSelect ul li {
   padding: 5px;
   margin-top: -8px;
 }
+
 #eventList {
   max-width: 272px;
   min-height: 50px;
   max-height: 200px;
   background: black;
   border: 1px solid #ccc;
-  padding: 2px 15px 2px 5px;
+  padding: 0 8px 0 5px;
   margin: -1px 0 0 0;
   overflow: overlay;
   cursor: default;
@@ -245,14 +280,17 @@ hr {
 #eventList::-webkit-scrollbar {
   width: .5em;
 }
+
 #eventList::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }
+
 #eventList::-webkit-scrollbar-thumb {
   background-color: #cccccc;
   outline: 1px solid slategrey;
 }
+
 /**** decay slider ****/
 .decayTimeSlider {
   width: 100px;
@@ -260,6 +298,7 @@ hr {
   cursor: default;
     -webkit-user-select: none;
 }
+
 .slider {
     -webkit-appearance: none;
     width: 100%;
@@ -271,9 +310,11 @@ hr {
     -webkit-transition: .2s;
     transition: opacity .2s;
 }
+
 .slider:hover {
     opacity: 1;
 }
+
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -284,6 +325,7 @@ hr {
     background: var(--popColor);
     cursor: pointer;
 }
+
 .slider::-moz-range-thumb {
     width: 20px;
     height: 20px;
@@ -292,23 +334,21 @@ hr {
     background: var(--popColor);
     cursor: pointer;
 }
+
 /**** scrollbar for the body ****/
 .body::-webkit-scrollbar { /*This makes the scroll bar in the filters list any color*/
     width: .5em;
 }
+
 .body::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }
+
 .body::-webkit-scrollbar-thumb {
   background-color: #cccccc;
   outline: 1px solid slategrey;
 }
-
-#restOfPage > div.navbar.fixed-top.navbar-light {
-  background-color: transparent!important;
-}
-/*Testing for the ticker*/
 
 .tickerBackground {
   -webkit-user-select: none;
@@ -322,6 +362,7 @@ hr {
   width: 600px;
   height: 30px;
 }
+
 .tickerBackground span {
   float: left;
   position: sticky;
@@ -334,6 +375,7 @@ hr {
   border-right: solid white;
   font-family: "Open Sans";
 }
+
 #wrapper > div.navbar.fixed-top > div.tickerBackground > div > span:hover {
   cursor: default;
   text-align: center;
@@ -345,7 +387,6 @@ hr {
   position: sticky;
 }
 
-/*TEST SCROLL 2*/
 .ticker {
  height: 30px;
  overflow: hidden;

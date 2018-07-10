@@ -1,81 +1,96 @@
   'use strict';
   // none of these varaibles or functions are accessible outside of this document ready function
-  //var  heatmapLayer._data = new Map(); // stores data points for O(1) access, allowing for easily updating counts
-  $(document).ready(function(){
+  $(document).ready(function() {
     const cfg = { // configures the map's settings -- Matt
-                  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
-                  // if scaleRadius is false it will be the constant radius used in pixels
-                  "radius": 20,
-                  "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
-                  // scales the radius based on map zoom
-
-                  "scaleRadius": false,
-                  // if set to false the heatmap uses the global maximum for colorization
-                  // if activated: uses the data maximum within the current map boundaries
-                  //   (there will always be a red spot with useLocalExtremas true)
-                  "useLocalExtrema": false,
-                  // which field name in your data represents the latitude - default "lat"
-                  latField: 'lat',
-                  // which field name in your data represents the longitude - default "lng"
-                  lngField: 'lng',
-                  maxPoints: 35000, // will remove points when exceeded
-                  // which field name in your data represents the data value - default "value"
-                  valueField: 'count',
-                  blur: 1
-                },
-          startModalBody =  '<div class="form-group">' +
-                            '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
-                            '</div><p id="modaltext"> </p>',
-          startModalBtn =   '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
-          errorModalBody =  '<p class="text-danger" id="errorMessage"></p>',
-          errorModalBtn =   '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
-          resetModalBody =  'Changing Filters Will Result In A Map Reset!!',
-          resetModalBtn =   '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
+        // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+        // if scaleRadius is false it will be the constant radius used in pixels
+        "radius": 20,
+        "maxOpacity": 0.8, // put in slider on front-end side to adjust the opacity
+        // scales the radius based on map zoom
+        "scaleRadius": false,
+        // if set to false the heatmap uses the global maximum for colorization
+        // if activated: uses the data maximum within the current map boundaries
+        //   (there will always be a red spot with useLocalExtremas true)
+        "useLocalExtrema": false,
+        // which field name in your data represents the latitude - default "lat"
+        latField: 'lat',
+        // which field name in your data represents the longitude - default "lng"
+        lngField: 'lng',
+        maxPoints: 35000, // will remove points when exceeded
+        // which field name in your data represents the data value - default "value"
+        valueField: 'count',
+        blur: 1
+      },
+      startModalBody = '<div class="form-group">' +
+      '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
+      '</div><p id="modaltext"> </p>',
+      startModalBtn = '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
+      errorModalBody = '<p class="text-danger" id="errorMessage"></p>',
+      errorModalBtn = '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
+      resetModalBody = 'Changing Filters Will Result In A Map Reset!!',
+      resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
+      decayModalBody = 'Changing The Decay Will Increase Or Decrease The Rate Points Disappear Off The Map!',
+      decayModalBtn = '<button type="button" id="decayButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
     var baseLayer = L.tileLayer( // the basic map layer using openstreetmap -- Matt
-                    'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-                      attribution: '...',
-                      maxZoom: 18,
-                      minZoom: 3
-                    }
-                  ),
-        frequency = 300000, // is used to keep track of the user input for the time interval for decay
-        slider = $("#myRange"),
-        output = $("#demo"),
-        key = $('#keytext'),
-        key1 = $('#colors1'),
-        key2 = $('#colors2'),
-        key3 = $('#colors3'),
-        heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
-        timer = function(){ // set up a timer for the decay function to avoid hitting the amount of max points
-          clearInterval(interval);
+        'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '...',
+          maxZoom: 18,
+          minZoom: 3
+        }
+      ),
+      decayRate = 300000, // is used to keep track of the user input for the time interval for decay
+      refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
+      decaySlider = $("#myRange"),
+      decayOutput = $("#demo"),
+      refreshSlider = $("#myRefreshRange"),
+      refreshOutput = $("#refresh"),
+      mapChanged = false,
+      key = $('#keytext'),
+      key1 = $('#colors1'),
+      key2 = $('#colors2'),
+      key3 = $('#colors3'),
+      heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
+      decayTimer = function() { // set up a timer for the decay function to avoid hitting the amount of max points
+        clearInterval(decayInterval);
+        if (heatmapLayer._data.size !== 0) {
           heatmapLayer._data.forEach(decay);
-          interval = setInterval(timer, frequency);
-        },
-        interval = setInterval(timer, frequency),
-        success = false, // keeps track of whether an error occurred during client validation
-        ws, // websocket
-        sidebarWrapper = $('#sidebar-wrapper'), // makes one traversal to get the DOM element
-        menuSidebarToggle = $('#toggleMenu'),
-        body = $('body'), // speeds up the appending an element to the body DOM element
-        timeDisplay = $('#time'), // find the id time once for speeding up later DOM manipulation
-        clientID, // is used to reduce DOM element lookup
-        clientSubmit, // makes manipulating the clientSubmit button easy
-        eventList = $('#eventList'),
-        eventMap = new Map(), // makes adding new events during runtime simple and fast
-        newEvent = $('#newEvent'), // makes element manipulation faster due to one DOM lookup
-        fade = function() {
-          newEvent.fadeOut();
-        },
-        checked = '', // determines whether or not an event comes in as checked or not
-        marquee = $('#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee'),
-        map = new L.Map('map-canvas', { // leaflet map
-          center: new L.LatLng(37.937, -96.0938),
-          zoom: 4,
-          worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
-          layers: [baseLayer, heatmapLayer],
-          zoomControl: false,
-        }),
-        count = 0;
+          mapChanged = true;
+        }
+        decayInterval = setInterval(decayTimer, decayRate);
+      },
+      decayInterval = setInterval(decayTimer, decayRate),
+      refreshTimer = function() { // set up a timer for the decay function to avoid hitting the amount of max points
+        clearInterval(refreshInterval);
+        if (mapChanged) {
+          heatmapLayer._draw();
+          mapChanged = false;
+        }
+        refreshInterval = setInterval(refreshTimer, refreshRate);
+      },
+      refreshInterval = setInterval(refreshTimer, refreshRate),
+      success = false, // keeps track of whether an error occurred during client validation
+      ws, // websocket
+      sidebarWrapper = $('#sidebar-wrapper'), // makes one traversal to get the DOM element
+      menuSidebarToggle = $('#toggleMenu'),
+      body = $('body'), // speeds up the appending an element to the body DOM element
+      timeDisplay = $('#time'), // find the id time once for speeding up later DOM manipulation
+      clientID, // is used to reduce DOM element lookup
+      clientSubmit, // makes manipulating the clientSubmit button easy
+      eventList = $('#eventList'),
+      eventMap = new Map(), // makes adding new events during runtime simple and fast
+      newEvent = $('#newEvent'), // makes element manipulation faster due to one DOM lookup
+      fade = function() {
+        newEvent.fadeOut();
+      },
+      checked = '', // determines whether or not an event comes in as checked or not
+      marquee = $('#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee'),
+      map = new L.Map('map-canvas', { // leaflet map
+        center: new L.LatLng(37.937, -96.0938),
+        zoom: 4,
+        worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
+        layers: [baseLayer, heatmapLayer],
+        zoomControl: false,
+      });
 
     // sets the max bounds of the map
     map.setMaxBounds([
@@ -96,14 +111,15 @@
     $("#worldMapRecenter").click(worldMapRecenter);
 
     // slider for Decay Time
-    output.text( slider.val()); // Display the default slider value
+    decayOutput.text(decaySlider.val()); // Display the default slider value
+    refreshOutput.text(refreshSlider.val()); // Display the default slider value
 
-    // Update the current slider value (each time you drag the slider handle)
-    slider.on('input', function() {
-        output.text( this.value );
-        frequency = this.value * 1000;
-        clearInterval(interval);
-        interval = setInterval(timer, frequency);
+    decaySlider.on('input', function() {
+      decayOutput.text(this.value);
+    });
+
+    refreshSlider.on('input', function() {
+      refreshOutput.text(this.value);
     });
 
     // add toggle and overlay to sidebar
@@ -129,18 +145,19 @@
       ws = new WebSocket("ws://localhost:8000/receive/ws");
       // if an error occurs opening the websocket the modal will not load
       createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
-                  false, startModalBtn ); // creates the starting modal
+        false, startModalBtn); // creates the starting modal
       // starting modal opens
       $('#startModal').modal();
       $('#filterSubmit').click(openMapResetModal);
+      $('#decaySubmit').click(openDecayModal);
       // listen to see if a clientID is entered in the input box
       clientID = $('#cIDinput');
       clientSubmit = $('#enter');
-      clientID.on('input',function() {
-        if (this.value.trim().length > 0 ) { // the user has actually input text
-          clientSubmit.prop("disabled",false);;
+      clientID.on('input', function() {
+        if (this.value.trim().length > 0) { // the user has actually input text
+          clientSubmit.prop("disabled", false);;
         } else { // disable the button becuase the input box is empty
-          clientSubmit.prop("disabled",true);
+          clientSubmit.prop("disabled", true);
         }
       });
       // Execute a function when the user releases a key on the keyboard
@@ -152,18 +169,17 @@
         }
       });
       // on open display that the websocket connection succeeded
-      ws.onopen = function (event) {
+      ws.onopen = function(event) {
         console.log("Connection made!");
       };
       // log any messages recieved
       ws.addEventListener("message", function(e) {
         var data = JSON.parse(e.data);
-        if ( data instanceof Array) {
-            addEvents(data);
-            hideModal('startModal');
+        if (data instanceof Array) {
+          addEvents(data);
+          hideModal('startModal');
         } else {
           if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
-            console.log("Error:" + data.Error);
             if (!success) {
               $('#modaltext').text(data.Error);
             } else { // open error modal for the user
@@ -181,24 +197,44 @@
         errorModal('505: Unable to connect to live data.');
       };
       clientSubmit.click(submitClientID);
-    } catch(err) {
+    } catch (err) {
       errorModal('505: Unable to connect to live data.');
     }
     /**** functions from this point on ****/
     /**
      * openMapResetModal opens a modal for resetting the map
      */
-    function openMapResetModal()  {
+    function openMapResetModal() {
       createModal('resetModal', 'Are You Sure You Want To Change Filters?', false,
-                  resetModalBody, true, resetModalBtn); // create reset modal for future use
+        resetModalBody, true, resetModalBtn); // create reset modal for future use
       // makes the modal open
       $('#resetModal').modal({
         keyboard: false
       });
       // add event listener for reseting the maps points
-      $("#resetButtonFinal").click(function(){
+      $("#resetButtonFinal").click(function() {
         sendActiveEventList();
         resetMap();
+      });
+    }
+    /**
+     * openDecayModal opens a modal for changing decay rate
+     */
+    function openDecayModal() {
+      createModal('decayModal', 'Are You Sure You Want To Change The Decay Rate?', false,
+        decayModalBody, true, decayModalBtn); // create reset modal for future use
+      // makes the modal open
+      $('#decayModal').modal({
+        keyboard: false
+      });
+
+      $("#decayButtonFinal").click(function() {
+        decayRate = decaySlider.val() * 1000;
+        refreshRate = refreshSlider.val() * 1000;
+        clearInterval(decayInterval);
+        decayInterval = setInterval(decayTimer, decayRate);
+        clearInterval(refreshInterval);
+        refreshInterval = setInterval(refreshTimer, refreshRate);
       });
     }
 
@@ -206,7 +242,7 @@
      * hideModal hides the default user modal
      * @param {String} ID is the html id of the modal to hide
      */
-    function hideModal( ID ){
+    function hideModal(ID) {
       $('#' + ID).hide();
       body.removeClass('modal-open');
       $('.modal-backdrop').remove();
@@ -217,15 +253,15 @@
      * errorModal hides the regular modal and displays the error modal
      * @param {String} msg is the error message to display to the user
      */
-    function errorModal( msg ) {
+    function errorModal(msg) {
       hideModal('startModal'); // just in case the connection closes after the client ID has been validated
       createModal('errorModal', 'An error occurred.', true, errorModalBody,
-                  false, errorModalBtn); // creates error modal
+        false, errorModalBtn); // creates error modal
       // add error message
       $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
       $('#errorModal').modal();
       // refreshes page
-      $('#errorDismiss').click(function(){
+      $('#errorDismiss').click(function() {
         location.reload();
       });
     }
@@ -237,13 +273,13 @@
      */
     function addPoints(data) {
       var pointArr = JSON.parse(data),
-          dataKeys = Object.keys(pointArr),
-          dataValues = Object.values(pointArr),
-          size = dataKeys.length,
-          index,
-          value;
+        dataKeys = Object.keys(pointArr),
+        dataValues = Object.values(pointArr),
+        size = dataKeys.length,
+        index,
+        value;
       // goes through array and adds points based on if they already existed or not
-      for (var i = 0; i < size; i++){
+      for (var i = 0; i < size; i++) {
         index = dataKeys[i];
         value = dataValues[i];
         value.count = parseInt(value.count) * 4; // scale the point so it does not decay too quickly
@@ -258,29 +294,26 @@
           heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
         } else { // the 'bucket' is missing so add the new 'bucket'
           heatmapLayer._data.set(index, value);
-          count++;
 
           // update the max and min for rendering the points relatively
           heatmapLayer._max = Math.max(heatmapLayer._max, heatmapLayer._data.get(index).count);
           heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
         }
       }
-      if(count > heatmapLayer.cfg.maxPoints){
-        clearPoints(count - heatmapLayer.cfg.maxPoints);
+      if (heatmapLayer._data.size > heatmapLayer.cfg.maxPoints) {
+        clearPoints(heatmapLayer._data.size - heatmapLayer.cfg.maxPoints);
       }
-      // redraw the heatmap
-      heatmapLayer._draw();
+      mapChanged = true;
     }
 
     /**
      * clearPoints takes in the amount of points tp remove and removes it from the heatmapLayer._data
      * @param {int} numPoints the number of points to remove
      */
-    function clearPoints(numPoints){
+    function clearPoints(numPoints) {
       var iterator = heatmapLayer._data.entries();
-      for(var i = 0; i <= numPoints; i++){
-            heatmapLayer._data.delete(iterator.next().value[0]);
-            count--;
+      for (var i = 0; i <= numPoints; i++) {
+        heatmapLayer._data.delete(iterator.next().value[0]);
       }
     }
 
@@ -288,29 +321,29 @@
      * addEvents takes in an array and outputs each element as a button for the user to click
      * @param {Array} events is the list of events to be appended as the user's filtering options
      */
-    function addEvents( events ) {
+    function addEvents(events) {
       // add all events to the select box as options
       var listEvents = eventList.html(); // gets all current event list items in string form
       // if the events that are to be added are the first, then add them as checked
-      if ( eventMap.size === 0 && !success ) {
+      if (eventMap.size === 0 && !success) {
         checked = "checked";
       } else {
         checked = "";
       }
-      $.each(events, function( index, value ) {
-        if ( !eventMap.has(value)) { // the value does not already exist, so add it to the list
+      $.each(events, function(index, value) {
+        if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
           listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> ' + value + '</li>';
-          eventMap.set(value,value);
-          if ( success ) { // if the events being added are not the initial batch display the message
+          eventMap.set(value, value);
+          if (success) { // if the events being added are not the initial batch display the message
             newEvent.text("New Event Filter Recieved").fadeIn();
             setTimeout(fade, 5000); // have the text dissapeat after 5 seconds
           }
         }
       });
       eventList.html(listEvents); // saves time on DOM lookup because it is all added at once
-      eventList.height( eventMap.size * 40 + 'px' ); // dynamically allocate the height of the event list
+      eventList.height(eventMap.size * 40 + 'px'); // dynamically allocate the height of the event list
       // make sure that the ticker has the appropriate values on statrt up
-      if ( !success ) {
+      if (!success) {
         updateTicker(events);
       }
       success = true; // the error messages should be displayed in the error modal
@@ -321,20 +354,22 @@
      */
     function sendActiveEventList() {
       // make sure websocket is open
-      if(ws.readyState === ws.OPEN){
-        var events = {'filter':[]},
-            activeEvents = $('#eventList li input:checked');
+      if (ws.readyState === ws.OPEN) {
+        var events = {
+            'filter': []
+          },
+          activeEvents = $('#eventList li input:checked');
         // determine if there is an 'active' event
-        if (activeEvents.length > 0 ) {
+        if (activeEvents.length > 0) {
           // collect all id's for the events that are 'active'
-          $.each(activeEvents, function( index, value ) {
-              events.filter.push(value.value);
+          $.each(activeEvents, function(index, value) {
+            events.filter.push(value.value);
           });
         }
         updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
-     }
+      }
     }
 
     /**
@@ -342,7 +377,9 @@
      */
     function submitClientID() {
       console.log(clientID.val());
-      ws.send(JSON.stringify({clientID: clientID.val()}));
+      ws.send(JSON.stringify({
+        clientID: clientID.val()
+      }));
     }
 
     /**
@@ -354,10 +391,10 @@
      * @param {Boolean} cancel is whether or not a cancel button should be shown
      * @param {String} submitBtn is the string reprentation of the html for the submit button
      */
-    function createModal ( ID, title, forceStay, modalBody, cancel, submitBtn) {
+    function createModal(ID, title, forceStay, modalBody, cancel, submitBtn) {
       // create the modal html in string representation
       var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';;
-      if ( forceStay ) {
+      if (forceStay) {
         modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false" data-backdrop="static" data-keyboard="false" >';
       }
       modal += '<div class="modal-dialog modal-dialog-centered" role="document">';
@@ -384,9 +421,8 @@
     /**
      * resetMap removes all points on the map after the user confirms that the map is to be reset
      */
-    function resetMap () {
+    function resetMap() {
       heatmapLayer._data.clear(); // remove all data from storage
-      count = 0;
       heatmapLayer._max = 32;
       heatmapLayer._min = 0;
       heatmapLayer._draw();
@@ -398,26 +434,27 @@
      */
     function displayTime() {
       function checkTime(i) {
-          return (i < 10) ? "0" + i : i;
+        return (i < 10) ? "0" + i : i;
       }
       var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       var monthsArray = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"];
+        "July", "August", "September", "October", "November", "December"
+      ];
 
       function startTime() {
-          var today = new Date(),
-              month = monthsArray[today.getMonth()],
-              dateFrontEnd = today.getDate(), // not sure why I had to redeclare the varibles here
-              year = today.getFullYear(),
-              wd = days[today.getDay()],
-              h = checkTime(today.getHours()),
-              m = checkTime(today.getMinutes()),
-              s = checkTime(today.getSeconds());
-          timeDisplay.html(wd + " " + month + " "+ dateFrontEnd + " " + year + ": " + " "
-                          + h + ":" + m + ":" + s);
-          var t = setTimeout(function () {
-            startTime();
-          }, 500);
+        var today = new Date(),
+          month = monthsArray[today.getMonth()],
+          dateFrontEnd = today.getDate(), // not sure why I had to redeclare the varibles here
+          year = today.getFullYear(),
+          wd = days[today.getDay()],
+          h = checkTime(today.getHours()),
+          m = checkTime(today.getMinutes()),
+          s = checkTime(today.getSeconds());
+        timeDisplay.html(wd + " " + month + " " + dateFrontEnd + " " + year + ": " + " " +
+          h + ":" + m + ":" + s);
+        var t = setTimeout(function() {
+          startTime();
+        }, 500);
       }
       startTime();
     }
@@ -426,11 +463,11 @@
      * updateTicker takes in an array of events and sets the ticker's text to that
      * @param {Array} events is an array of event name
      */
-    function updateTicker( events ) {
+    function updateTicker(events) {
       var tickerText = '',
-          eventsLen = events.length;
+        eventsLen = events.length;
       // set up the ticker text
-      for ( var i = 0; i < eventsLen; i++ ) {
+      for (var i = 0; i < eventsLen; i++) {
         tickerText += events[i] + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
       }
       // put the text in the marquee
@@ -446,37 +483,37 @@
      * southAmericaMapRecenter changes the view to the South America
      */
     function southAmericaMapRecenter() {
-        map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
+      map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
     }
     /**
      * europeMapRecenter changes the view to the Europe
      */
     function europeMapRecenter() {
-        map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
+      map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
     }
     /**
      * asiaMapRecenter changes the view to the Asia
      */
     function asiaMapRecenter() {
-        map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
+      map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
     }
     /**
      * southeasternUSMapRecenter changes the view to the Southeastern US
      */
     function southeasternUSMapRecenter() {
-        map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
+      map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
     }
     /**
      * northWesternUSMapRecenter changes the view to the Northwestern US
      */
     function northWesternUSMapRecenter() {
-        map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
+      map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
     }
     /**
      * worldMapRecenter recenters the map
      */
     function worldMapRecenter() {
-        map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
+      map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
     }
     /**
      * adjustZoomFrade updates the values in the heatmap legend
@@ -501,9 +538,8 @@
       // check to see if decaying the point will give it a count of 0 or less, if so remove it
       // floor is used to allow for different decay rates
       var nCount = Math.floor(decayMath(value.count));
-      if ( nCount <= 0 ) {
+      if (nCount <= 0) {
         map.delete(key);
-        count--;
       } else { // set the new count
         map.get(key).count = nCount;
       }
@@ -514,7 +550,7 @@
      * @returns {int} is 1 less than count
      */
 
-    function decayMath( count ) {
+    function decayMath(count) {
       return count - 1;
     }
   });
