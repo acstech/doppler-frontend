@@ -553,4 +553,12 @@
     function decayMath(count) {
       return count - 1;
     }
+
+
+
+
+    Calendar.setup({
+          dateField      : 'date',
+          triggerElement : 'calendarButton'
+        });
   });

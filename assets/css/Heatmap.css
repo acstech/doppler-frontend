@@ -81,6 +81,19 @@ hr {
   background: black!important; /*Changes the background of the dropdown list to black*/
 }
 
+#timebutton {
+  border-radius: 0;
+  padding: 0px 0px;
+  opacity: 0.7;
+  outline: 0 none;
+  cursor: pointer;
+}
+
+.btn:focus,.btn:active:focus,.btn.active:focus,
+.btn.focus,.btn:active.focus,.btn.active.focus {
+    box-shadow: none;
+}
+
 #sidebar-wrapper > ul > div.dropdown > div {
   padding: 0 0 0 0; /* no padding in the map view dropdown*/
 }
@@ -90,7 +103,6 @@ hr {
   color: white;
   background: rgba(40, 109, 168, 0.7);
   padding: 3px;
-  cursor: default;
     -webkit-user-select: none;
 }
 
