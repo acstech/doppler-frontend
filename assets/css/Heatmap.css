@@ -102,7 +102,7 @@ hr {
   text-align: center;
   padding-right: 100px;
   height: 20px;
-  width: 35%;
+  width: 38%;
   text-align: left;
   display: inline-block;
   top: 50%;
@@ -124,8 +124,8 @@ hr {
   color: black;
   position: relative;
   display: inline-block;
-  padding-left: 69px; /*Change these values to keep it onptop if change is needed*/
-  padding-right: 11%;
+  padding-left: 51px; /*Change these values to keep it onptop if change is needed*/
+  padding-right: 55px;
 }
 
 #colors2 {
@@ -133,7 +133,7 @@ hr {
   color: black;
   position: relative;
   display: inline-block;
-  padding-right: 8%; /*Change these values to keep it onptop if change is needed*/
+  padding-right: 54px; /*Change these values to keep it onptop if change is needed*/
 }
 
 #colors3 {
