@@ -9,6 +9,7 @@
 body {
   width: 100%;
   margin: 0%;
+  font-family: "Open Sans";
 }
 
 a:hover {
@@ -32,9 +33,7 @@ a:link {
 hr {
   display: block;
   height: 1px;
-  border: 0;
   border-top: 1px solid #ccc;
-  margin: 1em 0;
   padding: 0;
 }
 
@@ -91,7 +90,6 @@ hr {
 }
 
 #time {
-  font-family: "Open Sans";
   color: white;
   background: rgba(40, 109, 168, 0.7);
   height: 30px;
@@ -128,11 +126,9 @@ hr {
 }
 
 #colors {
-  font-family: "Open Sans";
   color: white;
-  background: linear-gradient(to right, blue, green, yellow, red);
+  background: linear-gradient(to right, blue, lawngreen, yellow, red);
   position: relative;
-  text-align: center;
   padding-right: 100px;
   height: 20px;
   width: 38%;
@@ -143,26 +139,20 @@ hr {
 }
 
 #keytext {
-  font-family: "Open Sans";
-  text-align: left;
   color: black;
   position: absolute;
-  padding-top: 23px; /*Change these values to keep it onptop if change is needed*/
-  padding-left: 165px;
+  padding: 23px 0 0 165px;
   display: inline-block;
 }
 
 #colors1 {
-  font-family: "Open Sans";
   color: black;
   position: relative;
   display: inline-block;
-  padding-left: 51px; /*Change these values to keep it onptop if change is needed*/
-  padding-right: 55px;
+  padding: 0 55px 0 51px;
 }
 
 #colors2 {
-  font-family: "Open Sans";
   color: black;
   position: relative;
   display: inline-block;
@@ -204,7 +194,6 @@ hr {
   position: absolute;
   top: 0.5rem;
   left: 16px;
-  /* padding-left: 16px; */
 }
 
 #toggleMenu:hover {
@@ -212,10 +201,8 @@ hr {
 }
 .sidebar-nav {
   margin-bottom: 0px;
-  padding-bottom: 10px;
+  padding: 15px 0 10px 0;
   overflow: auto;
-  padding-left: 0px;
-  padding-top: 15px;
   list-style: none;
   color: white
 }
@@ -233,10 +220,6 @@ hr {
   padding: 20px 30px 0 30px;
   cursor: default;
     -webkit-user-select: none;
-}
-
-#dropdownMenu2 {
-  text-align: center;
 }
 
 .dropdown.show
@@ -259,12 +242,15 @@ hr {
   margin-left: 15%;
 }
 
-#newEvent { /* new event notification */
-  text-align: center;
-  padding-right: 40px;
-  transition: all 300ms ease-in-out;
-  cursor: default;
-    -webkit-user-select: none;
+/**** new event ****/
+.circle {
+  background: red;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: fixed;
+  top: 10px;
+  left: 35px;
 }
 
 .mutliSelect {
@@ -382,12 +368,9 @@ hr {
   position: sticky;
   color: white;
   padding: 4px 10px 10px 10px;
-  border-radius: 1px;
-  font: 16px;
   height: 30px;
   cursor: default;
-  border-right: solid white;
-  font-family: "Open Sans";
+  border-right: 1px solid white;
 }
 
 #wrapper > div.navbar.fixed-top > div.tickerBackground > div > span:hover {
@@ -408,4 +391,9 @@ hr {
  float: right;
  width: 800px;
  -webkit-user-select: none
+}
+/**** alert ****/
+.alert{
+  z-index: 1050;
+  text-align: center;
 }

@@ -25,8 +25,6 @@
       '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
       '</div><p id="modaltext"> </p>',
       startModalBtn = '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
-      errorModalBody = '<p class="text-danger" id="errorMessage"></p>',
-      errorModalBtn = '<button type="button" id="errorDismiss" class="btn btn-primary" data-dismiss="modal">Okay</button>',
       resetModalBody = 'Changing Filters Will Result In A Map Reset!!',
       resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
       decayModalBody = 'Decay Change: Results In A Faster Or Slower Decay Of Map Points.<br><br>Refresh Change: Results In a Faster Or Slower Map Update.',
@@ -49,6 +47,7 @@
       key1 = $('#colors1'),
       key2 = $('#colors2'),
       key3 = $('#colors3'),
+      defaultHamburgerBtn = $('span#normalHamburger'),
       heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
       decayTimer = function() { // set up a timer for the decay function to avoid hitting the amount of max points
         clearInterval(decayInterval);
@@ -78,10 +77,6 @@
       clientSubmit, // makes manipulating the clientSubmit button easy
       eventList = $('#eventList'),
       eventMap = new Map(), // makes adding new events during runtime simple and fast
-      newEvent = $('#newEvent'), // makes element manipulation faster due to one DOM lookup
-      fade = function() {
-        newEvent.fadeOut();
-      },
       checked = '', // determines whether or not an event comes in as checked or not
       marquee = $('#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee'),
       map = new L.Map('map-canvas', { // leaflet map
@@ -135,6 +130,7 @@
     // this allows the second button to close the menu
     menuSidebarToggle.click(function() {
       sidebarWrapper.slideReveal("toggle");
+      defaultHamburgerBtn.removeClass('circle');
     });
 
     // start showing the time to the user
@@ -180,11 +176,7 @@
           hideModal('startModal');
         } else {
           if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
-            if (!success) {
-              $('#modaltext').text(data.Error);
-            } else { // open error modal for the user
-              errorModal(data.Error);
-            }
+            errorAlert(data.Error);
           } else { // if point(s) recieved
             addPoints(data);
             adjustZoomGrade(); // update ledgend
@@ -194,11 +186,12 @@
       // when the connection closes display that the connection has been made
       ws.onclose = function() {
         console.log("Connection closed.");
-        errorModal('505: Unable to connect to live data.');
+        hideModal('startModal');
+        errorAlert('505: Unable to connect to live data.');
       };
       clientSubmit.click(submitClientID);
     } catch (err) {
-      errorModal('505: Unable to connect to live data.');
+      errorAlert('505: Unable to connect to live data.');
     }
     /**** functions from this point on ****/
     /**
@@ -217,6 +210,7 @@
         resetMap();
       });
     }
+
     /**
      * openDecayModal opens a modal for changing decay rate
      */
@@ -247,23 +241,6 @@
       body.removeClass('modal-open');
       $('.modal-backdrop').remove();
       $('#' + ID).remove(); // make sure that the modal is no longer in the DOM (makes element lookup fater)
-    }
-
-    /**
-     * errorModal hides the regular modal and displays the error modal
-     * @param {String} msg is the error message to display to the user
-     */
-    function errorModal(msg) {
-      hideModal('startModal'); // just in case the connection closes after the client ID has been validated
-      createModal('errorModal', 'An error occurred.', true, errorModalBody,
-        false, errorModalBtn); // creates error modal
-      // add error message
-      $('#errorMessage').html(msg + '<br><br>Please reload the page to try again.');
-      $('#errorModal').modal();
-      // refreshes page
-      $('#errorDismiss').click(function() {
-        location.reload();
-      });
     }
 
     /**
@@ -335,8 +312,7 @@
           listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> ' + value + '</li>';
           eventMap.set(value, value);
           if (success) { // if the events being added are not the initial batch display the message
-            newEvent.text("New Event Filter Recieved").fadeIn();
-            setTimeout(fade, 5000); // have the text dissapeat after 5 seconds
+           defaultHamburgerBtn.addClass('circle');
           }
         }
       });
@@ -473,48 +449,56 @@
       // put the text in the marquee
       marquee.html(tickerText);
     }
+
     /**
      * unitedStatesMapRecenter changes the view to the United States
      */
     function unitedStatesMapRecenter() {
       map.setView(new L.LatLng(37.937, -96.0938), 4); // this sets the location and zoom amount
     }
+
     /**
      * southAmericaMapRecenter changes the view to the South America
      */
     function southAmericaMapRecenter() {
       map.setView(new L.LatLng(-26.339, -54.9938), 4); // this sets the location and zoom amount
     }
+
     /**
      * europeMapRecenter changes the view to the Europe
      */
     function europeMapRecenter() {
       map.setView(new L.LatLng(48.2082, 16.0938), 5); // this sets the location and zoom amount
     }
+
     /**
      * asiaMapRecenter changes the view to the Asia
      */
     function asiaMapRecenter() {
       map.setView(new L.LatLng(25.937, 120.0938), 4); // this sets the location and zoom amount
     }
+
     /**
      * southeasternUSMapRecenter changes the view to the Southeastern US
      */
     function southeasternUSMapRecenter() {
       map.setView(new L.LatLng(31.937, -80.0938), 6); // this sets the location and zoom amount
     }
+
     /**
      * northWesternUSMapRecenter changes the view to the Northwestern US
      */
     function northWesternUSMapRecenter() {
       map.setView(new L.LatLng(43.937, -116.0938), 6); // this sets the location and zoom amount
     }
+
     /**
      * worldMapRecenter recenters the map
      */
     function worldMapRecenter() {
       map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
     }
+
     /**
      * adjustZoomFrade updates the values in the heatmap legend
      */
@@ -527,6 +511,7 @@
       key2.html(Math.ceil(c));
       key3.html(Math.ceil(a));
     }
+
     /**
      * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
      * count property of the value after having the decayMath function applied to it
@@ -544,13 +529,26 @@
         map.get(key).count = nCount;
       }
     }
+
     /**
      * decayMath decays the given integer by subtracting 1 from it and returns that value
      * @param {int} count
      * @returns {int} is 1 less than count
      */
-
     function decayMath(count) {
       return count - 1;
+    }
+
+    /**
+     * errorAlert creates and displays an alert with an error message
+     * @param {String} message is the message to display in the error message
+     */
+    function errorAlert(message) {
+      var alert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+      '<strong>Oops! Something went wrong.</strong> ' + message +
+      '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+      '<span aria-hidden="true">&times;</span></button></div>';
+      body.append(alert);
+      $('.alert').alert();
     }
   });
