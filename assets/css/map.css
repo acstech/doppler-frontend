@@ -1,0 +1,162 @@
+/* ==========================================================================
+   Map rules
+   ========================================================================== */
+
+#map-canvas {
+  height: 100vh; /*Use to to make the map load dynamically*/
+}
+
+#wrapper > div.navbar.fixed-bottom.navbar-light {
+  height: 50px!important;
+}
+
+#time {
+  background: rgba(40, 109, 168, 0.7);
+  height: 30px;
+  padding: 3px 3px 0 3px;
+  -webkit-user-select: none;
+}
+  
+#timebutton {
+  border-radius: 0;
+  opacity: 0.7;
+  outline: 0 none;
+  padding: 0 0 0 0;
+}
+
+#restOfPage {
+  background-color: var(--neutral);
+  padding-bottom: 0;
+  position: absolute;
+  width: 100%;
+}
+
+#restOfPage > div.navbar.fixed-top.navbar-light {
+  background-color: transparent!important;
+}
+
+
+/*  Legend for the map
+   ========================================================================== */
+
+#legend {
+  bottom: 15px;
+  color: black;
+  display: inline-block;
+  height: 50px;
+  padding: 0 0 5px 0;
+  position: absolute;
+  right: 1px;
+  width: 450px;
+}
+
+#legend:hover {
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+#colors {
+  background: linear-gradient(to right, blue, lawngreen, yellow, red);
+  display: inline-block;
+  height: 20px;
+  left: 50%;
+  padding-right: 100px;
+  position: relative;
+  text-align: left;
+  top: 50%;
+  width: 38%;
+}
+
+#keytext {
+  display: inline-block;
+  padding: 23px 0 0 165px;
+  position: absolute;
+}
+
+#colors1 {
+  display: inline-block;
+  padding: 0 55px 0 51px;
+  position: relative;
+}
+
+#colors2 {
+  display: inline-block;
+  padding-right: 55px;
+  position: relative;
+}
+
+#colors3 {
+  display: inline-block;
+  position: relative;
+}
+
+/*  Ticker for the active events
+   ========================================================================== */
+
+.ticker {
+  float: right;
+  height: 30px;
+  overflow: hidden;
+  position: sticky;
+  width: 800px;
+  -webkit-user-select: none
+}
+
+.ticker-background {
+  background: rgba(40, 109, 168, 0.7);
+  color: white;
+  height: 30px;
+  margin-bottom: 0px;
+  overflow: hidden;
+  position: sticky;
+  white-space: nowrap;
+  width: 800px;
+  -webkit-user-select: none;
+}
+
+.ticker-background span {
+  border-right: 1px solid white;
+  color: white;
+  cursor: default;
+  float: left;
+  height: 30px;
+  padding: 4px 10px 10px 10px;
+  position: sticky;
+}
+
+div.ticker-background > div > span:hover {
+  cursor: default;
+  text-align: center;
+}
+
+div.ticker-background > div > marquee {
+  height: 30px;
+  padding-top: 3px;
+  position: sticky;
+}
+
+
+/*  Menu toggle button
+   ========================================================================== */
+
+.fa-cogs {
+  padding-top: 15px; /*The settings glyphicon in menu */
+}
+
+.menu-toggle {
+  color: var(--popColor);
+}
+
+.menu-toggle:hover {
+  cursor: pointer;
+}
+
+#toggleMenu {
+  left: 16px;
+  position: absolute;
+  top: 0.5rem;
+}
+
+#toggleMenu:hover {
+  cursor: pointer;
+}

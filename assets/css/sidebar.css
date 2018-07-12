@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Sidebar navigation
+   ========================================================================== */
+
+
+#sidebar-wrapper { /*The entire sidebar*/
+  background-image: url(../images/connectwork.png);
+  opacity: 1;
+  overflow: auto;
+  text-align: center;
+  white-space:nowrap;
+}
+
+.sidebar-nav {
+  margin-bottom: 0px;
+  overflow: auto;
+  padding: 15px 0 10px 0;
+}
+
+#headerInSideBar  { /* This is needed to make the header the same color as the sidebar */
+  background: transparent;
+  cursor: default;
+  overflow: hidden;
+  white-space:nowrap;
+  padding: 20px 30px 0 30px;
+  -webkit-user-select: none;
+}
+
+div.view-title {
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+
+/* Map view button and drop down list
+   ========================================================================== */
+
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+div.dropdown.show > div {
+  background: black!important; /*Changes the background of the dropdown list to black*/
+}
+
+div.dropdown > div {
+  padding: 0 0 0 0; /* no padding in the map view dropdown*/
+}
+
+.dropdown-item {
+  align-content: center;
+  color: white;
+}
+
+.dropdown.show
+.dropdown-item:hover { /* this makes the font color of the dropdown white */
+  background: var(--popColor);
+}
+
+
+/* Event list
+   ========================================================================== */
+
+#filterSelect {
+  margin-left: 15%;
+  padding-bottom: 10px;
+}
+
+#eventList {
+  background: black;
+  border: 1px solid #ccc;
+  cursor: default;
+  margin: -1px 0 0 0;
+  max-width: 272px;
+  max-height: 200px;
+  min-height: 50px;
+  overflow: overlay;
+  padding: 0 8px 0 5px;
+  -webkit-user-select: none;
+}
+
+#eventList li {
+  line-height: 40px;
+  margin-top: -8px;
+  padding: 5px;
+}
+
+/**** event scrollbar ****/
+#eventList::-webkit-scrollbar {
+  width: .5em;
+}
+
+#eventList::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+#eventList::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  outline: 1px solid slategrey;
+}
+
+/**** Circle is used to specify that a new event has been added ****/
+.circle { 
+  background: red;
+  border-radius: 50%;
+  height: 10px;
+  left: 35px;
+  position: fixed;
+  top: 10px;
+  width: 10px;
+}
+
+
+/* Sliders
+   ========================================================================== */
+
+.time-slider {
+  display: inline-block;
+  cursor: default;
+  width: 100px;
+  -webkit-user-select: none;
+}
+  
+.slider {
+  background: #d3d3d3;
+  border-radius: 5px;
+  height: 10px;
+  opacity: 0.7;
+  outline: none;
+  transition: opacity .2s;
+  -webkit-transition: .2s;
+  width: 100%;
+  -webkit-appearance: none;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--popColor);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+}
+
+.slider::-moz-range-thumb {
+  background: var(--popColor);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+}

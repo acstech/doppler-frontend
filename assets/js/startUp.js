@@ -23,7 +23,7 @@
       },
       startModalBody = '<div class="form-group">' +
       '<input id="cIDinput" type="text" class="form-control" name="clientIDBox" placeholder="ID" value="">' +
-      '</div><p id="modaltext"> </p>',
+      '</div>',
       startModalBtn = '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
       resetModalBody = 'Changing Filters Will Result In A Map Reset!!',
       resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
