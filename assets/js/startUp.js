@@ -78,7 +78,7 @@
       eventList = $('#eventList'),
       eventMap = new Map(), // makes adding new events during runtime simple and fast
       checked = '', // determines whether or not an event comes in as checked or not
-      marquee = $('#wrapper > div.navbar.fixed-top > div.tickerBackground > div > marquee'),
+      marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
       map = new L.Map('map-canvas', { // leaflet map
         center: new L.LatLng(37.937, -96.0938),
         zoom: 4,
