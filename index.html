@@ -7,6 +7,7 @@
   <title>Heatmap</title>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
   <link rel="icon" href="assets/images/favicon_realm.ico" type="image/">
   <link rel="stylesheet" type="text/css" href="assets/css/main.css">
@@ -33,21 +34,30 @@
         <!--In JQuery, put hardcoded tab between each generated event.-->
       </div>
     </div>
-      <button id="timebutton" type="button" class="btn btn-primary">
-        <div id="time"></div>
-      </button>
-    </div>
-    <div class="navbar fixed-bottom navbar-light">
-      <div id="legend">
-        <div id="keytext"></div>
-        <div id="colors"></div>
-        <div id="colors1"></div>
-        <div id="colors2"></div>
-        <div id="colors3"></div>
+    <div>
+      <button id="liveBtn" class="btn btn-primary" disabled>Live</button>
+      <div id="timebutton">
+        <button id="time" class="btn btn-primary"></button>
       </div>
     </div>
   </div>
-    <div id="sidebar-wrapper">
+  <div class="navbar fixed-bottom navbar-light">
+    <div id="dateSelector" style="display: none;"> <!--This activates and deactivates the calendar-->
+      <div id="drp"></div>
+      <button id="dateButton" class="btn btn-primary">Submit</button>
+    </div>
+    <div id="legend">
+      <div id="keytext"></div>
+      <div id="colors"></div>
+      <div id="colors1"></div>
+      <div id="colors2"></div>
+      <div id="colors3"></div>
+    </div>
+  </div>
+  <div class="animationload" style="display: none;">
+    <div class="osahanloading"></div>
+  </div>
+    <div id="sidebar-wrapper" style="display: none;">
       <span id="toggleMenu" class="menu-toggle-sidebar"> <!--Second menu button-->
         <i class="fas fa-bars fa-2x"></i>
       </span>
@@ -121,6 +131,10 @@
   <script src="assets/js/heatmap.js"></script>
   <!--API for the heatmap itself-->
   <script src="assets/js/leaflet-heatmap.js"></script>
+  <!----moment CDN ---->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <!----Daterangepicker CDN ---->
+  <script src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
   <!--this is the information for our map-->
   <script src="assets/js/startUp.js"></script>
 </body>

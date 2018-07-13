@@ -1,6 +1,8 @@
-  'use strict';
+'use strict';
   // none of these varaibles or functions are accessible outside of this document ready function
   $(document).ready(function() {
+    moment.suppressDeprecationWarnings = true;
+
     const cfg = { // configures the map's settings -- Matt
         // radius should be small ONLY if scaleRadius is true (or small radius is intended)
         // if scaleRadius is false it will be the constant radius used in pixels
@@ -29,6 +31,7 @@
       resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
       decayModalBody = 'Decay Change: Results In A Faster Or Slower Decay Of Map Points.<br><br>Refresh Change: Results In a Faster Or Slower Map Update.',
       decayModalBtn = '<button type="button" id="decayButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
+    // normal variables starting with the heatmap variables
     var baseLayer = L.tileLayer( // the basic map layer using openstreetmap -- Matt
         'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '...',
@@ -36,20 +39,63 @@
           minZoom: 3
         }
       ),
+      heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
+      map = new L.Map('map-canvas', { // leaflet map
+        center: new L.LatLng(37.937, -96.0938),
+        zoom: 4,
+        worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
+        layers: [baseLayer, heatmapLayer],
+        zoomControl: false,
+      }),
+      // primitives and data structures
       decayRate = 300000, // is used to keep track of the user input for the time interval for decay
       refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
+      success = false, // keeps track of whether an error occurred during client validation
+      selfClose = false, // helps keep track of whether or not the websocket closed due to an error or by the user
+      mapChanged = false, // helps keep track of whether or not to redraw the map
+      wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
+      client = '', // keeps track of the clientID for historical purposes
+      checked = '', // determines whether or not an event comes in as checked or not
+      eventMap = new Map(), // makes adding new events during runtime simple and fast
+      // daterange picker varaibles
+      start_date = moment().subtract(1, 'days'),
+      end_date = moment(),
+      // setup calendars
+      datepicker = new DatePicker(start_date, end_date, 0),
+      //  jQuery objects used for fast DOM manipulatoin
+      dateSelector = $('#dateSelector'),
+      dateButton = $('#dateButton'),
       decaySlider = $("#myRange"),
       decayOutput = $("#demo"),
       refreshSlider = $("#myRefreshRange"),
       refreshOutput = $("#refresh"),
-      mapChanged = false,
       key = $('#keytext'),
       key1 = $('#colors1'),
       key2 = $('#colors2'),
       key3 = $('#colors3'),
       defaultHamburgerBtn = $('span#normalHamburger'),
-      heatmapLayer = new HeatmapOverlay(cfg), // heatmap instanciation
-      decayTimer = function() { // set up a timer for the decay function to avoid hitting the amount of max points
+      sidebarWrapper = $('#sidebar-wrapper'),
+      menuSidebarToggle = $('#toggleMenu'),
+      body = $('body'),
+      timeDisplay = $('#time'),
+      marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
+      eventList = $('#eventList'),
+      liveBtn = $('#liveBtn'),
+      US = $("#unitedStatesMapRecenter"),
+      southEastUS = $("#southeasternUSMapRecenter"),
+      northWestUS = $("#northWesternUSMapRecenter"),
+      southAmerica = $("#southAmericaMapRecenter"),
+      europe = $("#europeMapRecenter"),
+      asia =  $("#asiaMapRecenter"),
+      recenter = $("#worldMapRecenter"),
+      decaySubmit = $('#decaySubmit'),
+      filterSubmit = $('#filterSubmit'),
+      spinner = $('div.animationload'),
+      // jQuery object variables that will be created later
+      clientID,
+      clientSubmit,
+      // setup timers for interval based updates
+      decayTimer = function() {
         clearInterval(decayInterval);
         if (heatmapLayer._data.size !== 0) {
           heatmapLayer._data.forEach(decay);
@@ -58,7 +104,7 @@
         decayInterval = setInterval(decayTimer, decayRate);
       },
       decayInterval = setInterval(decayTimer, decayRate),
-      refreshTimer = function() { // set up a timer for the decay function to avoid hitting the amount of max points
+      refreshTimer = function() {
         clearInterval(refreshInterval);
         if (mapChanged) {
           heatmapLayer._draw();
@@ -67,25 +113,7 @@
         refreshInterval = setInterval(refreshTimer, refreshRate);
       },
       refreshInterval = setInterval(refreshTimer, refreshRate),
-      success = false, // keeps track of whether an error occurred during client validation
-      ws, // websocket
-      sidebarWrapper = $('#sidebar-wrapper'), // makes one traversal to get the DOM element
-      menuSidebarToggle = $('#toggleMenu'),
-      body = $('body'), // speeds up the appending an element to the body DOM element
-      timeDisplay = $('#time'), // find the id time once for speeding up later DOM manipulation
-      clientID, // is used to reduce DOM element lookup
-      clientSubmit, // makes manipulating the clientSubmit button easy
-      eventList = $('#eventList'),
-      eventMap = new Map(), // makes adding new events during runtime simple and fast
-      checked = '', // determines whether or not an event comes in as checked or not
-      marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
-      map = new L.Map('map-canvas', { // leaflet map
-        center: new L.LatLng(37.937, -96.0938),
-        zoom: 4,
-        worldCopyJump: true, // keeps the overlayed heatmap oriented in the center.
-        layers: [baseLayer, heatmapLayer],
-        zoomControl: false,
-      });
+      ws; // websocket
 
     // sets the max bounds of the map
     map.setMaxBounds([
@@ -97,13 +125,13 @@
     heatmapLayer._max = 32;
     adjustZoomGrade(); // setup legend text
     // add location event listeners
-    $("#unitedStatesMapRecenter").click(unitedStatesMapRecenter);
-    $("#southAmericaMapRecenter").click(southAmericaMapRecenter);
-    $("#europeMapRecenter").click(europeMapRecenter);
-    $("#asiaMapRecenter").click(asiaMapRecenter); //northWesternUSMapRecenter
-    $("#southeasternUSMapRecenter").click(southeasternUSMapRecenter);
-    $("#northWesternUSMapRecenter").click(northWesternUSMapRecenter);
-    $("#worldMapRecenter").click(worldMapRecenter);
+    US.mouseup(unitedStatesMapRecenter);
+    southAmerica.mouseup(southAmericaMapRecenter);
+    europe.mouseup(europeMapRecenter);
+    asia.mouseup(asiaMapRecenter); //northWesternUSMapRecenter
+    southEastUS.mouseup(southeasternUSMapRecenter);
+    northWestUS.mouseup(northWesternUSMapRecenter);
+    recenter.mouseup(worldMapRecenter);
 
     // slider for Decay Time
     decayOutput.text(decaySlider.val()); // Display the default slider value
@@ -117,6 +145,8 @@
       refreshOutput.text(this.value);
     });
 
+    // remove invisiblility of the slider
+    sidebarWrapper.addClass('visible');
     // add toggle and overlay to sidebar
     sidebarWrapper.slideReveal({
       trigger: $("#toggle"),
@@ -128,7 +158,7 @@
     });
 
     // this allows the second button to close the menu
-    menuSidebarToggle.click(function() {
+    menuSidebarToggle.mouseup(function() {
       sidebarWrapper.slideReveal("toggle");
       defaultHamburgerBtn.removeClass('circle');
     });
@@ -138,14 +168,53 @@
 
     // try to connect to the websosket, if there is an error display the error modal
     try {
-      ws = new WebSocket("ws://localhost:8000/receive/ws");
+      createWebsocket();
       // if an error occurs opening the websocket the modal will not load
       createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
         false, startModalBtn); // creates the starting modal
       // starting modal opens
       $('#startModal').modal();
-      $('#filterSubmit').click(openMapResetModal);
-      $('#decaySubmit').click(openDecayModal);
+      filterSubmit.mouseup(openMapResetModal);
+      decaySubmit.mouseup(openDecayModal);
+      // add event listener for live button click
+      liveBtn.mouseup(function() { // mouseup occurs before click, so it starts the event sooner
+        liveBtn.prop("disabled", true);
+        timeDisplay.prop("disabled", false);
+        // add decay refresh intervals
+        refreshInterval = setInterval(refreshTimer, refreshRate);
+        decayInterval = setInterval(decayTimer, decayRate);
+        dateSelector.removeClass('visible');
+        selfClose = false;
+        $.when( createWebsocket()).then(function(){
+            setTimeout(sendID, 100 );
+          });
+      });
+
+      // mouse up to toggle live data off
+      timeDisplay.mouseup(function() {
+        liveBtn.prop("disabled", false);
+        timeDisplay.prop("disabled", true);
+        // remove decay and refresh intervals
+        resetMap();
+        clearInterval(refreshInterval);
+        clearInterval(decayInterval);
+        dateSelector.addClass('visible');
+        selfClose = true; // let the program know that the websocket was closed internally
+        ws.close();
+      });
+
+      // add event listener for querying for historical data
+      dateButton.mouseup(function() {
+        if ( datepicker.diff >= 1) {
+          wait = true;
+          spinner.addClass('visible');
+          getPlaybackData(datepicker.start, datepicker.end);
+          dateButton.prop('disabled', true);
+        } else {
+          errorAlert('401: Invalid date range selected.')
+        }
+      });
+
       // listen to see if a clientID is entered in the input box
       clientID = $('#cIDinput');
       clientSubmit = $('#enter');
@@ -161,35 +230,11 @@
         // get the first and only clientSubmit button from the array and make sure that it is not disabled
         if (event.keyCode === 13 && !clientSubmit[0].disabled) {
           // Trigger the button element with a click
-          clientSubmit.click();
+          clientSubmit.mouseup();
         }
       });
-      // on open display that the websocket connection succeeded
-      ws.onopen = function(event) {
-        console.log("Connection made!");
-      };
-      // log any messages recieved
-      ws.addEventListener("message", function(e) {
-        var data = JSON.parse(e.data);
-        if (data instanceof Array) {
-          addEvents(data);
-          hideModal('startModal');
-        } else {
-          if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
-            errorAlert(data.Error);
-          } else { // if point(s) recieved
-            addPoints(data);
-            adjustZoomGrade(); // update ledgend
-          }
-        }
-      });
-      // when the connection closes display that the connection has been made
-      ws.onclose = function() {
-        console.log("Connection closed.");
-        hideModal('startModal');
-        errorAlert('505: Unable to connect to live data.');
-      };
-      clientSubmit.click(submitClientID);
+
+      clientSubmit.mouseup(submitClientID);
     } catch (err) {
       errorAlert('505: Unable to connect to live data.');
     }
@@ -205,7 +250,7 @@
         keyboard: false
       });
       // add event listener for reseting the maps points
-      $("#resetButtonFinal").click(function() {
+      $("#resetButtonFinal").mouseup(function() {
         sendActiveEventList();
         resetMap();
       });
@@ -222,7 +267,7 @@
         keyboard: false
       });
 
-      $("#decayButtonFinal").click(function() {
+      $("#decayButtonFinal").mouseup(function() {
         decayRate = decaySlider.val() * 1000;
         refreshRate = refreshSlider.val() * 1000;
         clearInterval(decayInterval);
@@ -246,11 +291,10 @@
     /**
      * addPoints takes in an obejct, parses that data into JSON, adds the relevant data to a map, and
      * then decides how to add the points to the map
-     * @param {Object} data is an object that contains data such as lat, lng, and count
+     * @param {Object} pointArr is an object that contains data such as lat, lng, and count
      */
-    function addPoints(data) {
-      var pointArr = JSON.parse(data),
-        dataKeys = Object.keys(pointArr),
+    function addPoints(pointArr) {
+      var dataKeys = Object.keys(pointArr),
         dataValues = Object.values(pointArr),
         size = dataKeys.length,
         index,
@@ -331,17 +375,7 @@
     function sendActiveEventList() {
       // make sure websocket is open
       if (ws.readyState === ws.OPEN) {
-        var events = {
-            'filter': []
-          },
-          activeEvents = $('#eventList li input:checked');
-        // determine if there is an 'active' event
-        if (activeEvents.length > 0) {
-          // collect all id's for the events that are 'active'
-          $.each(activeEvents, function(index, value) {
-            events.filter.push(value.value);
-          });
-        }
+        var events = getActiveEvents();
         updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
@@ -349,13 +383,35 @@
     }
 
     /**
+     * getActiveEvents getst the active events and returns an object that contains the list
+     * @param {Object} events is an object that has the property filters which is the list of active filters
+     */
+    function getActiveEvents() {
+      var events = {
+        'filter': []
+      },
+      activeEvents = $('#eventList li input:checked');
+      // determine if there is an 'active' event
+      if (activeEvents.length > 0) {
+        // collect all id's for the events that are 'active'
+        $.each(activeEvents, function(value) {
+          events.filter.push(value.value);
+        });
+      }
+      return events;
+    }
+
+    /**
      * submitClientID gets the user provided clientID and sends it to the server
      */
     function submitClientID() {
-      console.log(clientID.val());
-      ws.send(JSON.stringify({
-        clientID: clientID.val()
-      }));
+      // set the clientID and then send it
+      client = clientID.val();
+      // show the loading spinner and disable the client
+      spinner.addClass('visible');
+      clientSubmit.prop('disabled', true);
+      wait = true;
+      sendID();
     }
 
     /**
@@ -500,7 +556,7 @@
     }
 
     /**
-     * adjustZoomFrade updates the values in the heatmap legend
+     * adjustZoomGrade updates the values in the heatmap legend
      */
     function adjustZoomGrade() {
       var a = heatmapLayer._max / 4;
@@ -544,11 +600,190 @@
      * @param {String} message is the message to display in the error message
      */
     function errorAlert(message) {
-      var alert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-      '<strong>Oops! Something went wrong.</strong> ' + message +
-      '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-      '<span aria-hidden="true">&times;</span></button></div>';
-      body.append(alert);
-      $('.alert').alert();
+      // if any alerts are currently on the screen, update them them
+      var already = $('.alert'),
+        alertBody = '<strong>Oops! Something went wrong.</strong> ' + message +
+          '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+          '<span aria-hidden="true">&times;</span>';
+      if (already.length !== 0 ) {
+        already.html(alertBody);
+      } else {
+        var alert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' + alertBody +
+                    '</button></div>';
+        body.append(alert);
+        $('.alert').alert();
+      }
+    }
+
+    /**
+     * getPlaybackData makes an ajax call to get data for playback
+     * @param {Inter} startDate is the starting date for the for the desired data
+     * @param {Date} endDate is the ending date for the for the desired data
+     * @return {Object}
+     */
+    function getPlaybackData( startDate, endDate) {
+      var events = getActiveEvents(),
+          playbackRequest = {
+            filters: events.filter,
+            clientID: client,
+            startTime: startDate,
+            endTime: endDate
+          };
+      $.ajax({
+        url: 'http://localhost:8000/receive/ajax',
+        crossDomain: true,
+        dataType: 'json',
+        data: playbackRequest,
+        success: function(result) {
+          // get rid of the spinner
+          wait = false;
+          spinner.removeClass('visible');
+          dateButton.prop('disabled', false);
+          addPoints(result);
+          adjustZoomGrade();
+          heatmapLayer._update();
+        },
+        error: function() {
+          // get rid of the spinner
+          wait = false;
+          spinner.removeClass('visible');
+          dateButton.prop('disabled', false);
+          errorAlert("505: Unable to get historical data.")
+        }
+      });
+      
+    }
+
+    /**
+     * @class DatePicker
+     * @example First include the following element into the markup HTML for a concrete element.  <div class="drp"></div>
+     * @example Call the constructor in a javascript file.  var mydatepicker = new DatePicker(start, end, 0);
+     * @param {Moment} start Start date
+     * @param {Moment} end End date
+     * @param {Integer} time Use 1 to enable time picker option
+     * @returns {DatePicker}
+     */
+    function DatePicker(start, end, time) {
+      var self = this; // used to make sure that the proper this variable is being used
+      self.element = $("div#drp");
+      if (time === 0) {
+          self.format = 'MM/DD/YYYY';
+          self.time = false;
+      } else {
+          self.format = 'MM/DD/YYYY HH:mm:ss';
+          self.format = true;
+      }
+      self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\
+                        <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
+                        <div style="position: absolute;top: 0px;bottom: 1px;display: block;left: 50%;z-index:+2;margin-left: -20px;width: 40px;text-align: center;background: linear-gradient(#eee,#ddd);border: solid #CCC 1px;border-left: 0px;border-right: 0px;height: 36px !important;"><i style="position:absolute;left:50%;margin-left:-7px;top:50%;margin-top: -7px;" class="fa fa-calendar"></i></div>\n\
+                        <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 50%;right: 0px;padding-left: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="end" id="end" class="form-control" /></div>\n\
+                  </div>';
+      // get start and end elements for faster operation speed
+      self.element.html(self.markup);
+      self.startDrp = $('.rangecontainer input#start');
+      self.endDrp = $('.rangecontainer input#end');
+      self.container = $('div#drp .rangecontainer');
+
+      // update the the value of the object
+      self.update = function update() {
+          var tempStart = moment(self.startDrp.val()),
+              tempEnd = moment(self.endDrp.val()).add(1, 'days');
+          self.start = tempStart.valueOf() * 1000000;
+          self.end = tempEnd.valueOf() * 1000000;
+          self.diff = tempEnd.diff(tempStart, 'days');
+      };
+
+      new Drp(start.format(self.format), 'start');
+      new Drp(end.format(self.format), 'end');
+
+      self.update();
+
+      self.container.on('change', 'input', function(e) {
+        self.update();
+      });
+
+      /**
+       * @author Rance Aaron
+       * @class Drp
+       * @description Wrapper object for date range picker
+       * @type object
+       * @param {String} d date passed by constructor
+       * @param {Integer} type Type of output format and either datepicker or datetimepicker
+       * @param {String} se Start or End
+       */
+      function Drp(d, se) {
+        // create a new daterange picker
+        $('div#drp .rangecontainer input#' + se).daterangepicker({
+            parentEl: "#drp",
+            singleDatePicker: true,
+            showDropdowns: false,
+            locale: {'format': self.format},
+            startDate: d,
+            timePicker: self.time,
+            autoApply: true,
+            autoUpdateInput: true,
+            maxDate: moment().format(self.format),
+            drops: "up",
+            minDate: moment().subtract(6,'months').format(self.format),
+          },
+          function(start) {
+            return start;
+          }
+        );
+      }
+    }
+
+    /**
+    * createWebsocket opens a connection to the front end API
+    */
+    function createWebsocket() {
+      var dfd = $.Deferred();
+      ws = new WebSocket("ws://localhost:8000/receive/ws");
+      // log any messages recieved
+      ws.addEventListener("message", function(e) {
+        if (wait) {
+          spinner.removeClass('visible');
+          clientSubmit.prop('disabled', false);
+        }
+        wait = false;
+        var data = JSON.parse(e.data);
+        if (data instanceof Array) {
+          addEvents(data);
+          hideModal('startModal');
+        } else {
+          if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
+            errorAlert(data.Error);
+          } else { // if point(s) recieved
+            addPoints(JSON.parse(data));
+            adjustZoomGrade(); // update ledgend
+          }
+        }
+      });
+
+      // on open display that the websocket connection succeeded
+      ws.onopen = function() {
+        console.log("Connection made!");
+        dfd.resolve("Connection made!")
+      };
+
+      // when the connection closes display that the connection has been made
+      ws.onclose = function() {
+        console.log("Connection closed.");
+        // if the websocket was not closed internally
+        if ( !selfClose ) {
+          hideModal('startModal');
+          errorAlert('505: Unable to connect to live data.');
+        }
+      };
+    }
+
+    /**
+     * sendID sends the client ID to the frontend API over the websocket
+     */
+    function sendID() {
+      console.log(client);
+      ws.send(JSON.stringify({
+        clientID: client
+      }));
     }
   });

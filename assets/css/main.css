@@ -3,6 +3,7 @@
    ========================================================================== */
 
 
+@import 'spinner.css';
 @import 'sidebar.css';
 @import 'map.css';
 
@@ -17,7 +18,7 @@
 }
 
 
-/*  DOM element css 
+/*  DOM element css
    ========================================================================== */
 
 body {
@@ -35,7 +36,7 @@ hr {
 }
 
 
-/*  Scrollbar for the body 
+/*  Scrollbar for the body
 ========================================================================== */
 
 .body::-webkit-scrollbar {
@@ -76,4 +77,12 @@ hr {
 .alert{
   text-align: center;
   z-index: var(--modalIndex);
+}
+
+/* Live is used to overide the primary button to red */
+#liveBtn:disabled,
+#liveBtn[disabled],
+#liveBtn:hover {
+  background: red!important;
+  opacity: 1;
 }

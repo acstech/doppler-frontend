@@ -10,18 +10,48 @@
   height: 50px!important;
 }
 
+#dateSelector {
+  color: black;
+  margin-left: 31%;
+  position: absolute;
+  width: 500px;
+}
+
+#dateButton {
+  height: 35px;
+  margin-top: -45px;
+  position: absolute;
+  left: 100%;
+  margin-left: 3px;
+  padding-top: 4px;
+  z-index: var(--modalIndex);
+}
+
 #time {
   background: rgba(40, 109, 168, 0.7);
+  border: none;
+  border-radius: 0;
+  color: white!important;
   height: 30px;
-  padding: 3px 3px 0 3px;
+  padding-top: 3px;
   -webkit-user-select: none;
 }
-  
+
 #timebutton {
-  border-radius: 0;
+  float: left;
   opacity: 0.7;
   outline: 0 none;
-  padding: 0 0 0 0;
+}
+
+#liveBtn {
+  border: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 2px solid white;
+  float: left;
+  height: 30px;
+  margin-left: -50px;
+  padding: 0 10px;
 }
 
 #restOfPage {
@@ -33,6 +63,10 @@
 
 #restOfPage > div.navbar.fixed-top.navbar-light {
   background-color: transparent!important;
+}
+
+#wrapper > div.navbar.fixed-top > div.navbar.fixed-bottom.navbar-light {
+  height: 55px;
 }
 
 
