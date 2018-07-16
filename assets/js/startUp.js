@@ -392,7 +392,6 @@
             events.filter.push(value.value);
          });
         }
-        
         updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
@@ -403,9 +402,20 @@
      * getActiveEvents getst the active events and returns an object that contains the list
      * @param {Object} events is an object that has the property filters which is the list of active filters
      */
-    // function getActiveEvents() {
-    //
-    // }
+     function getActiveEvents() {
+       var events = {
+         'filter': []
+       },
+       activeEvents = $('#eventList li input:checked');
+       // determine if there is an 'active' event
+       if (activeEvents.length > 0) {
+         // collect all id's for the events that are 'active'
+         $.each(activeEvents, function(value) {
+           events.filter.push(value.value);
+         });
+       }
+       return events;
+     }
 
     /**
      * submitClientID gets the user provided clientID and sends it to the server
