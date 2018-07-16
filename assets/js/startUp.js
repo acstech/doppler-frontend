@@ -363,6 +363,12 @@
           eventMap.set(value, value);
           if (success) { // if the events being added are not the initial batch display the message
            defaultHamburgerBtn.addClass('circle');
+           eventAlert("Added New Filter: " + value);
+           window.setTimeout(function() { // this makes the eventAlert disappear after three seconds.
+             $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
+               $(this).remove();
+             });
+           }, 3000);
           }
         }
       });
@@ -392,6 +398,7 @@
             events.filter.push(value.value);
          });
         }
+
         updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
@@ -632,6 +639,23 @@
     }
 
     /**
+     * eventAlert creates and displays an alert when a new filter is added.
+     * @param {String} message is the message to display in the error message
+     */
+    function eventAlert(message) {
+      // if any alerts are currently on the screen, update them them
+      var already = $('.alert'),
+        alertBody = '<strong>New Event Added!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong> ' + message +
+          '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+          '<span aria-hidden="true">&times;</span>';
+
+      var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + alertBody +
+                    '</button></div>';
+          body.append(alert);
+        $('.alert').alert();
+      }
+
+    /**
      * getPlaybackData makes an ajax call to get data for playback
      * @param {Inter} startDate is the starting date for the for the desired data
      * @param {Date} endDate is the ending date for the for the desired data
@@ -664,7 +688,7 @@
           wait = false;
           spinner.removeClass('visible');
           dateButton.prop('disabled', false);
-          errorAlert("505: Unable to get historical data.")
+          errorAlert("505: Unable to get historical data.");
         }
       });
 
