@@ -410,7 +410,7 @@
        // determine if there is an 'active' event
        if (activeEvents.length > 0) {
          // collect all id's for the events that are 'active'
-         $.each(activeEvents, function(value) {
+         $.each(activeEvents, function(index, value) {
            events.filter.push(value.value);
          });
        }
