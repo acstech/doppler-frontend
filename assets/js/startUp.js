@@ -359,7 +359,7 @@
       }
       $.each(events, function(index, value) {
         if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
-          listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> ' + value + '</li>';
+          listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> &nbsp;&nbsp;' + value + '</li>';
           eventMap.set(value, value);
           if (success) { // if the events being added are not the initial batch display the message
            defaultHamburgerBtn.addClass('circle');
@@ -387,6 +387,7 @@
     function sendActiveEventList() {
       // make sure websocket is open
       if (ws.readyState === ws.OPEN) {
+
         var events = {
            'filter': []
          },
@@ -409,6 +410,7 @@
      * getActiveEvents getst the active events and returns an object that contains the list
      * @param {Object} events is an object that has the property filters which is the list of active filters
      */
+
      function getActiveEvents() {
        var events = {
          'filter': []
