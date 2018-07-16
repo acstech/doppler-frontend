@@ -73,13 +73,14 @@
       key1 = $('#colors1'),
       key2 = $('#colors2'),
       key3 = $('#colors3'),
-      defaultHamburgerBtn = $('span#normalHamburger'),
+      defaultHamburgerBtn = $('#normalHamburger'),
       sidebarWrapper = $('#sidebar-wrapper'),
       menuSidebarToggle = $('#toggleMenu'),
+      homeSidebarToggle = $('#toggle'),
       body = $('body'),
       timeDisplay = $('#time'),
-      marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
       eventList = $('#eventList'),
+      marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
       liveBtn = $('#liveBtn'),
       US = $("#unitedStatesMapRecenter"),
       southEastUS = $("#southeasternUSMapRecenter"),
@@ -160,6 +161,11 @@
     // this allows the second button to close the menu
     menuSidebarToggle.mouseup(function() {
       sidebarWrapper.slideReveal("toggle");
+      // defaultHamburgerBtn.removeClass('circle');
+    });
+
+    // this removes the red button from the homeToggle
+    homeSidebarToggle.mouseup(function() {
       defaultHamburgerBtn.removeClass('circle');
     });
 
@@ -375,7 +381,18 @@
     function sendActiveEventList() {
       // make sure websocket is open
       if (ws.readyState === ws.OPEN) {
-        var events = getActiveEvents();
+        var events = {
+           'filter': []
+         },
+         activeEvents = $('#eventList li input:checked');
+       // determine if there is an 'active' event
+       if (activeEvents.length > 0) {
+         // collect all id's for the events that are 'active'
+          $.each(activeEvents, function(index, value) {
+            events.filter.push(value.value);
+         });
+        }
+        
         updateTicker(events.filter);
         // send the the events to the server
         ws.send(JSON.stringify(events));
@@ -386,20 +403,9 @@
      * getActiveEvents getst the active events and returns an object that contains the list
      * @param {Object} events is an object that has the property filters which is the list of active filters
      */
-    function getActiveEvents() {
-      var events = {
-        'filter': []
-      },
-      activeEvents = $('#eventList li input:checked');
-      // determine if there is an 'active' event
-      if (activeEvents.length > 0) {
-        // collect all id's for the events that are 'active'
-        $.each(activeEvents, function(value) {
-          events.filter.push(value.value);
-        });
-      }
-      return events;
-    }
+    // function getActiveEvents() {
+    //
+    // }
 
     /**
      * submitClientID gets the user provided clientID and sends it to the server
@@ -651,7 +657,7 @@
           errorAlert("505: Unable to get historical data.")
         }
       });
-      
+
     }
 
     /**
