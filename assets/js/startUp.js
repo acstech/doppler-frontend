@@ -79,6 +79,7 @@
       homeSidebarToggle = $('#toggle'),
       body = $('body'),
       timeDisplay = $('#time'),
+      liveTime = true,
       eventList = $('#eventList'),
       marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
       liveBtn = $('#liveBtn'),
@@ -170,7 +171,7 @@
     });
 
     // start showing the time to the user
-    displayTime();
+    updateLiveTime();
 
     // try to connect to the websosket, if there is an error display the error modal
     try {
@@ -191,6 +192,9 @@
         decayInterval = setInterval(decayTimer, decayRate);
         dateSelector.removeClass('visible');
         selfClose = false;
+        liveTime = true;
+        updateLiveTime();
+        //displayTime(today)
         $.when( createWebsocket()).then(function(){
             setTimeout(sendID, 100 );
           });
@@ -198,6 +202,7 @@
 
       // mouse up to toggle live data off
       timeDisplay.mouseup(function() {
+        liveTime = false;
         liveBtn.prop("disabled", false);
         timeDisplay.prop("disabled", true);
         // remove decay and refresh intervals
@@ -489,32 +494,46 @@
     /**
      * displayTime displays live time on the map
      */
-    function displayTime() {
+    function displayTime(theTime) {
+    //  var time = theTime;
       function checkTime(i) {
         return (i < 10) ? "0" + i : i;
       }
-      var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       var monthsArray = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
       ];
+      var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-      function startTime() {
-        var today = new Date(),
-          month = monthsArray[today.getMonth()],
-          dateFrontEnd = today.getDate(), // not sure why I had to redeclare the varibles here
-          year = today.getFullYear(),
-          wd = days[today.getDay()],
-          h = checkTime(today.getHours()),
-          m = checkTime(today.getMinutes()),
-          s = checkTime(today.getSeconds());
+          var month = monthsArray[theTime.getMonth()],
+           dateFrontEnd = theTime.getDate(), // not sure why I had to redeclare the variables here
+           year = theTime.getFullYear(),
+           wd = days[theTime.getDay()],
+           h = checkTime(theTime.getHours()),
+           m = checkTime(theTime.getMinutes()),
+           s = checkTime(theTime.getSeconds());
+          console.log(wd);
         timeDisplay.html(wd + " " + month + " " + dateFrontEnd + " " + year + ": " + " " +
           h + ":" + m + ":" + s);
-        var t = setTimeout(function() {
-          startTime();
-        }, 500);
-      }
-      startTime();
-    }
+
+  }
+
+  function updateLiveTime() {
+    var theTime = new Date();
+    displayTime(theTime);
+    var t = setTimeout(function() {
+      updateLiveTime();
+    }, 500);
+    if (!liveTime) {
+    clearTimeout(t);
+  }
+  }
+
+  function updateHistoryTime(theTime) {
+    liveTime = false;
+    var passtime = theTime/1000000;
+    var time = new Date(passtime);
+    displayTime(time);
+  }
 
     /**
      * updateTicker takes in an array of events and sets the ticker's text to that
@@ -671,6 +690,8 @@
             startTime: startDate,
             endTime: endDate
           };
+          //oldTime(time);
+          updateHistoryTime(playbackRequest.startTime);
       $.ajax({
         url: 'http://localhost:8000/receive/ajax',
         crossDomain: true,
@@ -682,6 +703,7 @@
           spinner.removeClass('visible');
           dateButton.prop('disabled', false);
           addPoints(result);
+          showTime(playbackRequest.startTime);
           adjustZoomGrade();
           heatmapLayer._update();
         },
