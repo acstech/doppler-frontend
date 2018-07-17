@@ -1,4 +1,4 @@
-# Doppler-Heatmap Frontened
+# Doppler-Heatmap Frontend
 The frontend of the Doppler-Heatmap application. This repository contains all the front-end assets necessary to receive and display data points from the backend connection and display location data for live events.
 ## Setup
 
