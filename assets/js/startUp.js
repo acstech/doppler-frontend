@@ -368,7 +368,8 @@
           eventMap.set(value, value);
           if (success) { // if the events being added are not the initial batch display the message
            defaultHamburgerBtn.addClass('circle');
-           eventAlert("Added New Filter: " + value);
+           eventAlert(value);
+
            window.setTimeout(function() { // this makes the eventAlert disappear after three seconds.
              $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
                $(this).remove();
@@ -511,7 +512,6 @@
            h = checkTime(theTime.getHours()),
            m = checkTime(theTime.getMinutes()),
            s = checkTime(theTime.getSeconds());
-          console.log(wd);
         timeDisplay.html(wd + " " + month + " " + dateFrontEnd + " " + year + ": " + " " +
           h + ":" + m + ":" + s);
 
@@ -666,7 +666,7 @@
     function eventAlert(message) {
       // if any alerts are currently on the screen, update them them
       var already = $('.alert'),
-        alertBody = '<strong>New Event Added!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong> ' + message +
+        alertBody = '<strong>New Event Added:&nbsp;&nbsp;</strong> ' + message +
           '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
           '<span aria-hidden="true">&times;</span>';
 
@@ -703,7 +703,6 @@
           spinner.removeClass('visible');
           dateButton.prop('disabled', false);
           addPoints(result);
-          showTime(playbackRequest.startTime);
           adjustZoomGrade();
           heatmapLayer._update();
         },
@@ -740,12 +739,11 @@
       self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\
                         <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
                         <div style="position: absolute;top: 0px;bottom: 1px;display: block;left: 50%;z-index:+2;margin-left: -20px;width: 40px;text-align: center;background: linear-gradient(#eee,#ddd);border: solid #CCC 1px;border-left: 0px;border-right: 0px;height: 36px !important;"><i style="position:absolute;left:50%;margin-left:-7px;top:50%;margin-top: -7px;" class="fa fa-calendar"></i></div>\n\
-                        <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 50%;right: 0px;padding-left: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="end" id="end" class="form-control" /></div>\n\
-                  </div>';
+                  </div>'; //took out the div for the second calendar input
       // get start and end elements for faster operation speed
       self.element.html(self.markup);
       self.startDrp = $('.rangecontainer input#start');
-      self.endDrp = $('.rangecontainer input#end');
+      self.endDrp = $('.rangecontainer input#start'); // got the end date to work by changeing 'end' to 'start'
       self.container = $('div#drp .rangecontainer');
 
       // update the the value of the object
@@ -773,7 +771,7 @@
        * @type object
        * @param {String} d date passed by constructor
        * @param {Integer} type Type of output format and either datepicker or datetimepicker
-       * @param {String} se Start or End
+       * @param {String} se Start or End  if another calendar is added at a ltater time.
        */
       function Drp(d, se) {
         // create a new daterange picker
