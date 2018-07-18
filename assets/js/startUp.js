@@ -64,7 +64,6 @@ $(document).ready(function() {
     datepicker = new DatePicker(start_date, end_date, 0),
     //  jQuery objects used for fast DOM manipulatoin
     dateSelector = $('#dateSelector'),
-    clearHistoricData = $('#clearHistoricData'),
     dateButton = $('#dateButton'),
     decaySlider = $("#myRange"),
     decayOutput = $("#demo"),
@@ -150,7 +149,6 @@ $(document).ready(function() {
 
   // remove invisiblility of the slider
   sidebarWrapper.addClass('visible');
-
   // add toggle and overlay to sidebar
   sidebarWrapper.slideReveal({
     trigger: $("#toggle"),
@@ -187,6 +185,7 @@ $(document).ready(function() {
     decaySubmit.mouseup(openDecayModal);
     // add event listener for live button click
     liveBtn.mouseup(function() { // mouseup occurs before click, so it starts the event sooner
+      liveBtn.prop("disabled", true);
       timeDisplay.prop("disabled", false);
       // add decay refresh intervals
       refreshInterval = setInterval(refreshTimer, refreshRate);
@@ -223,15 +222,9 @@ $(document).ready(function() {
         spinner.addClass('visible');
         getPlaybackData(datepicker.start, datepicker.end);
         dateButton.prop('disabled', true);
-        clearHistoricData.prop('disabled', true);
       } else {
         errorAlert('401: Invalid date range selected.')
       }
-    });
-
-    //used to reset the map at the user
-    clearHistoricData.mouseup(function (){
-      resetMap();
     });
 
     // listen to see if a clientID is entered in the input box
@@ -498,7 +491,6 @@ $(document).ready(function() {
     heatmapLayer._min = 0;
     heatmapLayer._draw();
     hideModal('resetModal');
-    console.log("WORKED");
   }
 
   /**
@@ -754,13 +746,6 @@ $(document).ready(function() {
           plotArray(hourPoints, count + 1);
         }
       }, 1000);
-
-    } else {
-      dateButton.prop('disabled', false);
-      clearHistoricData.prop('disabled', false)
-      $("#timebutton").click(function () {
-        liveBtn.html("Historical");
-      });
     }
   }
 

@@ -74,7 +74,7 @@ hr {
   z-index: var(--modalIndex);
 }
 
-.alert {
+.alert{
   text-align: center;
   z-index: var(--modalIndex);
 }
@@ -83,14 +83,6 @@ hr {
 #liveBtn:disabled,
 #liveBtn[disabled],
 #liveBtn:hover {
-  background-color: red!important;
+  background: red!important;
   opacity: 1;
-}
-
-#time:disabled,
-#time[disabled],
-#time:hover {
-  opacity: 1;
-  color: white;
-  background-color: red!important;
 }
