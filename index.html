@@ -36,24 +36,26 @@
     </div>
     <div>
       <button id="liveBtn" class="btn btn-primary" disabled>Live</button>
-      <div id="timebutton">
+      <div id="timeButton">
         <button id="time" class="btn btn-primary"></button>
+        <!-- <span id ="historicText">Click For Historical Mode</span> -->
       </div>
     </div>
   </div>
   <div class="navbar fixed-bottom navbar-light">
-    <div id="dateSelector" style="display: none;"> <!--This activates and deactivates the calendar-->
-      <div id="drp"></div>
-      <button id="dateButton" class="btn btn-primary">Submit</button>
+      <div id="dateSelector" style="display: none;"> <!--This activates and deactivates the calendar-->
+        <button id="clearHistoricData" class="btn btn-danger">Clear</button>
+        <div id="drp"></div>
+        <button id="dateButton" class="btn btn-primary">Submit</button>
+      </div>
+      <div id="legend">
+        <div id="keytext"></div>
+        <div id="colors"></div>
+        <div id="colors1"></div>
+        <div id="colors2"></div>
+        <div id="colors3"></div>
+      </div>
     </div>
-    <div id="legend">
-      <div id="keytext"></div>
-      <div id="colors"></div>
-      <div id="colors1"></div>
-      <div id="colors2"></div>
-      <div id="colors3"></div>
-    </div>
-  </div>
   <div class="animationload" style="display: none;">
     <div class="osahanloading"></div>
   </div>
