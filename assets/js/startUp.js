@@ -222,6 +222,7 @@ $(document).ready(function() {
         spinner.addClass('visible');
         getPlaybackData(datepicker.start, datepicker.end);
         dateButton.prop('disabled', true);
+        liveBtn.prop('disabled', true);
       } else {
         errorAlert('401: Invalid date range selected.')
       }
@@ -706,7 +707,6 @@ $(document).ready(function() {
         dataType: 'json',
         data: playbackRequest,
         success: function(result) {
-          dateButton.prop('disabled', false);
           hourPoints[result.Index] = result.Batch;
           console.log(result.Batch);
         },
@@ -737,8 +737,12 @@ $(document).ready(function() {
           heatmapLayer._update();
         }
         plotArray(hourPoints, count + 1);
-
       }, 1000);
+
+    } else {
+      dateButton.prop('disabled', false);
+      liveBtn.prop('disabled', false);
+      // liveBtn.prop('value', "Historic");
     }
   }
 }
