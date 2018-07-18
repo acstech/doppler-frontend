@@ -49,6 +49,7 @@ $(document).ready(function() {
     }),
     // primitives and data structures
     decayRate = 300000, // is used to keep track of the user input for the time interval for decay
+    filterchanged = false,
     refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
     success = false, // keeps track of whether an error occurred during client validation
     selfClose = false, // helps keep track of whether or not the websocket closed due to an error or by the user
@@ -80,6 +81,7 @@ $(document).ready(function() {
     homeSidebarToggle = $('#toggle'),
     body = $('body'),
     timeDisplay = $('#time'),
+    logoTime = $('#logoTime'),
     liveTime = true,
     eventList = $('#eventList'),
     marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
@@ -188,7 +190,7 @@ $(document).ready(function() {
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
       liveBtn.prop('disabled', true);
-      timeDisplay.prop("disabled", false);
+      logoTime.prop("disabled", false);
       // add decay refresh intervals
       refreshInterval = setInterval(refreshTimer, refreshRate);
       decayInterval = setInterval(decayTimer, decayRate);
@@ -197,17 +199,19 @@ $(document).ready(function() {
       selfClose = false;
       liveTime = true;
       updateLiveTime();
+      var activeEvents = $('#eventList li input:checked');
       //displayTime(today)
       $.when(createWebsocket()).then(function() {
         setTimeout(sendID, 100);
+        liveTransferEvent(activeEvents);
       });
     });
 
     // mouse up to toggle live data off
-    timeDisplay.mousedown(function() {
+    logoTime.mousedown(function() {
       liveTime = false;
       liveBtn.prop("disabled", false);
-      timeDisplay.prop("disabled", true);
+      logoTime.prop("disabled", true);
       // remove decay and refresh intervals
       resetMap();
       clearInterval(refreshInterval);
@@ -275,6 +279,33 @@ $(document).ready(function() {
       resetMap();
     });
   }
+
+  /**
+  * liveTransferEvent takes a list of checked events and reappends them to the main event list
+  */
+  function liveTransferEvent(checkedEvents) {
+      var masterList = eventList.html();
+      var listEvents = $('#eventList li input');
+      // console.log(checkedEvents);
+      if (checkedEvents.length != listEvents.length || filterchanged) {
+        masterList = "";
+        eventList.html(masterList);
+        //eventList.html();
+        $.each(listEvents, function(index, value)  {
+          var valName = value.value;
+        //  console.log(valName);
+          var checked = "";
+          $.each(checkedEvents, function(index1, value1)  {
+            if (value == value1) {
+                checked = "checked";
+                //console.log(value);
+            }
+          });
+            masterList += '<li><input type="checkbox" id="' + index + '" value="' + valName + '" ' + checked + '> &nbsp;&nbsp;' + valName + '</li>';
+        });
+      }
+      eventList.html(masterList);
+    }
 
   /**
    * openDecayModal opens a modal for changing decay rate
@@ -409,6 +440,7 @@ $(document).ready(function() {
         activeEvents = $('#eventList li input:checked');
       // determine if there is an 'active' event
       if (activeEvents.length > 0) {
+        filterchanged = true;
         // collect all id's for the events that are 'active'
         $.each(activeEvents, function(index, value) {
           events.filter.push(value.value);
@@ -605,7 +637,7 @@ $(document).ready(function() {
    * worldMapRecenter recenters the map
    */
   function worldMapRecenter() {
-    map.setView(new L.LatLng(16.937, -3.0938), 3); // this sets the location and zoom amount
+    map.setView(new L.LatLng(17.937, -38.0938), 3); // this sets the location and zoom amount
   }
 
   /**
@@ -781,7 +813,6 @@ $(document).ready(function() {
     }
     self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\
                         <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
-                        <div style="position: absolute;top: 0px;bottom: 1px;display: block;left: 50%;z-index:+2;margin-left: -20px;width: 40px;text-align: center;background: linear-gradient(#eee,#ddd);border: solid #CCC 1px;border-left: 0px;border-right: 0px;height: 36px !important;"><i style="position:absolute;left:50%;margin-left:-7px;top:50%;margin-top: -7px;" class="fa fa-calendar"></i></div>\n\
                   </div>'; //took out the div for the second calendar input
     // get start and end elements for faster operation speed
     self.element.html(self.markup);

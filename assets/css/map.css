@@ -26,14 +26,14 @@
 }
 
 #drp  {
-  margin-left: 125px;
+  margin-left: 175px;
 }
 
 #dateButton {
   height: 35px;
   margin-top: -45px;
   position: absolute;
-  left: 69%;
+  left: 65%;
   margin-left: 3px;
   padding-top: 4px;
   z-index: var(--modalIndex);
@@ -41,32 +41,37 @@
 
 #clearHistoricData {
   height: 35px;
+  left: 20%;
   margin-top: -0px;
-  position: absolute;
-  left: 10%;
   margin-right: 3px;
   padding-top: 4px;
+  position: absolute;
   z-index: var(--modalIndex);
 }
 
-#time {
+#logoTime {
   background: rgba(40, 109, 168, 0.7);
-  border: none;
-  border-radius: 0;
+  border: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
   color: white;
   height: 30px;
   padding-top: 3px;
   -webkit-user-select: none;
 }
 
-#timeButton {
+#time {
+  background: rgba(40, 109, 168, 0.7);
+  border-right: 2px solid white;
   float: left;
-  opacity: 1;
-  outline: 0 none;
-
+  padding: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
+  -webkit-user-select: none;
 }
 
 #liveBtn {
+  background-color: var(--popColor);
   border: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -75,23 +80,7 @@
   height: 30px;
   margin-left: -50px;
   padding: 0 10px;
-  background-color: var(--popColor);
 }
-/*
-#historicText {
-  display: none;
-  background: rgba(40, 109, 168, 0.7);
-  border: none;
-  border-radius: 0;
-  color: white;
-  height: 30px;
-  padding-top: 3px;
-  -webkit-user-select: none;
-} */
-
-/* #timeButton:hover #historicText {
-  display: block;
-} */
 
 #restOfPage {
   background-color: var(--neutral);

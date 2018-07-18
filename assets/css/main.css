@@ -87,10 +87,10 @@ hr {
   opacity: 1;
 }
 
-#time:disabled,
-#time[disabled],
-#time:hover {
-  opacity: 1;
-  color: white;
+#logoTime:disabled,
+#logoTime[disabled],
+#logoTime:hover {
   background-color: red!important;
+  color: white;
+  opacity: 1;
 }

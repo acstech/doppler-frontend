@@ -54,11 +54,13 @@ div.dropdown > div {
 .dropdown-item {
   align-content: center;
   color: white;
+  -webkit-user-select: none;
 }
 
 .dropdown.show
 .dropdown-item:hover { /* this makes the font color of the dropdown white */
   background: var(--popColor);
+  color: white;
 }
 
 

@@ -36,10 +36,8 @@
     </div>
     <div>
       <button id="liveBtn" class="btn btn-primary" disabled>Live</button>
-      <div id="timeButton">
-        <button id="time" class="btn btn-primary"></button>
-        <!-- <span id ="historicText">Click For Historical Mode</span> -->
-      </div>
+        <span id="time"></span>
+      <button id="logoTime" class="btn btn-primary"><i class="fas fa-history"></i></button>
     </div>
   </div>
   <div class="navbar fixed-bottom navbar-light">
@@ -89,13 +87,13 @@
           Map View
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenu2" >
+            <button class="dropdown-item" id="worldMapRecenter" type="button">World</button>
             <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
             <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
             <button class="dropdown-item" id="northWesternUSMapRecenter" type="button">Pacific North West US</button>
             <button class="dropdown-item" id="southAmericaMapRecenter" type="button">South America</button>
             <button class="dropdown-item" id="europeMapRecenter" type="button">Europe</button>
             <button class="dropdown-item" id="asiaMapRecenter" type="button">Asia</button>
-            <!-- <button class="dropdown-item" id="worldMapRecenter" type="button">World</button> -->
           </div>
         </div>
         <br><br>
