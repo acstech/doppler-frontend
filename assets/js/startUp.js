@@ -127,13 +127,13 @@ $(document).ready(function() {
   heatmapLayer._max = 32;
   adjustZoomGrade(); // setup legend text
   // add location event listeners
-  US.mouseup(unitedStatesMapRecenter);
-  southAmerica.mouseup(southAmericaMapRecenter);
-  europe.mouseup(europeMapRecenter);
-  asia.mouseup(asiaMapRecenter); //northWesternUSMapRecenter
-  southEastUS.mouseup(southeasternUSMapRecenter);
-  northWestUS.mouseup(northWesternUSMapRecenter);
-  recenter.mouseup(worldMapRecenter);
+  US.mousedown(unitedStatesMapRecenter);
+  southAmerica.mousedown(southAmericaMapRecenter);
+  europe.mousedown(europeMapRecenter);
+  asia.mousedown(asiaMapRecenter); //northWesternUSMapRecenter
+  southEastUS.mousedown(southeasternUSMapRecenter);
+  northWestUS.mousedown(northWesternUSMapRecenter);
+  recenter.mousedown(worldMapRecenter);
 
   // slider for Decay Time
   decayOutput.text(decaySlider.val()); // Display the default slider value
@@ -160,13 +160,13 @@ $(document).ready(function() {
   });
 
   // this allows the second button to close the menu
-  menuSidebarToggle.mouseup(function() {
+  menuSidebarToggle.mousedown(function() {
     sidebarWrapper.slideReveal("toggle");
     // defaultHamburgerBtn.removeClass('circle');
   });
 
   // this removes the red button from the homeToggle
-  homeSidebarToggle.mouseup(function() {
+  homeSidebarToggle.mousedown(function() {
     defaultHamburgerBtn.removeClass('circle');
   });
 
@@ -181,10 +181,10 @@ $(document).ready(function() {
       false, startModalBtn); // creates the starting modal
     // starting modal opens
     $('#startModal').modal();
-    filterSubmit.mouseup(openMapResetModal);
-    decaySubmit.mouseup(openDecayModal);
+    filterSubmit.mousedown(openMapResetModal);
+    decaySubmit.mousedown(openDecayModal);
     // add event listener for live button click
-    liveBtn.mouseup(function() { // mouseup occurs before click, so it starts the event sooner
+    liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
       liveBtn.prop("disabled", true);
       timeDisplay.prop("disabled", false);
       // add decay refresh intervals
@@ -202,7 +202,7 @@ $(document).ready(function() {
     });
 
     // mouse up to toggle live data off
-    timeDisplay.mouseup(function() {
+    timeDisplay.mousedown(function() {
       liveTime = false;
       liveBtn.prop("disabled", false);
       timeDisplay.prop("disabled", true);
@@ -216,7 +216,7 @@ $(document).ready(function() {
     });
 
     // add event listener for querying for historical data
-    dateButton.mouseup(function() {
+    dateButton.mousedown(function() {
       if (datepicker.diff >= 1) {
         wait = true;
         spinner.addClass('visible');
@@ -242,11 +242,11 @@ $(document).ready(function() {
       // get the first and only clientSubmit button from the array and make sure that it is not disabled
       if (event.keyCode === 13 && !clientSubmit[0].disabled) {
         // Trigger the button element with a click
-        clientSubmit.mouseup();
+        clientSubmit.mousedown();
       }
     });
 
-    clientSubmit.mouseup(submitClientID);
+    clientSubmit.mousedown(submitClientID);
   } catch (err) {
     errorAlert('505: Unable to connect to live data.');
   }
@@ -262,7 +262,7 @@ $(document).ready(function() {
       keyboard: false
     });
     // add event listener for reseting the maps points
-    $("#resetButtonFinal").mouseup(function() {
+    $("#resetButtonFinal").mousedown(function() {
       sendActiveEventList();
       resetMap();
     });
@@ -279,7 +279,7 @@ $(document).ready(function() {
       keyboard: false
     });
 
-    $("#decayButtonFinal").mouseup(function() {
+    $("#decayButtonFinal").mousedown(function() {
       decayRate = decaySlider.val() * 1000;
       refreshRate = refreshSlider.val() * 1000;
       clearInterval(decayInterval);
@@ -723,7 +723,6 @@ $(document).ready(function() {
       spinner.removeClass('visible');
       plotArray(hourPoints, 0);  // starts animating array
     });
-  }
 
 
 
@@ -744,8 +743,10 @@ $(document).ready(function() {
             heatmapLayer._update();
           }
           plotArray(hourPoints, count + 1);
+        } else {
+          dateButton.prop('disabled', false);
         }
-      }, 1000);
+      }, 500);
     }
   }
 
