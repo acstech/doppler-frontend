@@ -222,7 +222,6 @@ $(document).ready(function() {
         spinner.addClass('visible');
         getPlaybackData(datepicker.start, datepicker.end);
         dateButton.prop('disabled', true);
-        liveBtn.prop('disabled', true);
       } else {
         errorAlert('401: Invalid date range selected.')
       }
@@ -617,9 +616,9 @@ $(document).ready(function() {
   /**
    * decay takes in a value, a key, and a map and determines if a point should stay on it based on the
    * count property of the value after having the decayMath function applied to it
-   * @param {Objetc} value is the value of the key/value pair stored in the map (it should have a count property)
+   * @param {Object} value is the value of the key/value pair stored in the map (it should have a count property)
    * @param {String} key is the key of the key/value pair stored in the map
-   * @param {Objetc} map is the map that the key/value pair is from
+   * @param {Object} map is the map that the key/value pair is from
    */
   function decay(value, key, map) {
     // check to see if decaying the point will give it a count of 0 or less, if so remove it
@@ -688,7 +687,7 @@ $(document).ready(function() {
     var hourPoints = []; // used to store an array of points for each hour
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
-    var requestArray = [];
+    var requestArray = [];  // allows us to check when all primises are completed
     for (var i = 0; i < frames; i++) {
       var events = getActiveEvents(),
         playbackRequest = {
@@ -718,34 +717,37 @@ $(document).ready(function() {
       }));
     }
 
+    //runs when requestArray promises are all done.
     $.when.apply($, requestArray).done(function() {
       wait = false;
       spinner.removeClass('visible');
-      plotArray(hourPoints, 0);
+      plotArray(hourPoints, 0);  // starts animating array
     });
+  }
 
 
 
-  function plotArray(hourPoints, count) {
-    if (count < 24) {
+    /**
+     * plotArray goes through the array and plots each hour every second.
+     * @param {Array} hourPoints each index is the group of points for the i'th hour
+     * @param {Integer} count the hour that is currently being plotted
+     */
+    function plotArray(hourPoints, count) {
+
       // every 1000ms it will add the next hour of points and update the map.
       setTimeout(function() {
-        if (hourPoints[count]) {
-          addPoints(hourPoints[count]);
-          updateHistoryTime(startDate+count*range);
-          adjustZoomGrade();
-          heatmapLayer._update();
+        if (count < hourPoints.length && !$("#liveBtn").is(":disabled")) {
+          if (hourPoints[count]) {
+            addPoints(hourPoints[count]);
+            updateHistoryTime(startDate + count * range);
+            adjustZoomGrade();
+            heatmapLayer._update();
+          }
+          plotArray(hourPoints, count + 1);
         }
-        plotArray(hourPoints, count + 1);
       }, 1000);
-
-    } else {
-      dateButton.prop('disabled', false);
-      liveBtn.prop('disabled', false);
-      // liveBtn.prop('value', "Historic");
     }
   }
-}
 
 
   /**
