@@ -647,7 +647,7 @@ $(document).ready(function() {
     var a = heatmapLayer._max / 4;
     var b = heatmapLayer._min;
     var c = a / 2;
-    key.html('Events');
+    key.html('<i class="fas fa-fire"></i>');
     key1.html(Math.ceil(b));
     key2.html(Math.ceil(c));
     key3.html(Math.ceil(a));

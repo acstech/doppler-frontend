@@ -121,35 +121,37 @@
   background: linear-gradient(to right, blue, lawngreen, yellow, red);
   display: inline-block;
   height: 20px;
-  left: 50%;
-  padding-right: 100px;
+  left: 46%;
+  padding-right: 50px;
   position: relative;
   text-align: left;
-  top: 50%;
+  top: 90%;
   width: 38%;
 }
 
 #keytext {
   display: inline-block;
-  padding: 23px 0 0 165px;
+  padding: 39px 0 0 182px;
   position: absolute;
+  color: black;
 }
 
 #colors1 {
   display: inline-block;
-  padding: 0 55px 0 51px;
-  position: relative;
+  padding: 18px 55px 0 36px;
+  position: absolute;
 }
 
 #colors2 {
   display: inline-block;
-  padding-right: 55px;
-  position: relative;
+  padding: 18px 55px 0 110px;
+  position: absolute;
 }
 
 #colors3 {
   display: inline-block;
-  position: relative;
+  padding: 18px 55px 0 180px;
+  position: absolute;
 }
 
 /*  Ticker for the active events
