@@ -3,9 +3,10 @@
    ========================================================================== */
 
 
-@import 'spinner.css';
+/* @import 'spinner.css'; */
 @import 'sidebar.css';
 @import 'map.css';
+@import 'spinner.css';
 
 /* Variables declerations
    ========================================================================== */
@@ -23,7 +24,7 @@
 
 body {
   color: white;
-  font-family: "Open Sans";
+  font-family: "IBM Plex Sans";
   margin: 0%;
   width: 100%;
 }
