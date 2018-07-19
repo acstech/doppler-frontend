@@ -7,10 +7,13 @@
   <title>Doppler Heatmap</title>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
   <link rel="icon" href="assets/images/faviconGlobeDarkBlue.png" type="image/">
   <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/map.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/sidebar.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/spinner.css">
   <!--link to the styling-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="" />
   <!-- Time display font -->
@@ -28,21 +31,22 @@
         <i class="fas fa-bars fa-2x"></i>
         <span id="normalHamburger"></span>
       </span>
-    <div class ="ticker-background">
-      <div class="ticker">
-        <span>Current Events</span>
-        <marquee scrollamount="7"></marquee>
-        <!--In JQuery, put hardcoded tab between each generated event.-->
+      <div class="ticker-background">
+        <div class="ticker">
+          <span>Current Events</span>
+          <marquee scrollamount="7"></marquee>
+          <!--In JQuery, put hardcoded tab between each generated event.-->
+        </div>
+      </div>
+      <div>
+        <button id="liveBtn" class="btn btn-primary" disabled>Live</button>
+        <span id="time"></span>
+        <button id="logoTime" class="btn btn-primary"><i class="fas fa-history"></i></button>
       </div>
     </div>
-    <div>
-      <button id="liveBtn" class="btn btn-primary" disabled>Live</button>
-        <span id="time"></span>
-      <button id="logoTime" class="btn btn-primary"><i class="fas fa-history"></i></button>
-    </div>
-  </div>
-  <div class="navbar fixed-bottom navbar-light">
-      <div id="dateSelector" style="display: none;"> <!--This activates and deactivates the calendar-->
+    <div class="navbar fixed-bottom navbar-light">
+      <div id="dateSelector" style="display: none;">
+        <!--This activates and deactivates the calendar-->
         <button id="clearHistoricData" class="btn btn-danger">Clear</button>
         <div id="drp"></div>
         <button id="dateButton" class="btn btn-primary">Submit</button>
@@ -55,9 +59,12 @@
         <div id="colors3"></div>
       </div>
     </div>
-  <div class="animationload" style="display: none;">
-    <div class="osahanloading"></div>
-  </div>
+    <div class="animationload" style="display: none;">
+      <div class="osahanloading"></div>
+      <div class="randomText">
+        Random Text
+      </div>
+    </div>
     <div id="sidebar-wrapper" style="display: none;">
       <span id="toggleMenu" class="menu-toggle-sidebar"> <!--Second menu button-->
         <i class="fas fa-bars fa-2x"></i>
@@ -72,12 +79,12 @@
           <p>Select Event Filters Below</p>
           <!-- <hr> -->
           <div id="filterSelect">
-              <ul id="eventList">
-              </ul>
+            <ul id="eventList">
+            </ul>
           </div>
           <button class="btn btn-primary" id="filterSubmit">Submit</button>
         </div>
-        <!--End of pull left--> <br>
+        <!--End of pull left--><br>
         <hr>
         <div class="view-title">
           <p> Switch To Different Location</p>
@@ -87,7 +94,7 @@
           <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Map View
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenu2" >
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
             <button class="dropdown-item" id="worldMapRecenter" type="button">World</button>
             <button class="dropdown-item" id="unitedStatesMapRecenter" type="button">North America</button>
             <button class="dropdown-item" id="southeasternUSMapRecenter" type="button">South East US</button>
@@ -119,7 +126,6 @@
       <!--This is our map-->
     </div>
   </div>
-</div>
   <!--This is the div for the wrapper-->
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

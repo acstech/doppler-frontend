@@ -2,31 +2,40 @@
    Spinner rules for loading
    ========================================================================== */
 
-
+.randomText{
+  height: 50px;
+  position: relative;
+  top: 59%;
+  text-align: center;
+  font-size: 30px;
+  margin-top: -70px;
+}
 .animationload {
     height: 100%;
     left: 0;
     position: absolute;
+    background-color: black;
+    opacity: 0.5;
     top: 0;
     width: 100%;
     z-index: calc(var(--modalIndex) + 1);
 }
 
 .osahanloading {
-    animation: 1.5s linear 0s normal none infinite running osahanloading;
-    background: #fed37f none repeat scroll 0 0;
+    animation: 1.5s ease-in-out 0s normal none infinite running osahanloading;
+    background: #85d6de none repeat scroll 0 0;
     border-radius: 50px;
     height: 50px;
     left: 50%;
     margin-left: -25px;
-    margin-top: -25px;
+    margin-top: -65px;
     position: absolute;
     top: 50%;
     width: 50px;
 }
 
 .osahanloading::after {
-    animation: 1.5s linear 0s normal none infinite running osahanloading_after;
+    animation: 1.5s ease-in-out 0s normal none infinite running osahanloading_after;
     border-color: #85d6de transparent;
     border-radius: 80px;
     border-style: solid;
@@ -44,7 +53,7 @@
         transform: rotate(0deg);
     }
     50% {
-        background: #85d6de none repeat scroll 0 0;
+        background: #c654ff none repeat scroll 0 0;
         transform: rotate(180deg);
     }
     100% {

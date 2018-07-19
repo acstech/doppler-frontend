@@ -126,6 +126,26 @@ $(document).ready(function() {
     [-85, -180]
   ]);
 
+  var loadingPrompts = [
+    "Migrating servers to a single Raspberry Pi powered by Hammie, our onsite hamster technician...",
+    "Stealing map back from Nicholas Cage…",
+    "Harnessing the power of one thousand gophers...",
+    "Reading documentation on how to write good documentation...",
+    "Trying to escape Vim…",
+    "Withdrawing 0.00411340 BTC mining fee…",
+    "Using middle out compression…",
+    "Downloading more RAM…",
+    "Withdrawing 0.00411340 BTC mining fee…",
+    "Deleting emails…",
+    "Directing to Honey Pot...",
+    "Updating Windows...",
+    "Hiding browser history...",
+    "Tracing IP address…",
+    "Crossing fingers hoping nothing breaks...",
+    "Gaining root access to 127.0.0.1",
+    "Downloading WannaCry"
+  ];
+
   // sets the heatmapLayer
   heatmapLayer._max = 32;
   adjustZoomGrade(); // setup legend text
@@ -225,12 +245,13 @@ $(document).ready(function() {
     dateButton.mousedown(function() {
       if (datepicker.diff >= 1) {
         wait = true;
-        spinner.addClass('visible');
+        // spinner.addClass('visible');
+        showSpinner();
         getPlaybackData(datepicker.start, datepicker.end);
         dateButton.prop('disabled', true);
         clearHistoricData.prop('disabled', true);
       } else {
-        errorAlert('401: Invalid date range selected.')
+        errorAlert('401: Invalid date range selected.');
       }
     });
 
@@ -244,7 +265,7 @@ $(document).ready(function() {
     clientSubmit = $('#enter');
     clientID.on('input', function() {
       if (this.value.trim().length > 0) { // the user has actually input text
-        clientSubmit.prop("disabled", false);;
+        clientSubmit.prop("disabled", false);
       } else { // disable the button becuase the input box is empty
         clientSubmit.prop("disabled", true);
       }
@@ -480,7 +501,8 @@ $(document).ready(function() {
     // set the clientID and then send it
     client = clientID.val();
     // show the loading spinner and disable the client
-    spinner.addClass('visible');
+    // spinner.addClass('visible');
+    showSpinner();
     clientSubmit.prop('disabled', true);
     wait = true;
     sendID();
@@ -497,7 +519,7 @@ $(document).ready(function() {
    */
   function createModal(ID, title, forceStay, modalBody, cancel, submitBtn) {
     // create the modal html in string representation
-    var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';;
+    var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';
     if (forceStay) {
       modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false" data-backdrop="static" data-keyboard="false" >';
     }
@@ -506,7 +528,7 @@ $(document).ready(function() {
     modal += '<div class="modal-header">';
     modal += '<h5 class="modal-title">' + title + '</h5>';
     modal += '</div>';
-    modal += '<div class="modal-body">'
+    modal += '<div class="modal-body">';
     modal += modalBody;
     modal += '</div>';
     modal += '<div class="modal-footer">';
@@ -728,6 +750,17 @@ $(document).ready(function() {
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
     var requestArray = [];  // allows us to check when all primises are completed
+
+    function successFunc(result) {
+      hourPoints[result.Index] = result.Batch;
+      console.log(result.Batch);
+    }
+    function errFunc() {
+      // get rid of the spinner
+      dateButton.prop('disabled', false);
+      errorAlert("505: Unable to get historical data.");
+    }
+
     for (var i = 0; i < frames; i++) {
       var events = getActiveEvents(),
         playbackRequest = {
@@ -745,22 +778,16 @@ $(document).ready(function() {
         crossDomain: true,
         dataType: 'json',
         data: playbackRequest,
-        success: function(result) {
-          hourPoints[result.Index] = result.Batch;
-          console.log(result.Batch);
-        },
-        error: function() {
-          // get rid of the spinner
-          dateButton.prop('disabled', false);
-          errorAlert("505: Unable to get historical data.")
-        }
+        success: successFunc,
+        error: errFunc
       }));
     }
 
     //runs when requestArray promises are all done.
     $.when.apply($, requestArray).done(function() {
       wait = false;
-      spinner.removeClass('visible');
+      // spinner.removeClass('visible');
+      hideSpinner();
       plotArray(hourPoints, 0);  // starts animating array
     });
 
@@ -811,9 +838,7 @@ $(document).ready(function() {
       self.format = 'MM/DD/YYYY HH:mm:ss';
       self.format = true;
     }
-    self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\
-                        <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
-                  </div>'; //took out the div for the second calendar input
+    self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\<div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\</div>'; //took out the div for the second calendar input
     // get start and end elements for faster operation speed
     self.element.html(self.markup);
     self.startDrp = $('.rangecontainer input#start');
@@ -880,7 +905,8 @@ $(document).ready(function() {
     // log any messages recieved
     ws.addEventListener("message", function(e) {
       if (wait) {
-        spinner.removeClass('visible');
+        // spinner.removeClass('visible');
+        hideSpinner();
         clientSubmit.prop('disabled', false);
       }
       wait = false;
@@ -901,7 +927,7 @@ $(document).ready(function() {
     // on open display that the websocket connection succeeded
     ws.onopen = function() {
       console.log("Connection made!");
-      dfd.resolve("Connection made!")
+      dfd.resolve("Connection made!");
     };
 
     // when the connection closes display that the connection has been made
@@ -923,5 +949,16 @@ $(document).ready(function() {
     ws.send(JSON.stringify({
       clientID: client
     }));
+  }
+
+
+  // Shows spinner and generates random text
+  function showSpinner() {
+    $('.randomText').text(loadingPrompts[Math.floor(Math.random()*loadingPrompts.length)]);
+    spinner.addClass('visible');
+  }
+
+  function hideSpinner() {
+    spinner.removeClass('visible');
   }
 });
