@@ -162,10 +162,12 @@ $(document).ready(function() {
   decayOutput.text(decaySlider.val()); // Display the default slider value
   refreshOutput.text(refreshSlider.val()); // Display the default slider value
 
+  // changes the decay slider rate
   decaySlider.on('input', function() {
     decayOutput.text(this.value);
   });
 
+  // changes the refresh slider rate
   refreshSlider.on('input', function() {
     refreshOutput.text(this.value);
   });
@@ -175,7 +177,7 @@ $(document).ready(function() {
 
   // add toggle and overlay to sidebar
   sidebarWrapper.slideReveal({
-    trigger: $("#toggle"),
+    trigger: homeSidebarToggle,
     push: false,
     width: 390,
     autoEscape: true,
@@ -207,10 +209,12 @@ $(document).ready(function() {
     $('#startModal').modal();
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
+
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
       liveBtn.prop('disabled', true);
       logoTime.prop("disabled", false);
+      homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
       // add decay refresh intervals
       refreshInterval = setInterval(refreshTimer, refreshRate);
       decayInterval = setInterval(decayTimer, decayRate);
@@ -227,11 +231,11 @@ $(document).ready(function() {
       });
     });
 
-    // mouse up to toggle live data off
     logoTime.mousedown(function() {
       liveTime = false;
       liveBtn.prop("disabled", false);
       logoTime.prop("disabled", true);
+      homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
       // remove decay and refresh intervals
       resetMap();
       clearInterval(refreshInterval);
@@ -556,32 +560,14 @@ $(document).ready(function() {
   }
 
   /**
-   * displayTime displays live time on the map
+   * displayTime displays live time on the map using moment
    */
   function displayTime(theTime) {
-    //  var time = theTime;
-    function checkTime(i) {
-      return (i < 10) ? "0" + i : i;
-    }
-    var monthsArray = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-    var month = monthsArray[theTime.getMonth()],
-      dateFrontEnd = theTime.getDate(), // not sure why I had to redeclare the variables here
-      year = theTime.getFullYear(),
-      wd = days[theTime.getDay()],
-      h = checkTime(theTime.getHours()),
-      m = checkTime(theTime.getMinutes()),
-      s = checkTime(theTime.getSeconds());
-    timeDisplay.html(wd + " " + month + " " + dateFrontEnd + " " + year + ": " + " " +
-      h + ":" + m + ":" + s);
-
+    timeDisplay.html(theTime)
   }
 
   function updateLiveTime() {
-    var theTime = new Date();
+    var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
     displayTime(theTime);
     var t = setTimeout(function() {
       updateLiveTime();
@@ -593,7 +579,7 @@ $(document).ready(function() {
 
   function updateHistoryTime(theTime) {
     liveTime = false;
-    var passtime = theTime / 1000000;
+    var passtime = theTime / 1000000; // need to convert from nano to normal seconds
     var time = new Date(passtime);
     displayTime(time);
   }
@@ -755,6 +741,7 @@ $(document).ready(function() {
       hourPoints[result.Index] = result.Batch;
       console.log(result.Batch);
     }
+
     function errFunc() {
       // get rid of the spinner
       dateButton.prop('disabled', false);
@@ -770,8 +757,6 @@ $(document).ready(function() {
           startTime: startDate + range * i,
           endTime: startDate + range * (i + 1)
         };
-      //oldTime(time);
-      updateHistoryTime(playbackRequest.startTime);
 
       requestArray.push($.ajax({
         url: 'http://localhost:8000/receive/ajax',
@@ -816,7 +801,7 @@ $(document).ready(function() {
         }
       }, 1000);
     }
-  }
+  } // end of getPlaybackData
 
 
   /**
@@ -950,7 +935,6 @@ $(document).ready(function() {
       clientID: client
     }));
   }
-
 
   // Shows spinner and generates random text
   function showSpinner() {
