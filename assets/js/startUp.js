@@ -60,9 +60,8 @@ $(document).ready(function() {
     eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
     start_date = moment().subtract(1, 'days'),
-    end_date = moment(),
     // setup calendars
-    datepicker = new DatePicker(start_date, end_date, 0),
+    datepicker = new DatePicker(start_date, 0),
     //  jQuery objects used for fast DOM manipulatoin
     dateSelector = $('#dateSelector'),
     clearHistoricData = $('#clearHistoricData'),
@@ -247,15 +246,14 @@ $(document).ready(function() {
 
     // add event listener for querying for historical data
     dateButton.mousedown(function() {
-      if (datepicker.diff >= 1) {
+      if ($('#eventList li input:checked').length > 0) {
         wait = true;
-        // spinner.addClass('visible');
         showSpinner();
         getPlaybackData(datepicker.start, datepicker.end);
         dateButton.prop('disabled', true);
         clearHistoricData.prop('disabled', true);
       } else {
-        errorAlert('401: Invalid date range selected.');
+        createAlert('401: Invalid event selection.', 'danger');
       }
     });
 
@@ -285,7 +283,7 @@ $(document).ready(function() {
 
     clientSubmit.mousedown(submitClientID);
   } catch (err) {
-    errorAlert('505: Unable to connect to live data.');
+    createAlert('505: Unable to connect to live data.', 'danger');
   }
   /**** functions from this point on ****/
   /**
@@ -307,6 +305,7 @@ $(document).ready(function() {
 
   /**
   * liveTransferEvent takes a list of checked events and reappends them to the main event list
+  * @param {Array} checkedEvents is an array of all the active events
   */
   function liveTransferEvent(checkedEvents) {
       var masterList = eventList.html();
@@ -560,12 +559,16 @@ $(document).ready(function() {
   }
 
   /**
-   * displayTime displays live time on the map using moment
+   * displayTime displays live time on the map
+   * @param {String} theTime is a string that will be displayed to the user
    */
   function displayTime(theTime) {
     timeDisplay.html(theTime)
   }
 
+  /**
+   * updateLiveTime updates the time for the user while live mode is active
+   */
   function updateLiveTime() {
     var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
     displayTime(theTime);
@@ -577,6 +580,10 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * updateHistoryTime takes in a date as unix seconds and displays it to the user
+   * @param {Integer} theTime is the time to be displayed to the user during historical mode
+   */
   function updateHistoryTime(theTime) {
     liveTime = false;
     var passtime = theTime / 1000000; // need to convert from nano to normal seconds
@@ -689,23 +696,21 @@ $(document).ready(function() {
   }
 
   /**
-   * errorAlert creates and displays an alert with an error message
+   * createAlert creates and displays an alert with an error message
    * @param {String} message is the message to display in the error message
+   * @param {String} classType is the class type that the alert will use, for example 'danger'
    */
-  function errorAlert(message) {
-    // if any alerts are currently on the screen, update them them
-    var already = $('.alert'),
-      alertBody = '<strong>Oops! Something went wrong.</strong> ' + message +
+  function createAlert(message, classType) {
+    var alert = '<div class="alert alert-' + classType + ' alert-dismissible fade show" role="alert">' + 
+    '<strong>Oops! Something went wrong.</strong> ' + message +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-      '<span aria-hidden="true">&times;</span>';
-    if (already.length !== 0) {
-      already.html(alertBody);
-    } else {
-      var alert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' + alertBody +
-        '</button></div>';
-      body.append(alert);
-      $('.alert').alert();
+      '<span aria-hidden="true">&times;</span> </button></div>',
+      already = $('.alert');
+    if (already.length > 0 ) {
+      already.remove();
     }
+    body.append(alert);
+    $('.alert').alert();
   }
 
   /**
@@ -713,22 +718,22 @@ $(document).ready(function() {
    * @param {String} message is the message to display in the error message
    */
   function eventAlert(message) {
-    // if any alerts are currently on the screen, update them them
-    var already = $('.alert'),
-      alertBody = '<strong>New Event Added:&nbsp;&nbsp;</strong> ' + message +
-      '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-      '<span aria-hidden="true">&times;</span>';
-
-    var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + alertBody +
-      '</button></div>';
+    var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + 
+                '<strong>New Event Added:&nbsp;&nbsp;</strong> ' + message +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button></div>',
+        already = $('.alert');
+    if (already.length > 0 ) {
+      already.remove();
+    }
     body.append(alert);
     $('.alert').alert();
   }
 
   /**
    * getPlaybackData makes an ajax call to get data for playback
-   * @param {Inter} startDate is the starting date for the for the desired data
-   * @param {Date} endDate is the ending date for the for the desired data
+   * @param {Integer} startDate is the starting date for the for the desired data in seconds
+   * @param {Integer} endDate is the ending date for the for the desired data in seconds
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
@@ -745,7 +750,7 @@ $(document).ready(function() {
     function errFunc() {
       // get rid of the spinner
       dateButton.prop('disabled', false);
-      errorAlert("505: Unable to get historical data.");
+      createAlert("505: Unable to get historical data.", "danger");
     }
 
     for (var i = 0; i < frames; i++) {
@@ -764,16 +769,31 @@ $(document).ready(function() {
         dataType: 'json',
         data: playbackRequest,
         success: successFunc,
-        error: errFunc
+        error: errFunc,
+        timeout: 30000 // sets timeout to 30 seconds
       }));
     }
 
     //runs when requestArray promises are all done.
     $.when.apply($, requestArray).done(function() {
+      let noData = true;
+      // check to see if no data was returned
+      for( var i = 0; i < frames; i++ ) {
+        console.log(hourPoints[i]);
+        if ( Object.keys(hourPoints[i]).length !== 0 ) {
+          noData = false;
+          break;
+        }
+      }
       wait = false;
-      // spinner.removeClass('visible');
       hideSpinner();
-      plotArray(hourPoints, 0);  // starts animating array
+      if ( noData ) {
+        createAlert('No data was found for the provided date range.', 'warning');
+        dateButton.prop('disabled', false);
+        clearHistoricData.prop('disabled', false);
+      } else {
+        plotArray(hourPoints, 0);  // starts animating array
+      }
     });
 
 
@@ -809,11 +829,10 @@ $(document).ready(function() {
    * @example First include the following element into the markup HTML for a concrete element.  <div class="drp"></div>
    * @example Call the constructor in a javascript file.  var mydatepicker = new DatePicker(start, end, 0);
    * @param {Moment} start Start date
-   * @param {Moment} end End date
    * @param {Integer} time Use 1 to enable time picker option
    * @returns {DatePicker}
    */
-  function DatePicker(start, end, time) {
+  function DatePicker(start, time) {
     var self = this; // used to make sure that the proper this variable is being used
     self.element = $("div#drp");
     if (time === 0) {
@@ -826,21 +845,19 @@ $(document).ready(function() {
     self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\<div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\</div>'; //took out the div for the second calendar input
     // get start and end elements for faster operation speed
     self.element.html(self.markup);
-    self.startDrp = $('.rangecontainer input#start');
-    self.endDrp = $('.rangecontainer input#start'); // got the end date to work by changeing 'end' to 'start'
+    self.drp = $('.rangecontainer input#start'); // got the end date to work by changeing 'end' to 'start'
     self.container = $('div#drp .rangecontainer');
 
     // update the the value of the object
     self.update = function update() {
-      var tempStart = moment(self.startDrp.val()),
-        tempEnd = moment(self.endDrp.val()).add(1, 'days');
+      var tempStart = moment(self.drp.val()),
+        tempEnd = moment(self.drp.val()).add(1, 'days');
       self.start = tempStart.valueOf() * 1000000;
       self.end = tempEnd.valueOf() * 1000000;
       self.diff = tempEnd.diff(tempStart, 'days');
     };
 
     new Drp(start.format(self.format), 'start');
-    new Drp(end.format(self.format), 'end');
 
     self.update();
 
@@ -849,7 +866,6 @@ $(document).ready(function() {
     });
 
     /**
-     * @author Rance Aaron
      * @class Drp
      * @description Wrapper object for date range picker
      * @type object
@@ -901,7 +917,7 @@ $(document).ready(function() {
         hideModal('startModal');
       } else {
         if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
-          errorAlert(data.Error);
+          createAlert(data.Error, "danger");
         } else { // if point(s) recieved
           addPoints(JSON.parse(data));
           adjustZoomGrade(); // update ledgend
@@ -921,7 +937,7 @@ $(document).ready(function() {
       // if the websocket was not closed internally
       if (!selfClose) {
         hideModal('startModal');
-        errorAlert('505: Unable to connect to live data.');
+        createAlert('505: Unable to connect to live data.', "danger");
       }
     };
   }
@@ -936,12 +952,17 @@ $(document).ready(function() {
     }));
   }
 
-  // Shows spinner and generates random text
+  /**
+   *  showSpinner shows spinner and generates random text 
+   */
   function showSpinner() {
     $('.randomText').text(loadingPrompts[Math.floor(Math.random()*loadingPrompts.length)]);
     spinner.addClass('visible');
   }
 
+  /**
+   *  hideSpinner hides the spinner
+   */
   function hideSpinner() {
     spinner.removeClass('visible');
   }
