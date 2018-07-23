@@ -1,4 +1,4 @@
-// 'use strict'; TODO: Uncomment
+'use strict';
 // none of these varaibles or functions are accessible outside of this document ready function
 $(document).ready(function() {
   moment.suppressDeprecationWarnings = true;
@@ -662,7 +662,7 @@ $(document).ready(function() {
   function displayHistoricalTime(theTime) {
     console.log("THE HISTORICAL TIME: " + theTime);
     timeDisplay.html(theTime);
-   
+
   }
 
   /**
@@ -803,7 +803,7 @@ $(document).ready(function() {
    * @param {String} classType is the class type that the alert will use, for example 'danger'
    */
   function createAlert(message, classType) {
-    var alert = '<div class="alert alert-' + classType + ' alert-dismissible fade show" role="alert">' + 
+    var alert = '<div class="alert alert-' + classType + ' alert-dismissible fade show" role="alert">' +
     '<strong>Oops! Something went wrong.</strong> ' + message +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
       '<span aria-hidden="true">&times;</span> </button></div>',
@@ -820,7 +820,7 @@ $(document).ready(function() {
    * @param {String} message is the message to display in the error message
    */
   function eventAlert(message) {
-    var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + 
+    var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
                 '<strong>New Event Added:&nbsp;&nbsp;</strong> ' + message +
                 '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                 '<span aria-hidden="true">&times;</span></button></div>',
@@ -948,14 +948,13 @@ $(document).ready(function() {
     self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\<div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\</div>'; //took out the div for the second calendar input
     // get start and end elements for faster operation speed
     self.element.html(self.markup);
-    self.drp = $('.rangecontainer input#start'); 
+    self.drp = $('.rangecontainer input#start');
     self.container = $('div#drp .rangecontainer');
 
     // update the the value of the object
     self.update = function update() {
-
-      var tempStart = moment(self.startDrp.val()),
-        tempEnd = moment(self.endDrp.val()).add(1, 'days');
+      var tempStart = moment(self.drp.val()),
+        tempEnd = moment(self.drp.val()).add(1, 'days');
       self.start = tempStart.valueOf() / 1000;
       self.end = tempEnd.valueOf() / 1000;
       self.diff = tempEnd.diff(tempStart, 'days');
@@ -1064,7 +1063,7 @@ $(document).ready(function() {
   }
 
   /**
-   *  showSpinner shows spinner and generates random text 
+   *  showSpinner shows spinner and generates random text
    */
   function showSpinner() {
     $('.randomText').text(loadingPrompts[Math.floor(Math.random()*loadingPrompts.length)]);
@@ -1192,7 +1191,7 @@ $(document).ready(function() {
     }
   }
 
-  // nav's in coming changes 
+  // nav's in coming changes
   function setFiltersURL() {
     var updatedURL = window.location.href;
     var activeEvents = [];
