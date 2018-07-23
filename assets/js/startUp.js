@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; TODO: Uncomment
 // none of these varaibles or functions are accessible outside of this document ready function
 $(document).ready(function() {
   moment.suppressDeprecationWarnings = true;
@@ -51,7 +51,7 @@ $(document).ready(function() {
     decayRate = 300000, // is used to keep track of the user input for the time interval for decay
     filterchanged = false,
     refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
-    success = false, // keeps track of whether an error occurred during client validation
+    firstPass = true, // keeps track of whether an error occurred during client validation
     selfClose = false, // helps keep track of whether or not the websocket closed due to an error or by the user
     mapChanged = false, // helps keep track of whether or not to redraw the map
     wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
@@ -132,7 +132,7 @@ $(document).ready(function() {
     "Reading documentation on how to write good documentation...",
     "Trying to escape Vim…",
     "Withdrawing 0.00411340 BTC mining fee…",
-    "Using middle out compression…",
+    "Using middle-out compression…",
     "Downloading more RAM…",
     "Withdrawing 0.00411340 BTC mining fee…",
     "Deleting emails…",
@@ -244,12 +244,74 @@ $(document).ready(function() {
       ws.close();
     });
 
+    var query = parseQuery(window.location.href), cid, d, r, l, f, ts;
+
+    if(query != null) {
+      cid = getCID(query);
+      console.log("Client ID: " + cid);
+      d = getDecay(query);
+      console.log("Decay: " + d);
+      r = getRefresh(query);
+      console.log("Refresh: " + r);
+      l = getLocation(query);
+      console.log("Location: " + l);
+      f = getFilters(query);
+      console.log("Filters: " + f);
+      ts = getTimeStamp(query);
+      console.log("Timestamp: " + ts);
+
+      // Set decay to query value
+      if (d != null) {
+        decaySlider.val(d);
+        decayOutput.text(decaySlider.val());
+        urlQueryDecay();
+      }
+      // Set refresh to query value
+      if (r != null) {
+        refreshSlider.val(r);
+        refreshOutput.text(refreshSlider.val());
+        urlQueryRefresh();
+      }
+      // if the user passes in a location, change view there.
+      if(l != null) {
+        map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
+      }
+      f = getFilters(query);
+    }
+
+    // Run historical mode
+    setTimeout(function(){
+      if (ts != null) {
+        // Stop updating livetime
+
+        liveTime = false;
+        // Close websocket
+        ws.close();
+        // Convert ts to int
+        tsInt = parseInt(ts[0]);
+        console.log(ts);
+        // Helps with calculating end date
+        var secondsDay = 86400;
+        // Click on historical mode button
+        $('#logoTime').trigger('mousedown');
+        getPlaybackData(tsInt, tsInt + secondsDay);
+        console.log("1");
+        dateButton.prop('disabled', true);
+        clearHistoricData.prop('disabled', true);
+        logoTime.prop("disabled", true);
+      }
+    }, 1000);
+
     // add event listener for querying for historical data
     dateButton.mousedown(function() {
       if ($('#eventList li input:checked').length > 0) {
         wait = true;
         showSpinner();
+        // console.log("DATEPICKER START: " + typeof datepicker.start + ": " + datepicker.start);
+        // console.log("DATEPICKER END: " + typeof datepicker.end + ": " + datepicker.end);
         getPlaybackData(datepicker.start, datepicker.end);
+        startDateSeconds = datepicker.start;
+        insertTimeStamp(startDateSeconds);
         dateButton.prop('disabled', true);
         clearHistoricData.prop('disabled', true);
       } else {
@@ -263,6 +325,7 @@ $(document).ready(function() {
     });
 
     // listen to see if a clientID is entered in the input box
+
     clientID = $('#cIDinput');
     clientSubmit = $('#enter');
     clientID.on('input', function() {
@@ -272,6 +335,7 @@ $(document).ready(function() {
         clientSubmit.prop("disabled", true);
       }
     });
+
     // Execute a function when the user releases a key on the keyboard
     clientID.bind('keyup', function(event) {
       // get the first and only clientSubmit button from the array and make sure that it is not disabled
@@ -285,6 +349,7 @@ $(document).ready(function() {
   } catch (err) {
     createAlert('505: Unable to connect to live data.', 'danger');
   }
+
   /**** functions from this point on ****/
   /**
    * openMapResetModal opens a modal for resetting the map
@@ -299,6 +364,7 @@ $(document).ready(function() {
     // add event listener for reseting the maps points
     $("#resetButtonFinal").mousedown(function() {
       sendActiveEventList();
+      setFiltersURL();
       resetMap();
     });
   }
@@ -310,19 +376,16 @@ $(document).ready(function() {
   function liveTransferEvent(checkedEvents) {
       var masterList = eventList.html();
       var listEvents = $('#eventList li input');
-      // console.log(checkedEvents);
+      console.log(listEvents);
       if (checkedEvents.length != listEvents.length || filterchanged) {
         masterList = "";
         eventList.html(masterList);
-        //eventList.html();
         $.each(listEvents, function(index, value)  {
           var valName = value.value;
-        //  console.log(valName);
           var checked = "";
           $.each(checkedEvents, function(index1, value1)  {
             if (value == value1) {
                 checked = "checked";
-                //console.log(value);
             }
           });
             masterList += '<li><input type="checkbox" id="' + index + '" value="' + valName + '" ' + checked + '> &nbsp;&nbsp;' + valName + '</li>';
@@ -345,11 +408,25 @@ $(document).ready(function() {
     $("#decayButtonFinal").mousedown(function() {
       decayRate = decaySlider.val() * 1000;
       refreshRate = refreshSlider.val() * 1000;
+      insertDecay(decaySlider.val());
+      insertRefresh(refreshSlider.val());
       clearInterval(decayInterval);
       decayInterval = setInterval(decayTimer, decayRate);
       clearInterval(refreshInterval);
       refreshInterval = setInterval(refreshTimer, refreshRate);
     });
+  }
+
+  function urlQueryDecay() {
+      decayRate = decaySlider.val() * 1000;
+      clearInterval(decayInterval);
+      decayInterval = setInterval(decayTimer, decayRate);
+  }
+
+  function urlQueryRefresh() {
+    refreshRate = refreshSlider.val() * 1000;
+    clearInterval(refreshInterval);
+    refreshInterval = setInterval(refreshTimer, refreshRate);
   }
 
   /**
@@ -360,7 +437,7 @@ $(document).ready(function() {
     $('#' + ID).hide();
     body.removeClass('modal-open');
     $('.modal-backdrop').remove();
-    $('#' + ID).remove(); // make sure that the modal is no longer in the DOM (makes element lookup fater)
+    $('#' + ID).remove(); // make sure that the modal is no longer in the DOM (makes element lookup faster)
   }
 
   /**
@@ -421,7 +498,7 @@ $(document).ready(function() {
     // add all events to the select box as options
     var listEvents = eventList.html(); // gets all current event list items in string form
     // if the events that are to be added are the first, then add them as checked
-    if (eventMap.size === 0 && !success) {
+    if (eventMap.size === 0 && firstPass) {
       checked = "checked";
     } else {
       checked = "";
@@ -430,7 +507,7 @@ $(document).ready(function() {
       if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
         listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> &nbsp;&nbsp;' + value + '</li>';
         eventMap.set(value, value);
-        if (success) { // if the events being added are not the initial batch display the message
+        if (!firstPass) { // if the events being added are not the initial batch display the message
           defaultHamburgerBtn.addClass('circle');
           eventAlert(value);
 
@@ -444,11 +521,11 @@ $(document).ready(function() {
     });
     eventList.html(listEvents); // saves time on DOM lookup because it is all added at once
     eventList.height(eventMap.size * 40 + 'px'); // dynamically allocate the height of the event list
-    // make sure that the ticker has the appropriate values on statrt up
-    if (!success) {
+    // make sure that the ticker has the appropriate values on start up
+    if (firstPass) {
       updateTicker(events);
     }
-    success = true; // the error messages should be displayed in the error modal
+    firstPass = false; // the error messages should be displayed in the error modal
   }
 
   /**
@@ -478,7 +555,7 @@ $(document).ready(function() {
   }
 
   /**
-   * getActiveEvents getst the active events and returns an object that contains the list
+   * getActiveEvents gets the active events and returns an object that contains the list
    * @param {Object} events is an object that has the property filters which is the list of active filters
    */
 
@@ -497,14 +574,29 @@ $(document).ready(function() {
     return events;
   }
 
+  /*
+   * Sets the filters to the filters submitted in the url query and then submits them to the WebSocket
+   */
+  function urlQueryFilters() {
+    events = $('#eventList li input');
+    $.each(events, function(index, value) {
+      if(f.includes(value.value.split(" ").join("%20"))){  // replace is for checking filters with spaces, which evaluate to %20 in the URL.
+        value.checked = true;
+      }else{
+        value.checked = false;
+      }
+    });
+    sendActiveEventList();
+  }
+
   /**
    * submitClientID gets the user provided clientID and sends it to the server
    */
   function submitClientID() {
     // set the clientID and then send it
     client = clientID.val();
+    insertCid(client);
     // show the loading spinner and disable the client
-    // spinner.addClass('visible');
     showSpinner();
     clientSubmit.prop('disabled', true);
     wait = true;
@@ -522,7 +614,7 @@ $(document).ready(function() {
    */
   function createModal(ID, title, forceStay, modalBody, cancel, submitBtn) {
     // create the modal html in string representation
-    var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false"> data-keyboard="false"';
+    var modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false" data-keyboard="false">';
     if (forceStay) {
       modal = '<div class="modal fade" id="' + ID + '" tabindex="-1" role="dialog" aria-labelledby="startModalTitle" aria-hidden="false" data-backdrop="static" data-keyboard="false" >';
     }
@@ -563,13 +655,23 @@ $(document).ready(function() {
    * @param {String} theTime is a string that will be displayed to the user
    */
   function displayTime(theTime) {
-    timeDisplay.html(theTime)
+    console.log("THE TIME: " + theTime);
+    timeDisplay.html(theTime);
+  }
+
+  function displayHistoricalTime(theTime) {
+    console.log("THE HISTORICAL TIME: " + theTime);
+    timeDisplay.html(theTime);
+   
   }
 
   /**
    * updateLiveTime updates the time for the user while live mode is active
    */
   function updateLiveTime() {
+    if (ts != null) {
+      return;
+    }
     var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
     displayTime(theTime);
     var t = setTimeout(function() {
@@ -586,9 +688,9 @@ $(document).ready(function() {
    */
   function updateHistoryTime(theTime) {
     liveTime = false;
-    var passtime = theTime / 1000000; // need to convert from nano to normal seconds
-    var time = new Date(passtime);
-    displayTime(time);
+    // Formate time to look readable
+    var date = moment.unix(theTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
+    displayHistoricalTime(date);
   }
 
   /**
@@ -737,6 +839,7 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
+    console.log(startDate);
     var hourPoints = []; // used to store an array of points for each hour
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
@@ -763,6 +866,8 @@ $(document).ready(function() {
           endTime: startDate + range * (i + 1)
         };
 
+      //oldTime(time);
+      updateHistoryTime(playbackRequest.startTime);
       requestArray.push($.ajax({
         url: 'http://localhost:8000/receive/ajax',
         crossDomain: true,
@@ -796,8 +901,6 @@ $(document).ready(function() {
       }
     });
 
-
-
     /**
      * plotArray goes through the array and plots each hour every second.
      * @param {Array} hourPoints each index is the group of points for the i'th hour
@@ -807,7 +910,7 @@ $(document).ready(function() {
 
       // every 1000ms it will add the next hour of points and update the map.
       setTimeout(function() {
-        if (count < hourPoints.length && !$("#liveBtn").is(":disabled")) {
+        if (count < hourPoints.length && !liveBtn.is(":disabled")) {
           if (hourPoints[count]) {
             addPoints(hourPoints[count]);
             updateHistoryTime(startDate + count * range);
@@ -840,20 +943,21 @@ $(document).ready(function() {
       self.time = false;
     } else {
       self.format = 'MM/DD/YYYY HH:mm:ss';
-      self.format = true;
+      self.time = true;
     }
     self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\<div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\</div>'; //took out the div for the second calendar input
     // get start and end elements for faster operation speed
     self.element.html(self.markup);
-    self.drp = $('.rangecontainer input#start'); // got the end date to work by changeing 'end' to 'start'
+    self.drp = $('.rangecontainer input#start'); 
     self.container = $('div#drp .rangecontainer');
 
     // update the the value of the object
     self.update = function update() {
-      var tempStart = moment(self.drp.val()),
-        tempEnd = moment(self.drp.val()).add(1, 'days');
-      self.start = tempStart.valueOf() * 1000000;
-      self.end = tempEnd.valueOf() * 1000000;
+
+      var tempStart = moment(self.startDrp.val()),
+        tempEnd = moment(self.endDrp.val()).add(1, 'days');
+      self.start = tempStart.valueOf() / 1000;
+      self.end = tempEnd.valueOf() / 1000;
       self.diff = tempEnd.diff(tempStart, 'days');
     };
 
@@ -915,6 +1019,9 @@ $(document).ready(function() {
       if (data instanceof Array) {
         addEvents(data);
         hideModal('startModal');
+        if(f != null) {
+          urlQueryFilters();
+        }
       } else {
         if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
           createAlert(data.Error, "danger");
@@ -929,6 +1036,10 @@ $(document).ready(function() {
     ws.onopen = function() {
       console.log("Connection made!");
       dfd.resolve("Connection made!");
+      if(cid != null){
+        clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
+        submitClientID();
+      }
     };
 
     // when the connection closes display that the connection has been made
@@ -960,10 +1071,282 @@ $(document).ready(function() {
     spinner.addClass('visible');
   }
 
+
   /**
    *  hideSpinner hides the spinner
    */
   function hideSpinner() {
     spinner.removeClass('visible');
+  }
+
+  function parseQuery(urlString) {
+    var params;
+    var queryArray;
+    // Check if url contains query
+    if (urlString.includes("?") === false) {
+      return null;
+    }
+    else {
+       // Remove first part of URL then split rest of string to get an array of key-value pairs
+      queryArray = urlString.substring(urlString.indexOf('?')+1).split('&');
+      var params = {}, pair;
+      // Iterate through query string
+      for (var i = 0; i < queryArray.length; i++) {
+        // Get key-value pair
+        pair = queryArray[i].split('=');
+        // console.log(pair); TODO: Remove
+        // Check if key already exists in object
+        if(params.hasOwnProperty(pair[0]) === true) {
+          // Add value to key
+          params[pair[0]].push(pair[1]);
+        }
+        else {
+          // Create a new array
+          params[pair[0]] = new Array();
+          // Push value to array
+          params[pair[0]].push(pair[1]);
+        }
+      }
+      // ?cid=client1&d=600&r=1&l=southeast&f=check-in&f=donations TODO: Remove
+    }
+    return params;
+  }
+  function getCID(params) {
+    if(params.hasOwnProperty("cid") === true && params["cid"].length === 1) {
+      return params["cid"];
+    }
+    else {
+      return null;
+    }
+  }
+  function getDecay(params) {
+    if(params.hasOwnProperty("d") === true && params["d"].length === 1) {
+      if (params["d"] > 600 || params["d"] < 1) {
+        return null;
+      }
+      return params["d"];
+    }
+    else {
+      return null;
+    }
+  }
+  function getRefresh(params) {
+    if(params.hasOwnProperty("r") === true && params["r"].length === 1) {
+      if (params["r"] > 60 || params["r"] < 1) {
+        return null;
+      }
+      return params["r"];
+    }
+    else {
+      return null;
+    }
+  }
+  function getLocation(params) {
+
+    if(params.hasOwnProperty("x") === true && params["x"].length === 1 && params.hasOwnProperty("y") === true && params["y"].length === 1 && params.hasOwnProperty("z") === true && params["z"].length === 1) {
+      return {
+        x: params["x"],
+        y: params["y"],
+        z: params["z"]
+      };
+    } else {
+      return null;
+    }
+  }
+  function getFilters(params) {
+    if(params.hasOwnProperty("f") === true) {
+      return params["f"];
+    }
+    else {
+      return null;
+    }
+  }
+  function getTimeStamp(params) {
+    if(params.hasOwnProperty("ts") === true && params["ts"].length === 1) {
+      return params["ts"];
+    }
+    else {
+      return null;
+    }
+  }
+  //  updates url live to have clientID parameter
+  function insertCid(cid) {
+    // Get URL
+    var url = window.location.href;
+    // Check to see if URL already includes cid query string
+    var params = parseQuery(url);
+    if (params != null && getCID(params) != null) {
+      return;
+    }
+    // Otherwise add cid query string to URL
+    else {
+      if(url.includes("?")){
+        var updatedURL = url + "&cid=" + cid;
+        window.history.replaceState({}, document.title, updatedURL);
+        return;
+      } else {
+        var updatedURL = url + "?cid=" + cid;
+        window.history.replaceState({}, document.title, updatedURL);
+        return;
+      }
+    }
+  }
+
+  // nav's in coming changes 
+  function setFiltersURL() {
+    var updatedURL = window.location.href;
+    var activeEvents = [];
+    $.each($('#eventList li input:checked'), function(index, value) {
+      activeEvents.push(value.value);
+    });
+    token = "";
+    for(var i = 0; i < activeEvents.length; i++) {
+      token += "&f=" + activeEvents[i];
+    }
+
+    if(!updatedURL.includes("?")) {
+      updatedURL += "?";
+    }
+
+    // takes out previous filter query flags
+    updatedURL = updatedURL.replace(/[\?\&][fF]\=[^&]*/g, "");
+    updatedURL += token;
+    window.history.replaceState({}, document.title, updatedURL);
+  }
+
+  //  updates URL whenever the map view is moved
+  map.addEventListener('moveend', function(event) {
+    var url = window.location.href;
+    var updatedURL = url;
+    center = map.getCenter();
+    x = center.lat;
+    y = center.lng;
+    token = "&x=" + Math.floor(x) + "&y=" + Math.floor(y);
+    if(!url.includes("?")) {
+      updatedURL += "?";
+    }
+
+    if(url.includes("x=")) {
+      var rexpression = /x=-?[0-9]*/g;
+      updatedURL= updatedURL.replace(rexpression, "x="+Math.floor(x));
+      rexpression= /y=-?[0-9]*/g;
+      updatedURL = updatedURL.replace(rexpression, "y="+Math.floor(y));
+    } else {
+      updatedURL += token;
+      console.log(token);
+    }
+    window.history.replaceState({}, document.title, updatedURL);
+    return;
+  });
+
+  // updates URL whenever the map zoom is changed
+  map.addEventListener('zoomend', function(event) {
+    var url = window.location.href;
+    var updatedURL = url;
+    z = map.getZoom();
+    token = "&z=" + z;
+
+    if(!url.includes("?")) {
+      updatedURL += "?";
+    }
+
+    if(url.includes("z=")) {
+      var rexpression = /z=-?[0-9]*/g;
+      updatedURL= updatedURL.replace(rexpression, "z=" + z);
+    } else {
+      updatedURL += token;
+    }
+    window.history.replaceState({}, document.title, updatedURL);
+    return;
+  });
+
+  function insertDecay(d) {
+    // Get URL
+    var url = window.location.href;
+    // Check to see if URL already includes d query string
+    var params = parseQuery(url);
+    // Update current decay value query
+    if (url.includes("&d=")) {
+      // Split url based on where decay query is
+      splitURL = url.split("&d=");
+      // Iterate through second part of url to see where the next query is
+      for(i = 0; i < splitURL[1].length; i++) {
+        // If there is another query string, cut out decay value
+        if (splitURL[1].charAt(i) == "&") {
+          splitURL[1] = splitURL[1].substring(i, splitURL.length - 1);
+        }
+        // Decay value is at end of query string, so erase completely
+        else {
+          splitURL[1] = "";
+        }
+      }
+      var updatedURL = splitURL[0] + "&d=" + d + splitURL[1];
+      // Update url
+      window.history.replaceState({}, document.title, updatedURL);
+      return;
+    }
+    // Insert new decay value query
+    else {
+      var updatedURL = url + "&d=" + d;
+      window.history.replaceState({}, document.title, updatedURL);
+      return;
+    }
+  }
+
+  function insertRefresh(r) {
+    // Get URL
+    var url = window.location.href;
+    // Check to see if URL already includes r query string
+    var params = parseQuery(url);
+    // Update current refresh value query
+    if (url.includes("&r=")) {
+      // Split url based on where refresh query is
+      splitURL = url.split("&r=");
+      // Iterate through second part of url to see where the next query is
+      for(i = 0; i < splitURL[1].length; i++) {
+        // If there is another query string, cut out refresh value
+        if (splitURL[1].charAt(i) == "&") {
+          splitURL[1] = splitURL[1].substring(i, splitURL.length - 1);
+        }
+        // Refresh value is at end of query string, so erase completely
+        else {
+          splitURL[1] = "";
+        }
+      }
+      var updatedURL = splitURL[0] + "&r=" + r + splitURL[1];
+      // Update url
+      window.history.replaceState({}, document.title, updatedURL);
+      return;
+    }
+    // Insert new refresh value query
+    else {
+      var updatedURL = url + "&r=" + r;
+      window.history.replaceState({}, document.title, updatedURL);
+      return;
+    }
+  }
+
+  /**
+   * Inserts timestamp into url
+   */
+  function insertTimeStamp(ts) {
+    // Get URL
+    var updatedURL = window.location.href;
+    // Build up regex
+    var token = "&ts=" + ts;
+    // Check if you have a query started
+    if(!updatedURL.includes("?")) {
+      updatedURL += "?";
+    }
+
+    if(updatedURL.includes("ts=")) {
+      // Look for ts key in query and go through value
+      var rexpression = /[/?/&][tT][sS]\=[0-9]*/g;
+      updatedURL = updatedURL.replace(rexpression, "&ts=" + ts);
+    } else {
+      updatedURL += token;
+    }
+
+    window.history.replaceState({}, document.title, updatedURL);
   }
 });
