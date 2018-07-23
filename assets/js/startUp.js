@@ -49,14 +49,13 @@ $(document).ready(function() {
     }),
     // primitives and data structures
     decayRate = 300000, // is used to keep track of the user input for the time interval for decay
-    filterchanged = false,
     refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
     firstPass = true, // keeps track of whether an error occurred during client validation
     selfClose = false, // helps keep track of whether or not the websocket closed due to an error or by the user
     mapChanged = false, // helps keep track of whether or not to redraw the map
     wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
+    checkedEvent = true, // helps determine whether or not a checkbox is to checked or not
     client = '', // keeps track of the clientID for historical purposes
-    checked = '', // determines whether or not an event comes in as checked or not
     eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
     start_date = moment().subtract(1, 'days'),
@@ -222,11 +221,8 @@ $(document).ready(function() {
       selfClose = false;
       liveTime = true;
       updateLiveTime();
-      var activeEvents = $('#eventList li input:checked');
-      //displayTime(today)
       $.when(createWebsocket()).then(function() {
         setTimeout(sendID, 100);
-        liveTransferEvent(activeEvents);
       });
     });
 
@@ -371,31 +367,6 @@ $(document).ready(function() {
   }
 
   /**
-   * liveTransferEvent takes a list of checked events and reappends them to the main event list
-   * @param {Array} checkedEvents is an array of all the active events
-   */
-  function liveTransferEvent(checkedEvents) {
-    var masterList = eventList.html();
-    var listEvents = $('#eventList li input');
-    console.log(listEvents);
-    if (checkedEvents.length != listEvents.length || filterchanged) {
-      masterList = "";
-      eventList.html(masterList);
-      $.each(listEvents, function(index, value) {
-        var valName = value.value;
-        var checked = "";
-        $.each(checkedEvents, function(index1, value1) {
-          if (value == value1) {
-            checked = "checked";
-          }
-        });
-        masterList += '<li><input type="checkbox" id="' + index + '" value="' + valName + '" ' + checked + '> &nbsp;&nbsp;' + valName + '</li>';
-      });
-    }
-    eventList.html(masterList);
-  }
-
-  /**
    * openDecayModal opens a modal for changing decay rate
    */
   function openDecayModal() {
@@ -497,17 +468,21 @@ $(document).ready(function() {
    */
   function addEvents(events) {
     // add all events to the select box as options
-    var listEvents = eventList.html(); // gets all current event list items in string form
+    var listEvents = '';
+    // get all current events and add the appropriate list item
+    eventMap.forEach(function(value, key, map){
+      listEvents += getListItem(key, value);
+    });
     // if the events that are to be added are the first, then add them as checked
     if (eventMap.size === 0 && firstPass) {
-      checked = "checked";
+      checkedEvent = true;
     } else {
-      checked = "";
+      checkedEvent = false;
     }
     $.each(events, function(index, value) {
       if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
-        listEvents += '<li><input type="checkbox" id="' + index + '" value="' + value + '" ' + checked + '> &nbsp;&nbsp;' + value + '</li>';
-        eventMap.set(value, value);
+        listEvents +=  getListItem( value, checkedEvent); // get the HTML markdown
+        eventMap.set(value, checkedEvent);
         if (!firstPass) { // if the events being added are not the initial batch display the message
           defaultHamburgerBtn.addClass('circle');
           eventAlert(value);
@@ -527,28 +502,33 @@ $(document).ready(function() {
       updateTicker(events);
     }
     firstPass = false; // the error messages should be displayed in the error modal
+    // add event listeners for the checkboxes being clicked
+    var eventCheckboxes = $('#eventList li input');
+    eventCheckboxes.mousedown(function() {
+      var id = $(this).attr('id');
+      eventMap.set( id, !eventMap.get(id)); // flip the value of the checkbox in the map
+   });
   }
 
+  /**
+   * getListItem markup gets the appropriate list item markup based on what is passed in
+   * @param {String} value is to be the id and value of the list item
+   * @param {Boolean} checked determines whether or not to give the list item a checked value
+   */
+  function getListItem (value, checked) {
+    let checkValue = "";
+    if ( checked ) {
+      checkValue = "checked";
+    }
+    return '<li><input type="checkbox" id="' + value + '" value="' + value + '" ' + checkValue + '> &nbsp;&nbsp;' + value + '</li>';
+  }
   /**
    *  sendActiveEventList checks to see which events to send back as active
    */
   function sendActiveEventList() {
     // make sure websocket is open
     if (ws.readyState === ws.OPEN) {
-
-      var events = {
-          'filter': []
-        },
-        activeEvents = $('#eventList li input:checked');
-      // determine if there is an 'active' event
-      if (activeEvents.length > 0) {
-        filterchanged = true;
-        // collect all id's for the events that are 'active'
-        $.each(activeEvents, function(index, value) {
-          events.filter.push(value.value);
-        });
-      }
-
+      var events = getActiveEvents();
       updateTicker(events.filter);
       // send the the events to the server
       ws.send(JSON.stringify(events));
@@ -559,19 +539,16 @@ $(document).ready(function() {
    * getActiveEvents gets the active events and returns an object that contains the list
    * @param {Object} events is an object that has the property filters which is the list of active filters
    */
-
   function getActiveEvents() {
     var events = {
         'filter': []
-      },
-      activeEvents = $('#eventList li input:checked');
-    // determine if there is an 'active' event
-    if (activeEvents.length > 0) {
-      // collect all id's for the events that are 'active'
-      $.each(activeEvents, function(index, value) {
-        events.filter.push(value.value);
-      });
-    }
+      };
+    // check to see which events are active
+    eventMap.forEach( function(value, key, map) {
+      if (value) {
+        events.filter.push(key);
+      }
+    });
     return events;
   }
 
@@ -881,9 +858,8 @@ $(document).ready(function() {
     $.when.apply($, requestArray).done(function() {
       let noData = true;
       // check to see if no data was returned
-      for (var i = 0; i < frames; i++) {
-        console.log(hourPoints[i]);
-        if (Object.keys(hourPoints[i]).length !== 0) {
+      for( var i = 0; i < frames; i++ ) {
+        if ( Object.keys(hourPoints[i]).length !== 0 ) {
           noData = false;
           break;
         }
