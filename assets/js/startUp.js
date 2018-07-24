@@ -662,8 +662,11 @@ $(document).ready(function() {
   function updateHistoryTime(theTime) {
     liveTime = false;
     // Formate time to look readable
-    var date = moment.unix(theTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
-    displayHistoricalTime(date);
+    var date = moment.unix(theTime);
+    if (date.isDST()) {
+      date.add(1, "hour");
+    }
+    displayHistoricalTime(date.format("dddd, MMMM Do YYYY, h:mm:ss a"));
   }
 
   /**
