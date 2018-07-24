@@ -166,15 +166,16 @@ $(document).ready(function() {
     "Withdrawing 0.00411340 BTC mining fee…",
     "Using middle-out compression…",
     "Downloading more RAM…",
-    "Withdrawing 0.00411340 BTC mining fee…",
-    "Deleting emails…",
     "Directing to Honey Pot...",
-    "Updating Windows...",
-    "Hiding browser history...",
+    "Updating Windows Again...",
     "Tracing IP address…",
     "Crossing fingers hoping nothing breaks...",
     "Gaining root access to 127.0.0.1",
-    "Downloading WannaCry"
+    "Downloading WannaCry",
+    "Integrating ChainBlock Technology",
+    "Arguing with the design team…",
+    "Desearching and Reveloping...",
+    "Googling 'How to load user content'",
   ];
 
   // sets the heatmapLayer
@@ -309,23 +310,23 @@ $(document).ready(function() {
     });
 
     // Set decay to query value
-    if (d != null) {
+    if (d !== null) {
       decaySlider.val(d);
       decayOutput.text(decaySlider.val());
       urlQueryDecay();
     }
     // Set refresh to query value
-    if (r != null) {
+    if (r !== null) {
       refreshSlider.val(r);
       refreshOutput.text(refreshSlider.val());
       urlQueryRefresh();
     }
     // if the user passes in a location, change view there.
     // TODO: Separate xy and z
-    if (l != null && l.x != null && l.y != null && l.z != null) {
+    if (l !== null && l.x !== null && l.y !== null && l.z !== null) {
       map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
     }
-    if (f != null) {
+    if (f !== null) {
       f = getFilters(query);
     }
 
@@ -507,7 +508,7 @@ $(document).ready(function() {
       listEvents += getListItem(key, value);
     });
     // if the events that are to be added are the first, then add them as checked
-    if (firstPass && f == null) {
+    if (firstPass && f=== null) {
       checkedEvent = true;
     } else {
       checkedEvent = false;
@@ -673,7 +674,7 @@ $(document).ready(function() {
    * updateLiveTime updates the time for the user while live mode is active
    */
   function updateLiveTime() {
-    if (ts != null && liveTime != true) {
+    if (ts !== null && liveTime !== true) {
       return;
     }
     var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -1003,12 +1004,12 @@ $(document).ready(function() {
       var data = JSON.parse(e.data);
       if (data instanceof Array) {
         hideModal('startModal');
-        if (f != null && firstPass) {
+        if (f !== null && firstPass) {
           urlQueryFilters();
         }
         addEvents(data);
 
-        if (ts != null && !tsEvaluated) {
+        if (ts !== null && !tsEvaluated) {
           tsEvaluated = true;
           // Run historical mode
           setTimeout(function() {
@@ -1071,7 +1072,15 @@ $(document).ready(function() {
    *  showSpinner shows spinner and generates random text
    */
   function showSpinner() {
-    $('.randomText').text(loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)]);
+    var message1 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
+    var message2 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
+    while (message2 === message1) {
+      message2 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
+    }
+    $('.randomText').text(message1);
+    setTimeout(function() {
+      $('.randomText').text(message2);
+    }, 5000);
     spinner.addClass('visible');
   }
 
@@ -1084,16 +1093,15 @@ $(document).ready(function() {
   }
 
   function parseQuery(urlString) {
-    var params;
+    var params = {};
     var queryArray;
+    var pair;
     // Check if url contains query
     if (urlString.includes("?") === false) {
       return null;
     } else {
       // Remove first part of URL then split rest of string to get an array of key-value pairs
       queryArray = urlString.substring(urlString.indexOf('?') + 1).split('&');
-      var params = {},
-        pair;
       // Iterate through query string
       for (var i = 0; i < queryArray.length; i++) {
         // Get key-value pair
@@ -1104,7 +1112,7 @@ $(document).ready(function() {
           params[pair[0]].push(pair[1]);
         } else {
           // Create a new array
-          params[pair[0]] = new Array();
+          params[pair[0]] = [];
           // Push value to array
           params[pair[0]].push(pair[1]);
         }
@@ -1115,30 +1123,30 @@ $(document).ready(function() {
   }
 
   function getCID(params) {
-    if (params.hasOwnProperty("cid") === true && params["cid"].length === 1) {
-      return params["cid"];
+    if (params.hasOwnProperty("cid") === true && params.cid.length === 1) {
+      return params.cid;
     } else {
       return null;
     }
   }
 
   function getDecay(params) {
-    if (params.hasOwnProperty("d") === true && params["d"].length === 1) {
-      if (params["d"] > 600 || params["d"] < 1) {
+    if (params.hasOwnProperty("d") === true && params.d.length === 1) {
+      if (params.d > 600 || params.d < 1) {
         return null;
       }
-      return params["d"];
+      return params.d;
     } else {
       return null;
     }
   }
 
   function getRefresh(params) {
-    if (params.hasOwnProperty("r") === true && params["r"].length === 1) {
-      if (params["r"] > 60 || params["r"] < 1) {
+    if (params.hasOwnProperty("r") === true && params.r.length === 1) {
+      if (params.r > 60 || params.r < 1) {
         return null;
       }
-      return params["r"];
+      return params.r;
     } else {
       return null;
     }
@@ -1146,11 +1154,11 @@ $(document).ready(function() {
 
   function getLocation(params) {
 
-    if (params.hasOwnProperty("x") === true && params["x"].length === 1 && params.hasOwnProperty("y") === true && params["y"].length === 1 && params.hasOwnProperty("z") === true && params["z"].length === 1) {
+    if (params.hasOwnProperty("x") === true && params.x.length === 1 && params.hasOwnProperty("y") === true && params.y.length === 1 && params.hasOwnProperty("z") === true && params.z.length === 1) {
       return {
-        x: params["x"],
-        y: params["y"],
-        z: params["z"]
+        x: params.x,
+        y: params.y,
+        z: params.z
       };
     } else {
       return null;
@@ -1159,15 +1167,15 @@ $(document).ready(function() {
 
   function getFilters(params) {
     if (params.hasOwnProperty("f") === true) {
-      return params["f"];
+      return params.f;
     } else {
       return null;
     }
   }
 
   function getTimeStamp(params) {
-    if (params.hasOwnProperty("ts") === true && params["ts"].length === 1) {
-      return params["ts"];
+    if (params.hasOwnProperty("ts") === true && params.ts.length === 1) {
+      return params.ts;
     } else {
       return null;
     }
@@ -1229,8 +1237,8 @@ $(document).ready(function() {
 
     if (url.includes("x=")) {
       var rexpression = /x=-?[0-9]*/g;
-      var updatedURL = updatedURL.replace(rexpression, "x=" + Math.floor(x));
-      var rexpression = /y=-?[0-9]*/g;
+      updatedURL = updatedURL.replace(rexpression, "x=" + Math.floor(x));
+      rexpression = /y=-?[0-9]*/g;
       updatedURL = updatedURL.replace(rexpression, "y=" + Math.floor(y));
     } else {
       updatedURL += token;
