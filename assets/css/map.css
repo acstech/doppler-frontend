@@ -25,23 +25,19 @@
   left: 64%;
 }
 
-#drp  {
-  margin-left: 175px;
-}
-
 #dateButton {
   height: 35px;
-  margin-top: -45px;
+  margin-top: -46px;
   position: absolute;
-  left: 65%;
-  margin-left: 3px;
+  left: 100%;
+  margin-left: 11px;
   padding-top: 4px;
   z-index: var(--modalIndex);
 }
 
 #clearHistoricData {
   height: 35px;
-  left: 20%;
+  left: -15%;
   margin-top: -0px;
   margin-right: 3px;
   padding-top: 4px;

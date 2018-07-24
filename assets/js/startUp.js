@@ -56,13 +56,15 @@ $(document).ready(function() {
     wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
     checkedEvent = true, // helps determine whether or not a checkbox is to checked or not
     tsEvaluated = false,
+    waiting = false, //keeps track of whether or not a historical interval is playing to keep multiple playback requests from overlapping
     client = '', // keeps track of the clientID for historical purposes
     hourPoints = [], // used to store an array of points for each hour
     eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
-    start_date = moment().subtract(1, 'days'),
+    start_date = moment().startOf('day'),
+    end_date = moment().endOf('day'),
     // setup calendars
-    datepicker = new DatePicker(start_date, 0),
+    datepicker = new DatePicker(start_date, end_date, 0),
     //  jQuery objects used for fast DOM manipulatoin
     dateSelector = $('#dateSelector'),
     clearHistoricData = $('#clearHistoricData'),
@@ -86,6 +88,7 @@ $(document).ready(function() {
     eventList = $('#eventList'),
     marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
     liveBtn = $('#liveBtn'),
+    //nextButton = $('#nextButton'),
     US = $("#unitedStatesMapRecenter"),
     southEastUS = $("#southeasternUSMapRecenter"),
     northWestUS = $("#northWesternUSMapRecenter"),
@@ -119,6 +122,7 @@ $(document).ready(function() {
     },
     refreshInterval = setInterval(refreshTimer, refreshRate),
     historicalInterval, // to be used for making sure that the historical interval is cleared as needed
+    checkInterval,
     historicalTimer = function( count, startDate, range ) {
       clearInterval(historicalInterval);
       if (count < hourPoints.length) {
@@ -131,10 +135,8 @@ $(document).ready(function() {
         // start the interval agian if all went well with the last interval
         historicalInterval = setInterval(historicalTimer, 1000, count + 1, startDate, range);
       } else {
-        dateButton.prop('disabled', false);
-        clearHistoricData.prop('disabled', false);
+        waiting = false;
       }
-
     },
     ws, // websocket
     query = parseQuery(window.location.href),
@@ -266,6 +268,7 @@ $(document).ready(function() {
 
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
+    //nextButton.hide();
 
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
@@ -279,9 +282,11 @@ $(document).ready(function() {
       // add decay refresh intervals
       refreshInterval = setInterval(refreshTimer, refreshRate);
       decayInterval = setInterval(decayTimer, decayRate);
+      clearInterval(checkInterval);
       dateSelector.removeClass('visible');
       resetMap();
       selfClose = false;
+      waiting = false;
       liveTime = true;
       updateLiveTime();
       $.when(createWebsocket()).then(function() {
@@ -325,18 +330,44 @@ $(document).ready(function() {
     }
 
     // add event listener for querying for historical data
-    dateButton.mousedown(function() {
-      if ($('#eventList li input:checked').length > 0) {
-        wait = true;
-        showSpinner();
-        getPlaybackData(datepicker.start, datepicker.end);
-        var startDateSeconds = datepicker.start;
-        setTimeStampURL(startDateSeconds);
-        dateButton.prop('disabled', true);
-        clearHistoricData.prop('disabled', true);
-      } else {
-        createAlert('401: Invalid event selection.', 'danger');
-      }
+      dateButton.mousedown(function() {
+        if ($('#eventList li input:checked').length > 0) {
+          dateButton.prop('disabled', true);
+          clearHistoricData.prop('disabled', true);
+          wait = true;
+          showSpinner();
+          var start = datepicker.start;
+          var startDateSeconds = datepicker.start;
+          var end = start + 86400;
+          var i = 0;
+
+          //TODO: assign parameters by each day range of datepicker.start and datepicker.end
+          if (datepicker.diff >= 1) {
+            var checkWaiting = function() {
+                clearInterval(checkInterval);
+                if (waiting === true) {
+                  checkInterval = setInterval(checkWaiting, 1000);
+                } else if (i < datepicker.diff) {
+                  setTimeStampURL(startDateSeconds);
+                  resetMap();
+                  getPlaybackData(start, end);
+                  start = end;
+                  end += 86400;
+                  i++;
+                  checkInterval = setInterval(checkWaiting, 1000);
+                } else {
+                  dateButton.prop('disabled', false);
+                  clearHistoricData.prop('disabled', false);
+                }
+              };
+            checkInterval = setInterval(checkWaiting, 1000);
+          }
+
+        } else {
+          createAlert('401: Invalid event selection.', 'danger');
+        }
+        //nextButton.show();
+        //}
     });
 
     //used to reset the map at the user
@@ -815,7 +846,7 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
-    hourPoints = []; // reset array
+    waiting = true;
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
     var requestArray = []; // allows us to check when all primises are completed
@@ -868,6 +899,7 @@ $(document).ready(function() {
         createAlert('No data was found for the provided date range.', 'warning');
         dateButton.prop('disabled', false);
         clearHistoricData.prop('disabled', false);
+        waiting = false;
       } else {
         // starts animating the array
         historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
@@ -884,7 +916,7 @@ $(document).ready(function() {
    * @param {Integer} time Use 1 to enable time picker option
    * @returns {DatePicker}
    */
-  function DatePicker(start, time) {
+  function DatePicker(start, end, time) {
     var self = this; // used to make sure that the proper this variable is being used
     self.element = $("div#drp");
     if (time === 0) {
@@ -894,22 +926,27 @@ $(document).ready(function() {
       self.format = 'MM/DD/YYYY HH:mm:ss';
       self.time = true;
     }
-    self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\<div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\</div>'; //took out the div for the second calendar input
-    // get start and end elements for faster operation speed
+    self.markup = '<div style="position: relative; width: auto; height: 36px; margin-bottom: 10px;" class="rangecontainer">\n\
+                            <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
+                            <div style="position: absolute;top: 0px;bottom: 1px;display: block;left: 50%;z-index:+2;margin-left: -20px;width: 40px;text-align: center;background: linear-gradient(#eee,#ddd);border: solid #CCC 1px;border-left: 0px;border-right: 0px;height: 36px !important;"><i style="position:absolute;left:50%;margin-left:-7px;top:50%;margin-top: -7px;" class="fa fa-calendar"></i></div>\n\
+                            <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 50%;right: 0px;padding-left: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="end" id="end" class="form-control" /></div>\n\
+                      </div>';    // get start and end elements for faster operation speed
     self.element.html(self.markup);
-    self.drp = $('.rangecontainer input#start');
+    self.startDrp = $('.rangecontainer input#start');
+    self.endDrp = $('.rangecontainer input#end');
     self.container = $('div#drp .rangecontainer');
 
     // update the the value of the object
     self.update = function update() {
-      var tempStart = moment(self.drp.val()),
-        tempEnd = moment(self.drp.val()).add(1, 'days');
+      var tempStart = moment(self.startDrp.val()).startOf('day'),
+        tempEnd = moment(self.endDrp.val()).endOf('day');
       self.start = tempStart.valueOf() / 1000;
       self.end = tempEnd.valueOf() / 1000;
       self.diff = tempEnd.diff(tempStart, 'days');
     };
 
     new Drp(start.format(self.format), 'start');
+    new Drp(end.format(self.format), 'end');
 
     self.update();
 
@@ -985,7 +1022,7 @@ $(document).ready(function() {
               // Helps with calculating end date
               var secondsDay = 86400;
               // Click on historical mode button
-              $('#logoTime').trigger('mousedown');
+              logoTime.trigger('mousedown');
               getPlaybackData(tsInt, tsInt + secondsDay);
               dateButton.prop('disabled', true);
               clearHistoricData.prop('disabled', true);
