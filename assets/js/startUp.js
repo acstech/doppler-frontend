@@ -55,6 +55,7 @@ $(document).ready(function() {
     mapChanged = false, // helps keep track of whether or not to redraw the map
     wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
     checkedEvent = true, // helps determine whether or not a checkbox is to checked or not
+    tsEvaluated = false,
     client = '', // keeps track of the clientID for historical purposes
     eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
@@ -97,6 +98,8 @@ $(document).ready(function() {
     // jQuery object variables that will be created later
     clientID,
     clientSubmit,
+
+
     // setup timers for interval based updates
     decayTimer = function() {
       clearInterval(decayInterval);
@@ -116,7 +119,18 @@ $(document).ready(function() {
       refreshInterval = setInterval(refreshTimer, refreshRate);
     },
     refreshInterval = setInterval(refreshTimer, refreshRate),
-    ws; // websocket
+    ws, // websocket
+    query = parseQuery(window.location.href),
+      cid, d, r, l, f, ts;
+
+  if (query != null) {
+    cid = getCID(query);
+    d = getDecay(query);
+    r = getRefresh(query);
+    l = getLocation(query);
+    f = getFilters(query);
+    ts = getTimeStamp(query);
+  }
 
   // sets the max bounds of the map
   map.setMaxBounds([
@@ -199,12 +213,41 @@ $(document).ready(function() {
 
   // try to connect to the websosket, if there is an error display the error modal
   try {
-    createWebsocket();
+
+    $.when(createWebsocket()).then(function() {
+      // listen to see if a clientID is entered in the input box
+      createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
+        false, startModalBtn); // creates the starting modal
+      // starting modal opens
+      $('#startModal').modal();
+      clientID = $('#cIDinput');
+      clientSubmit = $('#enter');
+      clientID.on('input', function() {
+        if (this.value.trim().length > 0) { // the user has actually input text
+          clientSubmit.prop("disabled", false);
+        } else { // disable the button becuase the input box is empty
+          clientSubmit.prop("disabled", true);
+        }
+      });
+
+      // Execute a function when the user releases a key on the keyboard
+      clientID.bind('keyup', function(event) {
+        // get the first and only clientSubmit button from the array and make sure that it is not disabled
+        if (event.keyCode === 13 && !clientSubmit[0].disabled) {
+          // Trigger the button element with a click
+          clientSubmit.mousedown();
+        }
+      });
+
+      clientSubmit.mousedown(submitClientID);
+      if (cid != null) {
+
+        clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
+        submitClientID();
+      }
+    });
     // if an error occurs opening the websocket the modal will not load
-    createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
-      false, startModalBtn); // creates the starting modal
-    // starting modal opens
-    $('#startModal').modal();
+
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
 
@@ -240,75 +283,37 @@ $(document).ready(function() {
       ws.close();
     });
 
-    var query = parseQuery(window.location.href),
-      cid, d, r, l, f, ts;
 
-    if (query != null) {
-      cid = getCID(query);
-      console.log("Client ID: " + cid);
-      d = getDecay(query);
-      console.log("Decay: " + d);
-      r = getRefresh(query);
-      console.log("Refresh: " + r);
-      l = getLocation(query);
-      console.log("Location: " + l);
-      f = getFilters(query);
-      console.log("Filters: " + f);
-      ts = getTimeStamp(query);
-      console.log("Timestamp: " + ts);
 
-      // Set decay to query value
-      if (d != null) {
-        decaySlider.val(d);
-        decayOutput.text(decaySlider.val());
-        urlQueryDecay();
-      }
-      // Set refresh to query value
-      if (r != null) {
-        refreshSlider.val(r);
-        refreshOutput.text(refreshSlider.val());
-        urlQueryRefresh();
-      }
-      // if the user passes in a location, change view there.
-      if (l != null) {
-        map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
-      }
+    // Set decay to query value
+    if (d != null) {
+      decaySlider.val(d);
+      decayOutput.text(decaySlider.val());
+      urlQueryDecay();
+    }
+    // Set refresh to query value
+    if (r != null) {
+      refreshSlider.val(r);
+      refreshOutput.text(refreshSlider.val());
+      urlQueryRefresh();
+    }
+    // if the user passes in a location, change view there.
+    // TODO: Separate xy and z
+    if (l.x != null && l.y != null && l.z != null) {
+      map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
+    }
+    if (f != null) {
       f = getFilters(query);
     }
-
-    // Run historical mode
-    setTimeout(function() {
-      if (ts != null) {
-        // Stop updating livetime
-
-        liveTime = false;
-        // Close websocket
-        ws.close();
-        // Convert ts to int
-        var tsInt = parseInt(ts[0]);
-        console.log(ts);
-        // Helps with calculating end date
-        var secondsDay = 86400;
-        // Click on historical mode button
-        $('#logoTime').trigger('mousedown');
-        getPlaybackData(tsInt, tsInt + secondsDay);
-        console.log("1");
-        dateButton.prop('disabled', true);
-        clearHistoricData.prop('disabled', true);
-        logoTime.prop("disabled", true);
-      }
-    }, 1000);
 
     // add event listener for querying for historical data
     dateButton.mousedown(function() {
       if ($('#eventList li input:checked').length > 0) {
         wait = true;
         showSpinner();
-        // console.log("DATEPICKER START: " + typeof datepicker.start + ": " + datepicker.start);
-        // console.log("DATEPICKER END: " + typeof datepicker.end + ": " + datepicker.end);
         getPlaybackData(datepicker.start, datepicker.end);
         var startDateSeconds = datepicker.start;
-        insertTimeStamp(startDateSeconds);
+        setTimeStampURL(startDateSeconds);
         dateButton.prop('disabled', true);
         clearHistoricData.prop('disabled', true);
       } else {
@@ -321,28 +326,7 @@ $(document).ready(function() {
       resetMap();
     });
 
-    // listen to see if a clientID is entered in the input box
 
-    clientID = $('#cIDinput');
-    clientSubmit = $('#enter');
-    clientID.on('input', function() {
-      if (this.value.trim().length > 0) { // the user has actually input text
-        clientSubmit.prop("disabled", false);
-      } else { // disable the button becuase the input box is empty
-        clientSubmit.prop("disabled", true);
-      }
-    });
-
-    // Execute a function when the user releases a key on the keyboard
-    clientID.bind('keyup', function(event) {
-      // get the first and only clientSubmit button from the array and make sure that it is not disabled
-      if (event.keyCode === 13 && !clientSubmit[0].disabled) {
-        // Trigger the button element with a click
-        clientSubmit.mousedown();
-      }
-    });
-
-    clientSubmit.mousedown(submitClientID);
   } catch (err) {
     createAlert('505: Unable to connect to live data.', 'danger');
   }
@@ -380,8 +364,8 @@ $(document).ready(function() {
     $("#decayButtonFinal").mousedown(function() {
       decayRate = decaySlider.val() * 1000;
       refreshRate = refreshSlider.val() * 1000;
-      insertDecay(decaySlider.val());
-      insertRefresh(refreshSlider.val());
+      setDecayURL(decaySlider.val());
+      setRefreshURL(refreshSlider.val());
       clearInterval(decayInterval);
       decayInterval = setInterval(decayTimer, decayRate);
       clearInterval(refreshInterval);
@@ -470,18 +454,18 @@ $(document).ready(function() {
     // add all events to the select box as options
     var listEvents = '';
     // get all current events and add the appropriate list item
-    eventMap.forEach(function(value, key, map){
+    eventMap.forEach(function(value, key, map) {
       listEvents += getListItem(key, value);
     });
     // if the events that are to be added are the first, then add them as checked
-    if (eventMap.size === 0 && firstPass) {
+    if (firstPass && f == null) {
       checkedEvent = true;
     } else {
       checkedEvent = false;
     }
     $.each(events, function(index, value) {
       if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
-        listEvents +=  getListItem( value, checkedEvent); // get the HTML markdown
+        listEvents += getListItem(value, checkedEvent); // get the HTML markdown
         eventMap.set(value, checkedEvent);
         if (!firstPass) { // if the events being added are not the initial batch display the message
           defaultHamburgerBtn.addClass('circle');
@@ -499,15 +483,15 @@ $(document).ready(function() {
     eventList.height(eventMap.size * 40 + 'px'); // dynamically allocate the height of the event list
     // make sure that the ticker has the appropriate values on start up
     if (firstPass) {
-      updateTicker(events);
+      updateTicker(getActiveEvents().filter);
     }
     firstPass = false; // the error messages should be displayed in the error modal
     // add event listeners for the checkboxes being clicked
     var eventCheckboxes = $('#eventList li input');
     eventCheckboxes.mousedown(function() {
       var id = $(this).attr('id');
-      eventMap.set( id, !eventMap.get(id)); // flip the value of the checkbox in the map
-   });
+      eventMap.set(id, !eventMap.get(id)); // flip the value of the checkbox in the map
+    });
   }
 
   /**
@@ -515,9 +499,9 @@ $(document).ready(function() {
    * @param {String} value is to be the id and value of the list item
    * @param {Boolean} checked determines whether or not to give the list item a checked value
    */
-  function getListItem (value, checked) {
+  function getListItem(value, checked) {
     let checkValue = "";
-    if ( checked ) {
+    if (checked) {
       checkValue = "checked";
     }
     return '<li><input type="checkbox" id="' + value + '" value="' + value + '" ' + checkValue + '> &nbsp;&nbsp;' + value + '</li>';
@@ -541,10 +525,10 @@ $(document).ready(function() {
    */
   function getActiveEvents() {
     var events = {
-        'filter': []
-      };
+      'filter': []
+    };
     // check to see which events are active
-    eventMap.forEach( function(value, key, map) {
+    eventMap.forEach(function(value, key, map) {
       if (value) {
         events.filter.push(key);
       }
@@ -556,13 +540,9 @@ $(document).ready(function() {
    * Sets the filters to the filters submitted in the url query and then submits them to the WebSocket
    */
   function urlQueryFilters() {
-    var events = $('#eventList li input');
-    $.each(events, function(index, value) {
-      if (f.includes(value.value.split(" ").join("%20"))) { // replace is for checking filters with spaces, which evaluate to %20 in the URL.
-        value.checked = true;
-      } else {
-        value.checked = false;
-      }
+    // var events = $('#eventList li input');
+    $.each(f, function(index, value) {
+      eventMap.set(value.split("%20").join(" "), true);
     });
     sendActiveEventList();
   }
@@ -573,7 +553,7 @@ $(document).ready(function() {
   function submitClientID() {
     // set the clientID and then send it
     client = clientID.val();
-    insertCid(client);
+    setCidURL(client);
     // show the loading spinner and disable the client
     showSpinner();
     clientSubmit.prop('disabled', true);
@@ -814,7 +794,6 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
-    console.log(startDate);
     var hourPoints = []; // used to store an array of points for each hour
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
@@ -822,7 +801,6 @@ $(document).ready(function() {
 
     function successFunc(result) {
       hourPoints[result.Index] = result.Batch;
-      console.log(result.Batch);
     }
 
     function errFunc() {
@@ -835,7 +813,7 @@ $(document).ready(function() {
       var events = getActiveEvents(),
         playbackRequest = {
           index: i,
-          filters: events.filter,
+          filters: getActiveEvents().filter,
           clientID: client,
           startTime: startDate + range * i,
           endTime: startDate + range * (i + 1)
@@ -858,8 +836,8 @@ $(document).ready(function() {
     $.when.apply($, requestArray).done(function() {
       let noData = true;
       // check to see if no data was returned
-      for( var i = 0; i < frames; i++ ) {
-        if ( Object.keys(hourPoints[i]).length !== 0 ) {
+      for (var i = 0; i < frames; i++) {
+        if (Object.keys(hourPoints[i]).length !== 0) {
           noData = false;
           break;
         }
@@ -990,10 +968,35 @@ $(document).ready(function() {
       wait = false;
       var data = JSON.parse(e.data);
       if (data instanceof Array) {
-        addEvents(data);
         hideModal('startModal');
-        if (f != null) {
+        if (f != null && firstPass) {
           urlQueryFilters();
+        }
+        addEvents(data);
+
+        if (ts != null && !tsEvaluated) {
+          tsEvaluated = true;
+          // Run historical mode
+          setTimeout(function() {
+            console.log(moment(ts) + " " + moment(ts).isValid())
+            if (ts != null && moment(ts).isValid()) {
+              // Stop updating livetime
+
+              liveTime = false;
+              // Close websocket
+              ws.close();
+              // Convert ts to int
+              var tsInt = parseInt(ts[0]);
+              // Helps with calculating end date
+              var secondsDay = 86400;
+              // Click on historical mode button
+              $('#logoTime').trigger('mousedown');
+              getPlaybackData(tsInt, tsInt + secondsDay);
+              dateButton.prop('disabled', true);
+              clearHistoricData.prop('disabled', true);
+              logoTime.prop("disabled", true);
+            }
+          }, 3000);
         }
       } else {
         if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
@@ -1009,10 +1012,6 @@ $(document).ready(function() {
     ws.onopen = function() {
       console.log("Connection made!");
       dfd.resolve("Connection made!");
-      if (cid != null) {
-        clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
-        submitClientID();
-      }
     };
 
     // when the connection closes display that the connection has been made
@@ -1067,7 +1066,6 @@ $(document).ready(function() {
       for (var i = 0; i < queryArray.length; i++) {
         // Get key-value pair
         pair = queryArray[i].split('=');
-        // console.log(pair); TODO: Remove
         // Check if key already exists in object
         if (params.hasOwnProperty(pair[0]) === true) {
           // Add value to key
@@ -1143,7 +1141,7 @@ $(document).ready(function() {
     }
   }
   //  updates url live to have clientID parameter
-  function insertCid(cid) {
+  function setCidURL(cid) {
     // Get URL
     var url = window.location.href;
     // Check to see if URL already includes cid query string
@@ -1206,7 +1204,6 @@ $(document).ready(function() {
       updatedURL = updatedURL.replace(rexpression, "y=" + Math.floor(y));
     } else {
       updatedURL += token;
-      console.log(token);
     }
     window.history.replaceState({}, document.title, updatedURL);
     return;
@@ -1233,7 +1230,7 @@ $(document).ready(function() {
     return;
   });
 
-  function insertDecay(d) {
+  function setDecayURL(d) {
     // Get URL
     var url = window.location.href;
     // Check to see if URL already includes d query string
@@ -1266,7 +1263,7 @@ $(document).ready(function() {
     }
   }
 
-  function insertRefresh(r) {
+  function setRefreshURL(r) {
     // Get URL
     var url = window.location.href;
     // Check to see if URL already includes r query string
@@ -1302,7 +1299,7 @@ $(document).ready(function() {
   /**
    * Inserts timestamp into url
    */
-  function insertTimeStamp(ts) {
+  function setTimeStampURL(ts) {
     // Get URL
     var updatedURL = window.location.href;
     // Build up regex
