@@ -57,6 +57,7 @@ $(document).ready(function() {
     checkedEvent = true, // helps determine whether or not a checkbox is to checked or not
     tsEvaluated = false,
     client = '', // keeps track of the clientID for historical purposes
+    hourPoints = [], // used to store an array of points for each hour
     eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
     start_date = moment().subtract(1, 'days'),
@@ -98,8 +99,6 @@ $(document).ready(function() {
     // jQuery object variables that will be created later
     clientID,
     clientSubmit,
-
-
     // setup timers for interval based updates
     decayTimer = function() {
       clearInterval(decayInterval);
@@ -119,6 +118,24 @@ $(document).ready(function() {
       refreshInterval = setInterval(refreshTimer, refreshRate);
     },
     refreshInterval = setInterval(refreshTimer, refreshRate),
+    historicalInterval, // to be used for making sure that the historical interval is cleared as needed
+    historicalTimer = function( count, startDate, range ) {
+      clearInterval(historicalInterval);
+      if (count < hourPoints.length) {
+        if (hourPoints[count]) {
+          addPoints(hourPoints[count]);
+          updateHistoryTime(startDate + count * range);
+          adjustZoomGrade();
+          heatmapLayer._update();
+        }
+        // start the interval agian if all went well with the last interval
+        historicalInterval = setInterval(historicalTimer, 1000, count + 1, startDate, range);
+      } else {
+        dateButton.prop('disabled', false);
+        clearHistoricData.prop('disabled', false);
+      }
+      
+    },
     ws, // websocket
     query = parseQuery(window.location.href),
       cid, d, r, l, f, ts;
@@ -255,6 +272,10 @@ $(document).ready(function() {
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
       liveBtn.prop('disabled', true);
       logoTime.prop("disabled", false);
+      dateButton.prop('disabled', false);
+      clearHistoricData.prop('disabled', false);
+      // make sure historical data stops being added
+      clearInterval(historicalInterval);
       homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
       // add decay refresh intervals
       refreshInterval = setInterval(refreshTimer, refreshRate);
@@ -428,7 +449,7 @@ $(document).ready(function() {
         heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
       }
     }
-    if (heatmapLayer._data.size > heatmapLayer.cfg.maxPoints) {
+    if (heatmapLayer._data.size > heatmapLayer.cfg.maxPoints && liveBtn.is(":disabled")) {
       clearPoints(heatmapLayer._data.size - heatmapLayer.cfg.maxPoints);
     }
     mapChanged = true;
@@ -793,7 +814,7 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
-    var hourPoints = []; // used to store an array of points for each hour
+    hourPoints = []; // reset array
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
     var requestArray = []; // allows us to check when all primises are completed
@@ -809,8 +830,7 @@ $(document).ready(function() {
     }
 
     for (var i = 0; i < frames; i++) {
-      var events = getActiveEvents(),
-        playbackRequest = {
+      var playbackRequest = {
           index: i,
           filters: getActiveEvents().filter,
           clientID: client,
@@ -848,33 +868,10 @@ $(document).ready(function() {
         dateButton.prop('disabled', false);
         clearHistoricData.prop('disabled', false);
       } else {
-        plotArray(hourPoints, 0); // starts animating array
+        // starts animating the array
+        historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range); 
       }
     });
-
-    /**
-     * plotArray goes through the array and plots each hour every second.
-     * @param {Array} hourPoints each index is the group of points for the i'th hour
-     * @param {Integer} count the hour that is currently being plotted
-     */
-    function plotArray(hourPoints, count) {
-
-      // every 1000ms it will add the next hour of points and update the map.
-      setTimeout(function() {
-        if (count < hourPoints.length && !liveBtn.is(":disabled")) {
-          if (hourPoints[count]) {
-            addPoints(hourPoints[count]);
-            updateHistoryTime(startDate + count * range);
-            adjustZoomGrade();
-            heatmapLayer._update();
-          }
-          plotArray(hourPoints, count + 1);
-        } else {
-          dateButton.prop('disabled', false);
-          clearHistoricData.prop('disabled', false);
-        }
-      }, 1000);
-    }
   } // end of getPlaybackData
 
 
