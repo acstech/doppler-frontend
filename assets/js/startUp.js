@@ -1236,9 +1236,9 @@ $(document).ready(function() {
     // Update current decay value query
     if (url.includes("&d=")) {
       // Split url based on where decay query is
-      splitURL = url.split("&d=");
+      var splitURL = url.split("&d=");
       // Iterate through second part of url to see where the next query is
-      for (i = 0; i < splitURL[1].length; i++) {
+      for (var i = 0; i < splitURL[1].length; i++) {
         // If there is another query string, cut out decay value
         if (splitURL[1].charAt(i) == "&") {
           splitURL[1] = splitURL[1].substring(i, splitURL.length - 1);
