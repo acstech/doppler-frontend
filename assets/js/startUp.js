@@ -299,7 +299,7 @@ $(document).ready(function() {
     }
     // if the user passes in a location, change view there.
     // TODO: Separate xy and z
-    if (l.x != null && l.y != null && l.z != null) {
+    if (l !=null && l.x != null && l.y != null && l.z != null) {
       map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
     }
     if (f != null) {
