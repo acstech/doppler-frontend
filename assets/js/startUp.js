@@ -261,6 +261,7 @@ $(document).ready(function() {
       decayInterval = setInterval(decayTimer, decayRate);
       dateSelector.removeClass('visible');
       resetMap();
+      removeTimeStamp();
       selfClose = false;
       liveTime = true;
       updateLiveTime();
@@ -311,6 +312,8 @@ $(document).ready(function() {
       if ($('#eventList li input:checked').length > 0) {
         wait = true;
         showSpinner();
+        // console.log("DATEPICKER START: " + typeof datepicker.start + ": " + datepicker.start);
+        // console.log("DATEPICKER END: " + typeof datepicker.end + ": " + datepicker.end);
         getPlaybackData(datepicker.start, datepicker.end);
         var startDateSeconds = datepicker.start;
         setTimeStampURL(startDateSeconds);
@@ -325,8 +328,6 @@ $(document).ready(function() {
     clearHistoricData.mousedown(function() {
       resetMap();
     });
-
-
   } catch (err) {
     createAlert('505: Unable to connect to live data.', 'danger');
   }
@@ -794,6 +795,7 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
+    console.log(startDate);
     var hourPoints = []; // used to store an array of points for each hour
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
@@ -1012,6 +1014,10 @@ $(document).ready(function() {
     ws.onopen = function() {
       console.log("Connection made!");
       dfd.resolve("Connection made!");
+      if(cid != null){
+        clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
+        submitClientID();
+      }
     };
 
     // when the connection closes display that the connection has been made
@@ -1318,5 +1324,14 @@ $(document).ready(function() {
     }
 
     window.history.replaceState({}, document.title, updatedURL);
+  }
+
+  function removeTimeStamp() {
+    var url = window.location.href;
+    if(url.includes("ts=")) {
+      var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
+      url = url.replace(rexpression, "");
+    }
+    window.history.replaceState({}, document.title, url);
   }
 });
