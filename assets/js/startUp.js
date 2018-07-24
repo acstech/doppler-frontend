@@ -1230,16 +1230,16 @@ $(document).ready(function() {
     var center = map.getCenter();
     var x = center.lat;
     var y = center.lng;
-    var token = "&x=" + Math.floor(x) + "&y=" + Math.floor(y);
+    var token = "&x=" + Math.round(x * 100) / 100 + "&y=" + Math.round(y * 100) / 100;
     if (!url.includes("?")) {
       updatedURL += "?";
     }
 
     if (url.includes("x=")) {
-      var rexpression = /x=-?[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "x=" + Math.floor(x));
-      rexpression = /y=-?[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "y=" + Math.floor(y));
+      var rexpression = /x=-?[0-9]*[.]?[0-9]*/g;
+      updatedURL = updatedURL.replace(rexpression, "x=" + Math.round(x * 1000) / 1000);
+      rexpression = /y=-?[0-9]*[.]?[0-9]*/g;
+      updatedURL = updatedURL.replace(rexpression, "y=" + Math.round(y * 1000) / 1000);
     } else {
       updatedURL += token;
     }
