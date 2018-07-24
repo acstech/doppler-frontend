@@ -134,11 +134,11 @@ $(document).ready(function() {
         dateButton.prop('disabled', false);
         clearHistoricData.prop('disabled', false);
       }
-      
+
     },
     ws, // websocket
     query = parseQuery(window.location.href),
-      cid, d, r, l, f, ts;
+    cid, d, r, l, f, ts;
 
   if (query != null) {
     cid = getCID(query);
@@ -258,7 +258,6 @@ $(document).ready(function() {
 
       clientSubmit.mousedown(submitClientID);
       if (cid != null) {
-
         clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
         submitClientID();
       }
@@ -282,7 +281,6 @@ $(document).ready(function() {
       decayInterval = setInterval(decayTimer, decayRate);
       dateSelector.removeClass('visible');
       resetMap();
-      removeTimeStamp();
       selfClose = false;
       liveTime = true;
       updateLiveTime();
@@ -305,8 +303,6 @@ $(document).ready(function() {
       ws.close();
     });
 
-
-
     // Set decay to query value
     if (d != null) {
       decaySlider.val(d);
@@ -321,7 +317,7 @@ $(document).ready(function() {
     }
     // if the user passes in a location, change view there.
     // TODO: Separate xy and z
-    if (l !=null && l.x != null && l.y != null && l.z != null) {
+    if (l != null && l.x != null && l.y != null && l.z != null) {
       map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
     }
     if (f != null) {
@@ -347,6 +343,8 @@ $(document).ready(function() {
     clearHistoricData.mousedown(function() {
       resetMap();
     });
+
+
   } catch (err) {
     createAlert('505: Unable to connect to live data.', 'danger');
   }
@@ -869,7 +867,7 @@ $(document).ready(function() {
         clearHistoricData.prop('disabled', false);
       } else {
         // starts animating the array
-        historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range); 
+        historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
       }
     });
   } // end of getPlaybackData
@@ -976,7 +974,6 @@ $(document).ready(function() {
           setTimeout(function() {
             if (ts != null && moment(parseInt(ts[0])).isValid()) {
               // Stop updating livetime
-
               liveTime = false;
               // Close websocket
               ws.close();
@@ -991,7 +988,7 @@ $(document).ready(function() {
               clearHistoricData.prop('disabled', true);
               logoTime.prop("disabled", true);
             }
-          }, 3000);
+          }, 1000);
         }
       } else {
         if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
@@ -1137,25 +1134,23 @@ $(document).ready(function() {
   }
   //  updates url live to have clientID parameter
   function setCidURL(cid) {
+
     // Get URL
     var url = window.location.href;
-    // Check to see if URL already includes cid query string
-    var params = parseQuery(url);
-    if (params != null && getCID(params) != null) {
-      return;
+    var token = "";
+    if(!url.includes("?")) {
+      token += "?";
     }
-    // Otherwise add cid query string to URL
-    else {
-      if (url.includes("?")) {
-        var updatedURL = url + "&cid=" + cid;
-        window.history.replaceState({}, document.title, updatedURL);
-        return;
-      } else {
-        var updatedURL = url + "?cid=" + cid;
-        window.history.replaceState({}, document.title, updatedURL);
-        return;
-      }
+    token += "&";
+
+    var rexpression = /cid\=[^&]*/g;
+    var updatedURL = url;
+    if (url.includes("cid=")) {
+      updatedURL = url.replace(rexpression, "cid=" + cid);
+    } else {
+      updatedURL += token + "cid=" + cid;
     }
+    window.history.replaceState({}, document.title, updatedURL);
   }
 
   // nav's in coming changes
@@ -1228,67 +1223,40 @@ $(document).ready(function() {
   function setDecayURL(d) {
     // Get URL
     var url = window.location.href;
-    // Check to see if URL already includes d query string
-    var params = parseQuery(url);
-    // Update current decay value query
+    var token = "";
+    if(!url.includes("?")) {
+      token += "?";
+    }
+
+    token += "&";
+
+    var rexpression = /[\?\&]d\=[0-9]*/g;
+    var updatedURL = url;
     if (url.includes("&d=")) {
-      // Split url based on where decay query is
-      var splitURL = url.split("&d=");
-      // Iterate through second part of url to see where the next query is
-      for (var i = 0; i < splitURL[1].length; i++) {
-        // If there is another query string, cut out decay value
-        if (splitURL[1].charAt(i) == "&") {
-          splitURL[1] = splitURL[1].substring(i, splitURL.length - 1);
-        }
-        // Decay value is at end of query string, so erase completely
-        else {
-          splitURL[1] = "";
-        }
-      }
-      var updatedURL = splitURL[0] + "&d=" + d + splitURL[1];
-      // Update url
-      window.history.replaceState({}, document.title, updatedURL);
-      return;
+      updatedURL = url.replace(rexpression, token + "d=" + d);
+    } else {
+      updatedURL += token + "d=" + d;
     }
-    // Insert new decay value query
-    else {
-      var updatedURL = url + "&d=" + d;
-      window.history.replaceState({}, document.title, updatedURL);
-      return;
-    }
+    window.history.replaceState({}, document.title, updatedURL);
   }
 
   function setRefreshURL(r) {
     // Get URL
     var url = window.location.href;
-    // Check to see if URL already includes r query string
-    var params = parseQuery(url);
-    // Update current refresh value query
-    if (url.includes("&r=")) {
-      // Split url based on where refresh query is
-      splitURL = url.split("&r=");
-      // Iterate through second part of url to see where the next query is
-      for (i = 0; i < splitURL[1].length; i++) {
-        // If there is another query string, cut out refresh value
-        if (splitURL[1].charAt(i) == "&") {
-          splitURL[1] = splitURL[1].substring(i, splitURL.length - 1);
-        }
-        // Refresh value is at end of query string, so erase completely
-        else {
-          splitURL[1] = "";
-        }
-      }
-      var updatedURL = splitURL[0] + "&r=" + r + splitURL[1];
-      // Update url
-      window.history.replaceState({}, document.title, updatedURL);
-      return;
+    var token = "";
+    if(!url.includes("?")) {
+      token += "?";
+    } else {
+      token += "&";
     }
-    // Insert new refresh value query
-    else {
-      var updatedURL = url + "&r=" + r;
-      window.history.replaceState({}, document.title, updatedURL);
-      return;
+    var rexpression = /[\?\&]r\=[0-9]*/g;
+    var updatedURL = url;
+    if (url.includes("r=")) {
+      updatedURL = url.replace(rexpression, token + "r=" + r);
+    } else {
+      updatedURL = url + token + "r=" + r;
     }
+    window.history.replaceState({}, document.title, updatedURL);
   }
 
   /**
@@ -1313,14 +1281,5 @@ $(document).ready(function() {
     }
 
     window.history.replaceState({}, document.title, updatedURL);
-  }
-
-  function removeTimeStamp() {
-    var url = window.location.href;
-    if(url.includes("ts=")) {
-      var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
-      url = url.replace(rexpression, "");
-    }
-    window.history.replaceState({}, document.title, url);
   }
 });
