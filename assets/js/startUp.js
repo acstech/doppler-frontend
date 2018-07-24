@@ -261,6 +261,7 @@ $(document).ready(function() {
       decayInterval = setInterval(decayTimer, decayRate);
       dateSelector.removeClass('visible');
       resetMap();
+      removeTimeStamp();
       selfClose = false;
       liveTime = true;
       updateLiveTime();
@@ -325,8 +326,6 @@ $(document).ready(function() {
     clearHistoricData.mousedown(function() {
       resetMap();
     });
-
-
   } catch (err) {
     createAlert('505: Unable to connect to live data.', 'danger');
   }
@@ -978,8 +977,7 @@ $(document).ready(function() {
           tsEvaluated = true;
           // Run historical mode
           setTimeout(function() {
-            console.log(moment(ts) + " " + moment(ts).isValid())
-            if (ts != null && moment(ts).isValid()) {
+            if (ts != null && moment(parseInt(ts[0])).isValid()) {
               // Stop updating livetime
 
               liveTime = false;
@@ -1318,5 +1316,14 @@ $(document).ready(function() {
     }
 
     window.history.replaceState({}, document.title, updatedURL);
+  }
+
+  function removeTimeStamp() {
+    var url = window.location.href;
+    if(url.includes("ts=")) {
+      var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
+      url = url.replace(rexpression, "");
+    }
+    window.history.replaceState({}, document.title, url);
   }
 });
