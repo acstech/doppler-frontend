@@ -309,6 +309,7 @@ $(document).ready(function() {
   /**** functions from this point on ****/
   function playback() {
     if (getActiveEvents().filter.length > 0 && datepicker.diff > 0) {
+      console.log("diff: " + datepicker.diff);
       dateButton.prop('disabled', true);
       clearHistoricData.prop('disabled', true);
       wait = true;
@@ -896,7 +897,7 @@ $(document).ready(function() {
         tempEnd = moment(self.endDrp.val()).endOf('day');
       self.start = Math.floor(tempStart.valueOf() / 1000);
       self.end = Math.floor(tempEnd.valueOf() / 1000);
-      self.diff = tempEnd.diff(tempStart, 'seconds');
+      self.diff = tempEnd.add(1, "days").diff(tempStart, 'days');
     };
 
     new Drp(start.format(self.format), 'start');
