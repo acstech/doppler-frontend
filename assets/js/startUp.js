@@ -232,13 +232,11 @@ $(document).ready(function() {
   updateLiveTime();
 
   // try to connect to the websosket, if there is an error display the error modal
-  try {
     createWebsocket();
     // if an error occurs opening the websocket the modal will not load
 
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
-    //nextButton.hide();
 
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
@@ -307,11 +305,6 @@ $(document).ready(function() {
     clearHistoricData.mousedown(function() {
       resetMap();
     });
-
-
-  } catch (err) {
-    createAlert('505: Unable to connect to live data.', 'danger');
-  }
 
   /**** functions from this point on ****/
   function playback() {
@@ -1007,7 +1000,7 @@ $(document).ready(function() {
       if (cid !== undefined) {
         client = cid[0].split("%20").join(" "); // gets the client ID from the query and replaces all "%20" with " "
         sendID();
-      } else if(liveBtn.is(':disabled')) {
+      } else if(liveBtn.is(':disabled') && !firstPass) {
         sendID();
       } else {
         // listen to see if a clientID is entered in the input box
