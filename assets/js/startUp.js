@@ -341,7 +341,7 @@ $(document).ready(function() {
           checkInterval = setInterval(checkWaiting, 1000);
         } else {
           dateButton.prop('disabled', false);
-          //clearHistoricData.prop('disabled', false);
+          clearHistoricData.prop('disabled', true);
         }
       };
       checkInterval = setInterval(checkWaiting, 1000);
@@ -1314,6 +1314,7 @@ $(document).ready(function() {
       // Look for ts key in query and go through value
       var rexpression = /[/?/&][tT][sS]\=[0-9]*/g;
       updatedURL = updatedURL.replace(rexpression, "");
+      clearHistoricData.prop('disabled', false);
     }
     updatedURL += token;
 
