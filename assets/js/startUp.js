@@ -128,7 +128,7 @@ $(document).ready(function() {
       if (count < hourPoints.length) {
         if (hourPoints[count]) {
           addPoints(hourPoints[count]);
-          updateHistoryTime(startDate + count * range);
+          updateHistoryTime(moment.unix(startDate).add(count, "hours") / 1000);
           adjustZoomGrade();
           heatmapLayer._update();
         }
@@ -269,7 +269,6 @@ $(document).ready(function() {
 
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
-    //nextButton.hide();
 
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
@@ -332,43 +331,7 @@ $(document).ready(function() {
 
     // add event listener for querying for historical data
       dateButton.mousedown(function() {
-        if ($('#eventList li input:checked').length > 0) {
-          dateButton.prop('disabled', true);
-          clearHistoricData.prop('disabled', true);
-          wait = true;
-          showSpinner();
-          var start = datepicker.start;
-          var startDateSeconds = datepicker.start;
-          var end = start + 86400;
-          var i = 0;
-
-          //TODO: assign parameters by each day range of datepicker.start and datepicker.end
-          if (datepicker.diff >= 1) {
-            var checkWaiting = function() {
-                clearInterval(checkInterval);
-                if (waiting === true) {
-                  checkInterval = setInterval(checkWaiting, 1000);
-                } else if (i < datepicker.diff) {
-                  setTimeStampURL(startDateSeconds);
-                  resetMap();
-                  getPlaybackData(start, end);
-                  start = end;
-                  end += 86400;
-                  i++;
-                  checkInterval = setInterval(checkWaiting, 1000);
-                } else {
-                  dateButton.prop('disabled', false);
-                  clearHistoricData.prop('disabled', false);
-                }
-              };
-            checkInterval = setInterval(checkWaiting, 1000);
-          }
-
-        } else {
-          createAlert('401: Invalid event selection.', 'danger');
-        }
-        //nextButton.show();
-        //}
+        playback();
     });
 
     //used to reset the map at the user
@@ -382,6 +345,40 @@ $(document).ready(function() {
   }
 
   /**** functions from this point on ****/
+  function playback() {
+    if (getActiveEvents().filter.length > 0 && datepicker.diff >= 0) {
+      dateButton.prop('disabled', true);
+      clearHistoricData.prop('disabled', true);
+      wait = true;
+      showSpinner();
+      setTimeStampURL(datepicker.start, datepicker.end);
+      var start = datepicker.start,
+          end = start + 86400,
+          i = 0;
+
+      //TODO: assign parameters by each day range of datepicker.start and datepicker.end
+      var checkWaiting = function() {
+          clearInterval(checkInterval);
+          if (waiting === true) {
+            checkInterval = setInterval(checkWaiting, 1000);
+          } else if (i < datepicker.diff + 1) {
+            resetMap();
+            getPlaybackData(start, end);
+            start = end;
+            end += 86400;
+            i++;
+            checkInterval = setInterval(checkWaiting, 1000);
+          } else {
+            dateButton.prop('disabled', false);
+            clearHistoricData.prop('disabled', false);
+          }
+        };
+      checkInterval = setInterval(checkWaiting, 1000);
+    } else {
+      createAlert('401: Invalid event selection.', 'danger');
+    }
+  }
+
   /**
    * openMapResetModal opens a modal for resetting the map
    */
@@ -668,6 +665,7 @@ $(document).ready(function() {
 
   function displayHistoricalTime(theTime) {
     timeDisplay.html(theTime);
+    console.log(theTime);
   }
 
   /**
@@ -695,8 +693,8 @@ $(document).ready(function() {
     liveTime = false;
     // Formate time to look readable
     var date = moment.unix(theTime);
-    if (date.isDST()) {
-      date.add(1, "hour");
+    if (!date.isDST()) {
+      date.subtract(1, "hour"); // should take an hour away when DST goes away
     }
     displayHistoricalTime(date.format("dddd, MMMM Do YYYY, h:mm:ss a"));
   }
@@ -851,6 +849,7 @@ $(document).ready(function() {
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
     var requestArray = []; // allows us to check when all primises are completed
+    var start = moment.unix(startDate);
 
     function successFunc(result) {
       hourPoints[result.Index] = result.Batch;
@@ -870,9 +869,9 @@ $(document).ready(function() {
           startTime: startDate + range * i,
           endTime: startDate + range * (i + 1)
         };
-
       //oldTime(time);
-      updateHistoryTime(playbackRequest.startTime);
+      // console.log(i);
+      // updateHistoryTime(playbackRequest.startTime); this made the time not work when the days changed
       requestArray.push($.ajax({
         url: 'http://localhost:8000/receive/ajax',
         crossDomain: true,
@@ -886,25 +885,21 @@ $(document).ready(function() {
 
     //runs when requestArray promises are all done.
     $.when.apply($, requestArray).done(function() {
-      let noData = true;
+      // let noData = true;
       // check to see if no data was returned
-      for (var i = 0; i < frames; i++) {
-        if (Object.keys(hourPoints[i]).length !== 0) {
-          noData = false;
-          break;
-        }
-      }
+      // for (var i = 0; i < frames; i++) {
+      //   if (Object.keys(hourPoints[i]).length !== 0) {
+      //     noData = false;
+      //     break;
+      //   }
+      // }
       wait = false;
       hideSpinner();
-      if (noData) {
-        createAlert('No data was found for the provided date range.', 'warning');
-        dateButton.prop('disabled', false);
-        clearHistoricData.prop('disabled', false);
-        waiting = false;
-      } else {
-        // starts animating the array
-        historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
-      }
+      // if (noData) {
+      //   createAlert('No data was found for the provided date range.', 'warning');
+      // }
+      // starts animating the array
+      historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
     });
   } // end of getPlaybackData
 
@@ -941,8 +936,8 @@ $(document).ready(function() {
     self.update = function update() {
       var tempStart = moment(self.startDrp.val()).startOf('day'),
         tempEnd = moment(self.endDrp.val()).endOf('day');
-      self.start = tempStart.valueOf() / 1000;
-      self.end = tempEnd.valueOf() / 1000;
+      self.start = Math.floor(tempStart.valueOf() / 1000);
+      self.end = Math.floor(tempEnd.valueOf() / 1000);
       self.diff = tempEnd.diff(tempStart, 'days');
     };
 
@@ -1013,20 +1008,18 @@ $(document).ready(function() {
           tsEvaluated = true;
           // Run historical mode
           setTimeout(function() {
-            if (ts != null && moment(parseInt(ts[0])).isValid()) {
+            if (ts != null) {
               // Stop updating livetime
               liveTime = false;
               // Close websocket
               ws.close();
               // Convert ts to int
-              var tsInt = parseInt(ts[0]);
+              // var tsInt = parseInt(ts[0]);
               // Helps with calculating end date
               var secondsDay = 86400;
               // Click on historical mode button
               logoTime.trigger('mousedown');
-              getPlaybackData(tsInt, tsInt + secondsDay);
-              dateButton.prop('disabled', true);
-              clearHistoricData.prop('disabled', true);
+              playback();
               logoTime.prop("disabled", true);
             }
           }, 1000);
@@ -1174,15 +1167,18 @@ $(document).ready(function() {
   }
 
   function getTimeStamp(params) {
-    if (params.hasOwnProperty("ts") === true && params.ts.length === 1) {
-      return params.ts;
+    if (params.hasOwnProperty("ts") === true && params["ts"].length === 2
+      && moment(parseInt(params["ts"][0])).isValid() && moment(parseInt(params["ts"][1])).isValid()) {
+      // remove old datepicker
+      $("div#drp").empty();
+      datepicker = new DatePicker(moment.unix(parseInt(params["ts"][0])).startOf("day"), moment.unix(parseInt(params["ts"][1])).endOf("day"), 0);
+      return params["ts"];
     } else {
       return null;
     }
   }
   //  updates url live to have clientID parameter
   function setCidURL(cid) {
-
     // Get URL
     var url = window.location.href;
     var token = "";
@@ -1204,10 +1200,7 @@ $(document).ready(function() {
   // nav's in coming changes
   function setFiltersURL() {
     var updatedURL = window.location.href;
-    var activeEvents = [];
-    $.each($('#eventList li input:checked'), function(index, value) {
-      activeEvents.push(value.value);
-    });
+    var activeEvents = getActiveEvents().filter;
     var token = "";
     for (var i = 0; i < activeEvents.length; i++) {
       token += "&f=" + activeEvents[i];
@@ -1310,11 +1303,11 @@ $(document).ready(function() {
   /**
    * Inserts timestamp into url
    */
-  function setTimeStampURL(ts) {
+  function setTimeStampURL(ts_start, ts_end) {
     // Get URL
     var updatedURL = window.location.href;
     // Build up regex
-    var token = "&ts=" + ts;
+    var token = "&ts=" + ts_start + "&ts=" + ts_end;
     // Check if you have a query started
     if (!updatedURL.includes("?")) {
       updatedURL += "?";
@@ -1323,10 +1316,9 @@ $(document).ready(function() {
     if (updatedURL.includes("ts=")) {
       // Look for ts key in query and go through value
       var rexpression = /[/?/&][tT][sS]\=[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "&ts=" + ts);
-    } else {
-      updatedURL += token;
+      updatedURL = updatedURL.replace(rexpression, "");
     }
+    updatedURL += token;
 
     window.history.replaceState({}, document.title, updatedURL);
   }
