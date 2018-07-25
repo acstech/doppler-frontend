@@ -142,7 +142,7 @@ $(document).ready(function() {
     query = parseQuery(window.location.href),
     cid, d, r, l, f, ts;
 
-  if (query != null) {
+  if (query !== undefined) {
     cid = getCID(query);
     d = getDecay(query);
     r = getRefresh(query);
@@ -260,7 +260,7 @@ $(document).ready(function() {
       });
 
       clientSubmit.mousedown(submitClientID);
-      if (cid != null) {
+      if (cid !== undefined) {
         clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
         submitClientID();
       }
@@ -269,6 +269,7 @@ $(document).ready(function() {
 
     filterSubmit.mousedown(openMapResetModal);
     decaySubmit.mousedown(openDecayModal);
+    //nextButton.hide();
 
     // add event listener for live button click
     liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
@@ -310,23 +311,23 @@ $(document).ready(function() {
     });
 
     // Set decay to query value
-    if (d !== null) {
+    if (d !== undefined) {
       decaySlider.val(d);
       decayOutput.text(decaySlider.val());
       urlQueryDecay();
     }
     // Set refresh to query value
-    if (r !== null) {
+    if (r !== undefined) {
       refreshSlider.val(r);
       refreshOutput.text(refreshSlider.val());
       urlQueryRefresh();
     }
     // if the user passes in a location, change view there.
     // TODO: Separate xy and z
-    if (l !== null && l.x !== null && l.y !== null && l.z !== null) {
+    if (l !== undefined && l.x !== undefined && l.y !== undefined && l.z !== undefined) {
       map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
     }
-    if (f !== null) {
+    if (f !== undefined) {
       f = getFilters(query);
     }
 
@@ -506,7 +507,7 @@ $(document).ready(function() {
       listEvents += getListItem(key, value);
     });
     // if the events that are to be added are the first, then add them as checked
-    if (firstPass && f=== null) {
+    if (firstPass && f === undefined) {
       checkedEvent = true;
     } else {
       checkedEvent = false;
@@ -673,7 +674,7 @@ $(document).ready(function() {
    * updateLiveTime updates the time for the user while live mode is active
    */
   function updateLiveTime() {
-    if (ts !== null && liveTime !== true) {
+    if (ts !== undefined && liveTime !== true) {
       return;
     }
     var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -1000,16 +1001,16 @@ $(document).ready(function() {
       var data = JSON.parse(e.data);
       if (data instanceof Array) {
         hideModal('startModal');
-        if (f !== null && firstPass) {
+        if (f !== undefined && firstPass) {
           urlQueryFilters();
         }
         addEvents(data);
 
-        if (ts !== null && !tsEvaluated) {
+        if (ts !== undefined && !tsEvaluated) {
           tsEvaluated = true;
           // Run historical mode
           setTimeout(function() {
-            if (ts != null) {
+            if (ts !== undefined && moment(parseInt(ts[0])).isValid()) {
               // Stop updating livetime
               liveTime = false;
               // Close websocket
@@ -1092,7 +1093,7 @@ $(document).ready(function() {
     var pair;
     // Check if url contains query
     if (urlString.includes("?") === false) {
-      return null;
+      return undefined;
     } else {
       // Remove first part of URL then split rest of string to get an array of key-value pairs
       queryArray = urlString.substring(urlString.indexOf('?') + 1).split('&');
@@ -1120,29 +1121,29 @@ $(document).ready(function() {
     if (params.hasOwnProperty("cid") === true && params.cid.length === 1) {
       return params.cid;
     } else {
-      return null;
+      return undefined;
     }
   }
 
   function getDecay(params) {
-    if (params.hasOwnProperty("d") === true && params.d.length === 1) {
-      if (params.d > 600 || params.d < 1) {
-        return null;
+    if (params.hasOwnProperty("d") === true && params["d"].length === 1) {
+      if (params["d"] > 600 || params["d"] < 1) {
+        return undefined;
       }
       return params.d;
     } else {
-      return null;
+      return undefined;
     }
   }
 
   function getRefresh(params) {
-    if (params.hasOwnProperty("r") === true && params.r.length === 1) {
-      if (params.r > 60 || params.r < 1) {
-        return null;
+    if (params.hasOwnProperty("r") === true && params["r"].length === 1) {
+      if (params["r"] > 60 || params["r"] < 1) {
+        return undefined;
       }
       return params.r;
     } else {
-      return null;
+      return undefined;
     }
   }
 
@@ -1155,7 +1156,7 @@ $(document).ready(function() {
         z: params.z
       };
     } else {
-      return null;
+      return undefined;
     }
   }
 
@@ -1163,7 +1164,7 @@ $(document).ready(function() {
     if (params.hasOwnProperty("f") === true) {
       return params.f;
     } else {
-      return null;
+      return undefined;
     }
   }
 
@@ -1175,7 +1176,7 @@ $(document).ready(function() {
       datepicker = new DatePicker(moment.unix(parseInt(params["ts"][0])).startOf("day"), moment.unix(parseInt(params["ts"][1])).endOf("day"), 0);
       return params["ts"];
     } else {
-      return null;
+      return undefined;
     }
   }
   //  updates url live to have clientID parameter
