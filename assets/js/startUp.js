@@ -285,6 +285,7 @@ $(document).ready(function() {
       clearInterval(checkInterval);
       dateSelector.removeClass('visible');
       resetMap();
+      removeTimeStamp();
       selfClose = false;
       waiting = false;
       liveTime = true;
@@ -1321,5 +1322,17 @@ $(document).ready(function() {
     updatedURL += token;
 
     window.history.replaceState({}, document.title, updatedURL);
+  }
+
+  /**
+   * Removes time stamps from url
+   */
+  function removeTimeStamp() {
+    var url = window.location.href;
+    if(url.includes("ts=")) {
+      var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
+      url = url.replace(rexpression, "");
+    }
+    window.history.replaceState({}, document.title, url);
   }
 });
