@@ -149,6 +149,7 @@ $(document).ready(function() {
     l = getLocation(query);
     f = getFilters(query);
     ts = getTimeStamp(query);
+    // sp = getPlayback(query);
   }
 
   // sets the max bounds of the map
@@ -318,7 +319,6 @@ $(document).ready(function() {
   /**** functions from this point on ****/
   function playback() {
     if (getActiveEvents().filter.length > 0 && datepicker.diff > 0) {
-      console.log("diff: " + datepicker.diff);
       dateButton.prop('disabled', true);
       //clearHistoricData.prop('disabled', true);
       wait = true;
@@ -868,9 +868,9 @@ $(document).ready(function() {
       // }
       // starts animating the array
       historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
+
     });
   } // end of getPlaybackData
-
 
   /**
    * @class DatePicker
