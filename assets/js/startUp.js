@@ -123,7 +123,7 @@ $(document).ready(function() {
     refreshInterval = setInterval(refreshTimer, refreshRate),
     historicalInterval, // to be used for making sure that the historical interval is cleared as needed
     checkInterval,
-    historicalTimer = function( count, startDate, range ) {
+    historicalTimer = function(count, startDate, range) {
       clearInterval(historicalInterval);
       if (count < hourPoints.length) {
         if (hourPoints[count]) {
@@ -233,38 +233,7 @@ $(document).ready(function() {
 
   // try to connect to the websosket, if there is an error display the error modal
   try {
-
-    $.when(createWebsocket()).then(function() {
-      // listen to see if a clientID is entered in the input box
-      createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
-        false, startModalBtn); // creates the starting modal
-      // starting modal opens
-      $('#startModal').modal();
-      clientID = $('#cIDinput');
-      clientSubmit = $('#enter');
-      clientID.on('input', function() {
-        if (this.value.trim().length > 0) { // the user has actually input text
-          clientSubmit.prop("disabled", false);
-        } else { // disable the button becuase the input box is empty
-          clientSubmit.prop("disabled", true);
-        }
-      });
-
-      // Execute a function when the user releases a key on the keyboard
-      clientID.bind('keyup', function(event) {
-        // get the first and only clientSubmit button from the array and make sure that it is not disabled
-        if (event.keyCode === 13 && !clientSubmit[0].disabled) {
-          // Trigger the button element with a click
-          clientSubmit.mousedown();
-        }
-      });
-
-      clientSubmit.mousedown(submitClientID);
-      if (cid !== undefined) {
-        clientID.val(cid[0].split("%20").join(" ")); // gets the client ID from the query and replaces all "%20" with " "
-        submitClientID();
-      }
-    });
+    createWebsocket();
     // if an error occurs opening the websocket the modal will not load
 
     filterSubmit.mousedown(openMapResetModal);
@@ -291,9 +260,7 @@ $(document).ready(function() {
       waiting = false;
       liveTime = true;
       updateLiveTime();
-      $.when(createWebsocket()).then(function() {
-        setTimeout(sendID, 100);
-      });
+      createWebsocket();
     });
 
     logoTime.mousedown(function() {
@@ -332,8 +299,8 @@ $(document).ready(function() {
     }
 
     // add event listener for querying for historical data
-      dateButton.mousedown(function() {
-        playback();
+    dateButton.mousedown(function() {
+      playback();
     });
 
     //used to reset the map at the user
@@ -352,29 +319,28 @@ $(document).ready(function() {
       dateButton.prop('disabled', true);
       clearHistoricData.prop('disabled', true);
       wait = true;
-      showSpinner();
       setTimeStampURL(datepicker.start, datepicker.end);
       var start = datepicker.start,
-          end = start + 86400,
-          i = 0;
+        end = start + 86400,
+        i = 0;
 
       //TODO: assign parameters by each day range of datepicker.start and datepicker.end
       var checkWaiting = function() {
-          clearInterval(checkInterval);
-          if (waiting === true) {
-            checkInterval = setInterval(checkWaiting, 1000);
-          } else if (i < datepicker.diff + 1) {
-            resetMap();
-            getPlaybackData(start, end);
-            start = end;
-            end += 86400;
-            i++;
-            checkInterval = setInterval(checkWaiting, 1000);
-          } else {
-            dateButton.prop('disabled', false);
-            clearHistoricData.prop('disabled', false);
-          }
-        };
+        clearInterval(checkInterval);
+        if (waiting === true) {
+          checkInterval = setInterval(checkWaiting, 1000);
+        } else if (i < datepicker.diff + 1) {
+          resetMap();
+          getPlaybackData(start, end);
+          start = end;
+          end += 86400;
+          i++;
+          checkInterval = setInterval(checkWaiting, 1000);
+        } else {
+          dateButton.prop('disabled', false);
+          clearHistoricData.prop('disabled', false);
+        }
+      };
       checkInterval = setInterval(checkWaiting, 1000);
     } else {
       createAlert('401: Invalid event selection.', 'danger');
@@ -847,6 +813,7 @@ $(document).ready(function() {
    * @return {Object}
    */
   function getPlaybackData(startDate, endDate) {
+    showSpinner();
     waiting = true;
     var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
     var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
@@ -865,12 +832,12 @@ $(document).ready(function() {
 
     for (var i = 0; i < frames; i++) {
       var playbackRequest = {
-          index: i,
-          filters: getActiveEvents().filter,
-          clientID: client,
-          startTime: startDate + range * i,
-          endTime: startDate + range * (i + 1)
-        };
+        index: i,
+        filters: getActiveEvents().filter,
+        clientID: client,
+        startTime: startDate + range * i,
+        endTime: startDate + range * (i + 1)
+      };
       //oldTime(time);
       // console.log(i);
       // updateHistoryTime(playbackRequest.startTime); this made the time not work when the days changed
@@ -928,7 +895,7 @@ $(document).ready(function() {
                             <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 0px;right: 50%;padding-right: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="start" id="start" class="form-control" /></div>\n\
                             <div style="position: absolute;top: 0px;bottom: 1px;display: block;left: 50%;z-index:+2;margin-left: -20px;width: 40px;text-align: center;background: linear-gradient(#eee,#ddd);border: solid #CCC 1px;border-left: 0px;border-right: 0px;height: 36px !important;"><i style="position:absolute;left:50%;margin-left:-7px;top:50%;margin-top: -7px;" class="fa fa-calendar"></i></div>\n\
                             <div style="position: absolute;top: 0px;bottom: 0px;display: block;left: 50%;right: 0px;padding-left: 20px;width: 50%;"><input style="height: 100%;display: block;" type="text" name="end" id="end" class="form-control" /></div>\n\
-                      </div>';    // get start and end elements for faster operation speed
+                      </div>'; // get start and end elements for faster operation speed
     self.element.html(self.markup);
     self.startDrp = $('.rangecontainer input#start');
     self.endDrp = $('.rangecontainer input#end');
@@ -988,12 +955,10 @@ $(document).ready(function() {
    * createWebsocket opens a connection to the front end API
    */
   function createWebsocket() {
-    var dfd = $.Deferred();
     ws = new WebSocket("ws://localhost:8000/receive/ws");
     // log any messages recieved
     ws.addEventListener("message", function(e) {
       if (wait) {
-        // spinner.removeClass('visible');
         hideSpinner();
         clientSubmit.prop('disabled', false);
       }
@@ -1039,7 +1004,38 @@ $(document).ready(function() {
     // on open display that the websocket connection succeeded
     ws.onopen = function() {
       console.log("Connection made!");
-      dfd.resolve("Connection made!");
+      if (cid !== undefined) {
+        client = cid[0].split("%20").join(" "); // gets the client ID from the query and replaces all "%20" with " "
+        sendID();
+      } else if(liveBtn.is(':disabled')) {
+        sendID();
+      } else {
+        // listen to see if a clientID is entered in the input box
+        createModal('startModal', 'Please Enter Your Client ID:', true, startModalBody,
+          false, startModalBtn); // creates the starting modal
+        // starting modal opens
+        $('#startModal').modal();
+        clientID = $('#cIDinput');
+        clientSubmit = $('#enter');
+        clientID.on('input', function() {
+          if (this.value.trim().length > 0) { // the user has actually input text
+            clientSubmit.prop("disabled", false);
+          } else { // disable the button becuase the input box is empty
+            clientSubmit.prop("disabled", true);
+          }
+        });
+
+        // Execute a function when the user releases a key on the keyboard
+        clientID.bind('keyup', function(event) {
+          // get the first and only clientSubmit button from the array and make sure that it is not disabled
+          if (event.keyCode === 13 && !clientSubmit[0].disabled) {
+            // Trigger the button element with a click
+            clientSubmit.mousedown();
+          }
+        });
+
+        clientSubmit.mousedown(submitClientID);
+      }
     };
 
     // when the connection closes display that the connection has been made
@@ -1169,8 +1165,8 @@ $(document).ready(function() {
   }
 
   function getTimeStamp(params) {
-    if (params.hasOwnProperty("ts") === true && params["ts"].length === 2
-      && moment(parseInt(params["ts"][0])).isValid() && moment(parseInt(params["ts"][1])).isValid()) {
+    if (params.hasOwnProperty("ts") === true && params["ts"].length === 2 &&
+      moment(parseInt(params["ts"][0])).isValid() && moment(parseInt(params["ts"][1])).isValid()) {
       // remove old datepicker
       $("div#drp").empty();
       datepicker = new DatePicker(moment.unix(parseInt(params["ts"][0])).startOf("day"), moment.unix(parseInt(params["ts"][1])).endOf("day"), 0);
@@ -1184,7 +1180,7 @@ $(document).ready(function() {
     // Get URL
     var url = window.location.href;
     var token = "";
-    if(!url.includes("?")) {
+    if (!url.includes("?")) {
       token += "?";
     }
     token += "&";
@@ -1267,7 +1263,7 @@ $(document).ready(function() {
     // Get URL
     var url = window.location.href;
     var token = "";
-    if(!url.includes("?")) {
+    if (!url.includes("?")) {
       token += "?";
     }
 
@@ -1287,7 +1283,7 @@ $(document).ready(function() {
     // Get URL
     var url = window.location.href;
     var token = "";
-    if(!url.includes("?")) {
+    if (!url.includes("?")) {
       token += "?";
     } else {
       token += "&";
@@ -1330,7 +1326,7 @@ $(document).ready(function() {
    */
   function removeTimeStamp() {
     var url = window.location.href;
-    if(url.includes("ts=")) {
+    if (url.includes("ts=")) {
       var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
       url = url.replace(rexpression, "");
     }
