@@ -28,6 +28,8 @@ $(document).ready(function() {
     '</div>',
     startModalBtn = '<button type="submit" id="enter" class="btn btn-primary" disabled>Enter</button>',
     resetModalBody = 'Changing Filters Will Result In A Map Reset!!',
+    liveMapResetModalBody = 'Resetting Will Erase Live Data From Map',
+    liveMapResetModalBtn = '<button type="button" id="liveMapResetModalBtn" class="btn btn-danger" data-dismiss="modal">Reset</button>',
     resetModalBtn = '<button type="button" id="resetButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>',
     decayModalBody = 'Decay Change: Results In A Faster Or Slower Decay Of Map Points.<br><br>Refresh Change: Results In a Faster Or Slower Map Update.',
     decayModalBtn = '<button type="button" id="decayButtonFinal" class="btn btn-danger" data-dismiss="modal">Change</button>';
@@ -97,6 +99,7 @@ $(document).ready(function() {
     asia = $("#asiaMapRecenter"),
     recenter = $("#worldMapRecenter"),
     decaySubmit = $('#decaySubmit'),
+    liveMapReset = $('#liveMapReset'),
     filterSubmit = $('#filterSubmit'),
     spinner = $('div.animationload'),
     // jQuery object variables that will be created later
@@ -238,6 +241,7 @@ $(document).ready(function() {
 
   filterSubmit.mousedown(openMapResetModal);
   decaySubmit.mousedown(openDecayModal);
+  liveMapReset.mousedown(openLiveMapResetModal);
 
   // add event listener for live button click
   liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
@@ -348,6 +352,22 @@ $(document).ready(function() {
     } else {
       createAlert('401: Invalid event selection.', 'danger');
     }
+  }
+
+  /**
+   * openMapResetModal opens a modal for resetting the map
+   */
+  function openLiveMapResetModal() {
+    createModal('liveMapResetModal', 'Are You Sure You Want To Reset Live Map?', false,
+      liveMapResetModalBody, true, liveMapResetModalBtn); // create reset modal for future use
+    // makes the modal open
+    $('#liveMapResetModal').modal({
+      keyboard: false
+    });
+    // add event listener for reseting the maps points
+    $("#liveMapResetModalBtn").mousedown(function() {
+      resetMap();
+    });
   }
 
   /**

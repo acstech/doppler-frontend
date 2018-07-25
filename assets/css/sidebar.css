@@ -164,3 +164,10 @@ div.dropdown > div {
   height: 20px;
   width: 20px;
 }
+
+/* Reset Live Map Button
+   ========================================================================== */
+
+   #liveMapReset {
+     margin-top: 25px;
+   }
