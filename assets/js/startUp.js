@@ -232,79 +232,79 @@ $(document).ready(function() {
   updateLiveTime();
 
   // try to connect to the websosket, if there is an error display the error modal
+  createWebsocket();
+  // if an error occurs opening the websocket the modal will not load
+
+  filterSubmit.mousedown(openMapResetModal);
+  decaySubmit.mousedown(openDecayModal);
+
+  // add event listener for live button click
+  liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
+    liveBtn.prop('disabled', true);
+    logoTime.prop("disabled", false);
+    dateButton.prop('disabled', false);
+    clearHistoricData.prop('disabled', false);
+    // make sure historical data stops being added
+    clearInterval(historicalInterval);
+    homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
+    // add decay refresh intervals
+    refreshInterval = setInterval(refreshTimer, refreshRate);
+    decayInterval = setInterval(decayTimer, decayRate);
+    clearInterval(checkInterval);
+    dateSelector.removeClass('visible');
+    resetMap();
+    removeTimeStamp();
+    selfClose = false;
+    waiting = false;
+    liveTime = true;
+    updateLiveTime();
     createWebsocket();
-    // if an error occurs opening the websocket the modal will not load
+  });
 
-    filterSubmit.mousedown(openMapResetModal);
-    decaySubmit.mousedown(openDecayModal);
+  logoTime.mousedown(function() {
+    liveTime = false;
+    liveBtn.prop("disabled", false);
+    logoTime.prop("disabled", true);
+    homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
+    // remove decay and refresh intervals
+    resetMap();
+    clearInterval(refreshInterval);
+    clearInterval(decayInterval);
+    dateSelector.addClass('visible');
+    selfClose = true; // let the program know that the websocket was closed internally
+    ws.close();
+  });
 
-    // add event listener for live button click
-    liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
-      liveBtn.prop('disabled', true);
-      logoTime.prop("disabled", false);
-      dateButton.prop('disabled', false);
-      clearHistoricData.prop('disabled', false);
-      // make sure historical data stops being added
-      clearInterval(historicalInterval);
-      homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
-      // add decay refresh intervals
-      refreshInterval = setInterval(refreshTimer, refreshRate);
-      decayInterval = setInterval(decayTimer, decayRate);
-      clearInterval(checkInterval);
-      dateSelector.removeClass('visible');
-      resetMap();
-      removeTimeStamp();
-      selfClose = false;
-      waiting = false;
-      liveTime = true;
-      updateLiveTime();
-      createWebsocket();
-    });
+  // Set decay to query value
+  if (d !== undefined) {
+    decaySlider.val(d);
+    decayOutput.text(decaySlider.val());
+    urlQueryDecay();
+  }
+  // Set refresh to query value
+  if (r !== undefined) {
+    refreshSlider.val(r);
+    refreshOutput.text(refreshSlider.val());
+    urlQueryRefresh();
+  }
+  // if the user passes in a location, change view there.
+  // TODO: Separate xy and z
+  if (l !== undefined && l.x !== undefined && l.y !== undefined && l.z !== undefined) {
+    map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
+  }
+  if (f !== undefined) {
+    f = getFilters(query);
+  }
 
-    logoTime.mousedown(function() {
-      liveTime = false;
-      liveBtn.prop("disabled", false);
-      logoTime.prop("disabled", true);
-      homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
-      // remove decay and refresh intervals
-      resetMap();
-      clearInterval(refreshInterval);
-      clearInterval(decayInterval);
-      dateSelector.addClass('visible');
-      selfClose = true; // let the program know that the websocket was closed internally
-      ws.close();
-    });
+  // add event listener for querying for historical data
+  dateButton.mousedown(function() {
+    playback();
+  });
 
-    // Set decay to query value
-    if (d !== undefined) {
-      decaySlider.val(d);
-      decayOutput.text(decaySlider.val());
-      urlQueryDecay();
-    }
-    // Set refresh to query value
-    if (r !== undefined) {
-      refreshSlider.val(r);
-      refreshOutput.text(refreshSlider.val());
-      urlQueryRefresh();
-    }
-    // if the user passes in a location, change view there.
-    // TODO: Separate xy and z
-    if (l !== undefined && l.x !== undefined && l.y !== undefined && l.z !== undefined) {
-      map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
-    }
-    if (f !== undefined) {
-      f = getFilters(query);
-    }
-
-    // add event listener for querying for historical data
-    dateButton.mousedown(function() {
-      playback();
-    });
-
-    //used to reset the map at the user
-    clearHistoricData.mousedown(function() {
-      resetMap();
-    });
+  //used to reset the map at the user
+  clearHistoricData.mousedown(function() {
+    resetMap();
+  });
 
   /**** functions from this point on ****/
   function playback() {
@@ -323,7 +323,6 @@ $(document).ready(function() {
         if (waiting === true) {
           checkInterval = setInterval(checkWaiting, 1000);
         } else if (i < datepicker.diff) {
-          console.log("i: " + i + "datepicker diff: " + datepicker.diff);
           resetMap();
           getPlaybackData(start, end);
           start = end;
@@ -627,7 +626,6 @@ $(document).ready(function() {
 
   function displayHistoricalTime(theTime) {
     timeDisplay.html(theTime);
-    console.log(theTime);
   }
 
   /**
@@ -832,9 +830,6 @@ $(document).ready(function() {
         startTime: startDate + range * i,
         endTime: startDate + range * (i + 1)
       };
-      //oldTime(time);
-      // console.log(i);
-      // updateHistoryTime(playbackRequest.startTime); this made the time not work when the days changed
       requestArray.push($.ajax({
         url: 'http://localhost:8000/receive/ajax',
         crossDomain: true,
@@ -1001,7 +996,7 @@ $(document).ready(function() {
       if (cid !== undefined) {
         client = cid[0].split("%20").join(" "); // gets the client ID from the query and replaces all "%20" with " "
         sendID();
-      } else if(liveBtn.is(':disabled') && !firstPass) {
+      } else if (liveBtn.is(':disabled') && !firstPass) {
         sendID();
       } else {
         // listen to see if a clientID is entered in the input box
@@ -1116,8 +1111,8 @@ $(document).ready(function() {
   }
 
   function getDecay(params) {
-    if (params.hasOwnProperty("d") === true && params["d"].length === 1) {
-      if (params["d"] > 600 || params["d"] < 1) {
+    if (params.hasOwnProperty("d") === true && params.d.length === 1) {
+      if (params.d > 600 || params.d < 1) {
         return undefined;
       }
       return params.d;
@@ -1127,8 +1122,8 @@ $(document).ready(function() {
   }
 
   function getRefresh(params) {
-    if (params.hasOwnProperty("r") === true && params["r"].length === 1) {
-      if (params["r"] > 60 || params["r"] < 1) {
+    if (params.hasOwnProperty("r") === true && params.r.length === 1) {
+      if (params.r > 60 || params.r < 1) {
         return undefined;
       }
       return params.r;
@@ -1159,12 +1154,12 @@ $(document).ready(function() {
   }
 
   function getTimeStamp(params) {
-    if (params.hasOwnProperty("ts") === true && params["ts"].length === 2 &&
-      moment(parseInt(params["ts"][0])).isValid() && moment(parseInt(params["ts"][1])).isValid()) {
+    if (params.hasOwnProperty("ts") === true && params.ts.length === 2 &&
+      moment(parseInt(params.ts[0])).isValid() && moment(parseInt(params.ts[1])).isValid()) {
       // remove old datepicker
       $("div#drp").empty();
-      datepicker = new DatePicker(moment.unix(parseInt(params["ts"][0])).startOf("day"), moment.unix(parseInt(params["ts"][1])).endOf("day"), 0);
-      return params["ts"];
+      datepicker = new DatePicker(moment.unix(parseInt(params.ts[0])).startOf("day"), moment.unix(parseInt(params.ts[1])).endOf("day"), 0);
+      return params.ts;
     } else {
       return undefined;
     }
