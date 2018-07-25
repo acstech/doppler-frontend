@@ -265,6 +265,7 @@ $(document).ready(function() {
     liveTime = false;
     liveBtn.prop("disabled", false);
     logoTime.prop("disabled", true);
+    clearHistoricData.prop("disabled", true);
     homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
     // remove decay and refresh intervals
     resetMap();
@@ -298,12 +299,20 @@ $(document).ready(function() {
 
   // add event listener for querying for historical data
   dateButton.mousedown(function() {
+    clearHistoricData.prop('disabled', false);
     playback();
   });
 
   //used to reset the map at the user
   clearHistoricData.mousedown(function() {
+    dateButton.prop('disabled', false);
+    clearHistoricData.prop('disabled', true);
+    // make sure historical data stops being added
+    clearInterval(historicalInterval);
+    clearInterval(checkInterval);
     resetMap();
+    removeTimeStamp();
+    waiting = false;
   });
 
   /**** functions from this point on ****/
@@ -311,7 +320,7 @@ $(document).ready(function() {
     if (getActiveEvents().filter.length > 0 && datepicker.diff > 0) {
       console.log("diff: " + datepicker.diff);
       dateButton.prop('disabled', true);
-      clearHistoricData.prop('disabled', true);
+      //clearHistoricData.prop('disabled', true);
       wait = true;
       setTimeStampURL(datepicker.start, datepicker.end);
       var start = datepicker.start,
@@ -332,7 +341,7 @@ $(document).ready(function() {
           checkInterval = setInterval(checkWaiting, 1000);
         } else {
           dateButton.prop('disabled', false);
-          clearHistoricData.prop('disabled', false);
+          //clearHistoricData.prop('disabled', false);
         }
       };
       checkInterval = setInterval(checkWaiting, 1000);

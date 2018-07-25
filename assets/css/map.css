@@ -39,7 +39,7 @@
   height: 35px;
   left: -15%;
   margin-top: 0;
-  margin-right: 3px;
+  margin-left: -9px;
   padding-top: 4px;
   position: absolute;
   z-index: var(--modalIndex);
