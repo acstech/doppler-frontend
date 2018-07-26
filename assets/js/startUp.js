@@ -62,7 +62,7 @@ $(document).ready(function() {
     datepicker = new DatePicker(start_date, end_date, 0),
     // status for playback: 0 = not last loop, 1 = last loop
     playbackData = {'status': 0, 'initStart': undefined}, // used to keep track of data for looping
-    // all boolean states 
+    // all boolean states
     stateOf = {
       'firstPass': true, // keeps track of whether an error occurred during client validation
       'selfClose': false, // helps keep track of whether or not the websocket closed due to an error or by the user
@@ -405,7 +405,7 @@ $(document).ready(function() {
       end = start + range;
     playbackData.status = 0;
 
-    setTimeStampURL(start, end);
+    setTimeStampURL(start, end - 1);
     // check to see if any data exists
     if (hourPoints.length > 0) {
       playbackData.status = 1;
@@ -1215,8 +1215,8 @@ $(document).ready(function() {
 
   /**
    * getCID gets the clientID from the given array, if it exists
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} is either the clientID array or undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} is either the clientID array or undefined
    */
   function getCID(params) {
     if (params.hasOwnProperty("cid") === true && params.cid.length === 1) {
@@ -1228,8 +1228,8 @@ $(document).ready(function() {
 
   /**
    * getDecay gets the decayRate from the given array, if it exists
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} is either the decayRate or undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} is either the decayRate or undefined
    */
   function getDecay(params) {
     if (params.hasOwnProperty("d") === true && params.d.length === 1) {
@@ -1244,8 +1244,8 @@ $(document).ready(function() {
 
   /**
    * getRefresh gets the refreshRate from the given array, if it exists
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} is either the refreshRate or undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} is either the refreshRate or undefined
    */
   function getRefresh(params) {
     if (params.hasOwnProperty("r") === true && params.r.length === 1) {
@@ -1260,8 +1260,8 @@ $(document).ready(function() {
 
   /**
    * getLocation gets the location from the given array, if it exists
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} it either has the properties x, y, and z or is undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} it either has the properties x, y, and z or is undefined
    */
   function getLocation(params) {
 
@@ -1278,8 +1278,8 @@ $(document).ready(function() {
 
   /**
    * getFilters gets the filters from the given array, if they exist
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} it is either an array or is undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} it is either an array or is undefined
    */
   function getFilters(params) {
     if (params.hasOwnProperty("f") === true) {
@@ -1291,8 +1291,8 @@ $(document).ready(function() {
 
   /**
    * getTimeStamp gets the timestamps from the given array, if they exist
-   * @param {Array} params is the array of url parameters 
-   * @return {Object} it is either an array or is undefined 
+   * @param {Array} params is the array of url parameters
+   * @return {Object} it is either an array or is undefined
    */
   function getTimeStamp(params) {
     if (params.hasOwnProperty("ts") === true && params.ts.length === 2 &&
@@ -1412,9 +1412,9 @@ $(document).ready(function() {
   function ensureProperToken() {
     // determine whether or not the url query exists
     if (!URLData.url.includes("?")) {
-      URLData.token = '?'; 
+      URLData.token = '?';
     } else {
-      URLData.token = '&'; 
+      URLData.token = '&';
     }
   }
 });
