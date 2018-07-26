@@ -50,109 +50,152 @@ $(document).ready(function() {
       zoomControl: false,
     }),
     // primitives and data structures
+    hourIndex = 0, // helps keep track of the hour indexes for historical data
     decayRate = 300000, // is used to keep track of the user input for the time interval for decay
     refreshRate = 3000, // used to keep track of user inputted refesh rate at 3 seconds
-    firstPass = true, // keeps track of whether an error occurred during client validation
-    selfClose = false, // helps keep track of whether or not the websocket closed due to an error or by the user
-    mapChanged = false, // helps keep track of whether or not to redraw the map
-    wait = false, // helps keep track of whether or not the user is waiting for a response from the frontend
-    checkedEvent = true, // helps determine whether or not a checkbox is to checked or not
-    tsEvaluated = false,
-    waiting = false, //keeps track of whether or not a historical interval is playing to keep multiple playback requests from overlapping
     client = '', // keeps track of the clientID for historical purposes
     hourPoints = [], // used to store an array of points for each hour
-    eventMap = new Map(), // makes adding new events during runtime simple and fast
     // daterange picker varaibles
     start_date = moment().startOf('day'),
     end_date = moment().endOf('day'),
     // setup calendars
     datepicker = new DatePicker(start_date, end_date, 0),
-    //  jQuery objects used for fast DOM manipulatoin
-    dateSelector = $('#dateSelector'),
-    clearHistoricData = $('#clearHistoricData'),
-    dateButton = $('#dateButton'),
-    decaySlider = $("#myRange"),
-    decayOutput = $("#demo"),
-    refreshSlider = $("#myRefreshRange"),
-    refreshOutput = $("#refresh"),
-    key = $('#keytext'),
-    key1 = $('#colors1'),
-    key2 = $('#colors2'),
-    key3 = $('#colors3'),
-    defaultHamburgerBtn = $('#normalHamburger'),
-    sidebarWrapper = $('#sidebar-wrapper'),
-    menuSidebarToggle = $('#toggleMenu'),
-    homeSidebarToggle = $('#toggle'),
-    body = $('body'),
-    timeDisplay = $('#time'),
-    logoTime = $('#logoTime'),
-    liveTime = true,
-    eventList = $('#eventList'),
-    marquee = $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
-    liveBtn = $('#liveBtn'),
-    //nextButton = $('#nextButton'),
-    US = $("#unitedStatesMapRecenter"),
-    southEastUS = $("#southeasternUSMapRecenter"),
-    northWestUS = $("#northWesternUSMapRecenter"),
-    southAmerica = $("#southAmericaMapRecenter"),
-    europe = $("#europeMapRecenter"),
-    asia = $("#asiaMapRecenter"),
-    recenter = $("#worldMapRecenter"),
-    decaySubmit = $('#decaySubmit'),
-    liveMapReset = $('#liveMapReset'),
-    filterSubmit = $('#filterSubmit'),
-    spinner = $('div.animationload'),
-    // jQuery object variables that will be created later
-    clientID,
-    clientSubmit,
+    // status for playback: 0 = not last loop, 1 = last loop
+    playbackData = {'status': 0, 'initStart': undefined}, // used to keep track of data for looping
+    // all boolean states 
+    stateOf = {
+      'firstPass': true, // keeps track of whether an error occurred during client validation
+      'selfClose': false, // helps keep track of whether or not the websocket closed due to an error or by the user
+      'mapChanged': false, // helps keep track of whether or not to redraw the map
+      'wait': false, // helps keep track of whether or not the user is stateOf.waiting for a response from the frontend
+      'checkedEvent': true, // helps determine whether or not a checkbox is to be checked or not when created
+      'tsEvaluated': false, // whetehr or no the timestamp in the url has been evaluated
+      'waiting': false, //keeps track of whether or not a historical interval is playing to keep multiple playback requests from overlapping
+      'liveTime': true, // keeps track of the mode that the user is in
+      'eventMap' : new Map() // makes adding new events during runtime simple and fast
+    },
+    // jQuery objects used for fast DOM manipulation
+    DOMElements = {
+      'dateSelector': $('#dateSelector'),
+      'clearHistoricData': $('#clearHistoricData'),
+      'dateButton': $('#dateButton'),
+      'decaySlider': $("#myRange"),
+      'decayOutput': $("#demo"),
+      'refreshSlider': $("#myRefreshRange"),
+      'refreshOutput': $("#refresh"),
+      'key': $('#keytext'),
+      'key1': $('#colors1'),
+      'key2': $('#colors2'),
+      'key3': $('#colors3'),
+      'defaultHamburgerBtn': $('#normalHamburger'),
+      'sidebarWrapper': $('#sidebar-wrapper'),
+      'menuSidebarToggle': $('#toggleMenu'),
+      'homeSidebarToggle': $('#toggle'),
+      'body': $('body'),
+      'timeDisplay': $('#time'),
+      'logoTime': $('#logoTime'),
+      'eventList': $('#eventList'),
+      'marquee': $('#wrapper > div.navbar.fixed-top > div.ticker-background > div > marquee'),
+      'liveBtn': $('#liveBtn'),
+      'US': $("#unitedStatesMapRecenter"),
+      'southEastUS': $("#southeasternUSMapRecenter"),
+      'northWestUS': $("#northWesternUSMapRecenter"),
+      'southAmerica': $("#southAmericaMapRecenter"),
+      'europe': $("#europeMapRecenter"),
+      'asia': $("#asiaMapRecenter"),
+      'recenter': $("#worldMapRecenter"),
+      'decaySubmit': $('#decaySubmit'),
+      'filterSubmit': $('#filterSubmit'),
+      'spinner': $('div.animationload'),
+      'liveMapReset': $('#liveMapReset'),
+      // jQuery object variables that will be created later
+      'clientID': undefined,
+      'clientSubmit': undefined
+    },
     // setup timers for interval based updates
     decayTimer = function() {
       clearInterval(decayInterval);
       if (heatmapLayer._data.size !== 0) {
         heatmapLayer._data.forEach(decay);
-        mapChanged = true;
+        stateOf.mapChanged = true;
       }
       decayInterval = setInterval(decayTimer, decayRate);
     },
     decayInterval = setInterval(decayTimer, decayRate),
     refreshTimer = function() {
       clearInterval(refreshInterval);
-      if (mapChanged) {
+      if (stateOf.mapChanged) {
         heatmapLayer._draw();
-        mapChanged = false;
+        stateOf.mapChanged = false;
       }
       refreshInterval = setInterval(refreshTimer, refreshRate);
     },
     refreshInterval = setInterval(refreshTimer, refreshRate),
     historicalInterval, // to be used for making sure that the historical interval is cleared as needed
     checkInterval,
-    historicalTimer = function(count, startDate, range) {
+    historicalTimer = function(count, startDate, range, diff) {
       clearInterval(historicalInterval);
       if (count < hourPoints.length) {
-        if (hourPoints[count]) {
+        if (count % 24 === 0) {
+          resetMap();
+          adjustZoomGrade();
+        }
+        if (Object.keys(hourPoints[count]).length > 0) {
           addPoints(hourPoints[count]);
-          updateHistoryTime(moment.unix(startDate).add(count, "hours") / 1000);
           adjustZoomGrade();
           heatmapLayer._update();
         }
+
+        updateHistoryTime(moment.unix(startDate).add(count, "hours").valueOf() / 1000);
         // start the interval agian if all went well with the last interval
-        historicalInterval = setInterval(historicalTimer, 1000, count + 1, startDate, range);
+        historicalInterval = setInterval(historicalTimer, 1000, count + 1, startDate, range, diff);
       } else {
-        waiting = false;
+        stateOf.waiting = false;
+        if (playbackData.status === 1) {
+          playback(playbackData.initStart, diff);
+        }
       }
     },
     ws, // websocket
-    query = parseQuery(window.location.href),
-    cid, d, r, l, f, ts;
+    URLData = { // data from the url
+      'query': parseQuery(window.location.href), // the query string from the url
+      'cid': undefined, // the clientID
+      'd': undefined, // the decay rate
+      'r': undefined, // the refresh rate
+      'l': undefined, // the location of x, y, and z
+      'f': undefined, // filter list
+      'ts': undefined, // the timestamp a start and an end date
+      'url': window.location.href, // the current url to be updated and reused
+      'token': '?' // the token for adding to the url, the question mark is the default first value
+    }, loadingPrompts = [
+      "Migrating servers to a single Raspberry Pi powered by Hammie, our onsite hamster technician...",
+      "Stealing map back from Nicholas Cage…",
+      "Harnessing the power of one thousand gophers...",
+      "Reading documentation on how to write good documentation...",
+      "Trying to escape Vim…",
+      "Withdrawing 0.00411340 BTC mining fee…",
+      "Using middle-out compression…",
+      "Downloading more RAM…",
+      "Directing to Honey Pot...",
+      "Updating Windows Again...",
+      "Tracing IP address…",
+      "Crossing fingers hoping nothing breaks...",
+      "Gaining root access to 127.0.0.1",
+      "Downloading WannaCry",
+      "Integrating ChainBlock Technology",
+      "Arguing with the design team…",
+      "Desearching and Reveloping...",
+      "Googling 'How to load user content'",
+    ];
 
-  if (query !== undefined) {
-    cid = getCID(query);
-    d = getDecay(query);
-    r = getRefresh(query);
-    l = getLocation(query);
-    f = getFilters(query);
-    ts = getTimeStamp(query);
-    // sp = getPlayback(query);
+  if (URLData.query !== undefined) {
+    URLData.token = '&';
+    URLData.cid = getCID(URLData.query);
+    URLData.d= getDecay(URLData.query);
+    URLData.r = getRefresh(URLData.query);
+    URLData.l = getLocation(URLData.query);
+    URLData.f = getFilters(URLData.query);
+    URLData.ts = getTimeStamp(URLData.query);
   }
 
   // sets the max bounds of the map
@@ -161,59 +204,77 @@ $(document).ready(function() {
     [-85, -180]
   ]);
 
-  var loadingPrompts = [
-    "Migrating servers to a single Raspberry Pi powered by Hammie, our onsite hamster technician...",
-    "Stealing map back from Nicholas Cage…",
-    "Harnessing the power of one thousand gophers...",
-    "Reading documentation on how to write good documentation...",
-    "Trying to escape Vim…",
-    "Withdrawing 0.00411340 BTC mining fee…",
-    "Using middle-out compression…",
-    "Downloading more RAM…",
-    "Directing to Honey Pot...",
-    "Updating Windows Again...",
-    "Tracing IP address…",
-    "Crossing fingers hoping nothing breaks...",
-    "Gaining root access to 127.0.0.1",
-    "Downloading WannaCry",
-    "Integrating ChainBlock Technology",
-    "Arguing with the design team…",
-    "Desearching and Reveloping...",
-    "Googling 'How to load user content'",
-  ];
+  // updates URL whenever the map zoom is changed
+  map.addEventListener('zoomend', function(event) {
+    var z = map.getZoom(),
+        token = "&z=" + z;
+
+    if (!URLData.url.includes("?")) {
+      URLData.url += "?";
+    }
+
+    if (URLData.url.includes("z=")) {
+      var rexpression = /z=-?[0-9]*/g;
+      URLData.url = URLData.url.replace(rexpression, "z=" + z);
+    } else {
+      URLData.url += token;
+    }
+    window.history.replaceState({}, document.title, URLData.url);
+  });
+
+  //  updates URL whenever the map view is moved
+  map.addEventListener('moveend', function(event) {
+    var center = map.getCenter(),
+        x = center.lat,
+        y = center.lng,
+        token = "&x=" + Math.round(x * 100) / 100 + "&y=" + Math.round(y * 100) / 100;
+    if (!URLData.url.includes("?")) {
+      URLData.url += "?";
+    }
+
+    if (URLData.url.includes("x=")) {
+      var rexpression = /x=-?[0-9]*[.]?[0-9]*/g;
+      URLData.url = URLData.url.replace(rexpression, "x=" + Math.round(x * 1000) / 1000);
+      rexpression = /y=-?[0-9]*[.]?[0-9]*/g;
+      URLData.url = URLData.url.replace(rexpression, "y=" + Math.round(y * 1000) / 1000);
+    } else {
+      URLData.url += token;
+    }
+    window.history.replaceState({}, document.title, URLData.url);
+  });
 
   // sets the heatmapLayer
   heatmapLayer._max = 32;
   adjustZoomGrade(); // setup legend text
   // add location event listeners
-  US.mousedown(unitedStatesMapRecenter);
-  southAmerica.mousedown(southAmericaMapRecenter);
-  europe.mousedown(europeMapRecenter);
-  asia.mousedown(asiaMapRecenter); //northWesternUSMapRecenter
-  southEastUS.mousedown(southeasternUSMapRecenter);
-  northWestUS.mousedown(northWesternUSMapRecenter);
-  recenter.mousedown(worldMapRecenter);
+  DOMElements.US.mousedown(unitedStatesMapRecenter);
+  DOMElements.southAmerica.mousedown(southAmericaMapRecenter);
+  DOMElements.europe.mousedown(europeMapRecenter);
+  DOMElements.asia.mousedown(asiaMapRecenter); //northWesternUSMapRecenter
+  DOMElements.southEastUS.mousedown(southeasternUSMapRecenter);
+  DOMElements.northWestUS.mousedown(northWesternUSMapRecenter);
+  DOMElements.recenter.mousedown(worldMapRecenter);
 
   // slider for Decay Time
-  decayOutput.text(decaySlider.val()); // Display the default slider value
-  refreshOutput.text(refreshSlider.val()); // Display the default slider value
+  DOMElements.decayOutput.text(DOMElements.decaySlider.val()); // Display the default slider value
+  DOMElements.refreshOutput.text(DOMElements.refreshSlider.val()); // Display the default slider value
 
   // changes the decay slider rate
-  decaySlider.on('input', function() {
-    decayOutput.text(this.value);
+  DOMElements.decaySlider.on('input', function() {
+    DOMElements.decayOutput.text(this.value);
   });
 
   // changes the refresh slider rate
-  refreshSlider.on('input', function() {
-    refreshOutput.text(this.value);
+  DOMElements.refreshSlider.on('input', function() {
+    DOMElements.refreshOutput.text(this.value);
   });
 
   // remove invisiblility of the slider
-  sidebarWrapper.addClass('visible');
+  DOMElements.sidebarWrapper.addClass('visible');
 
   // add toggle and overlay to sidebar
-  sidebarWrapper.slideReveal({
-    trigger: homeSidebarToggle,
+  DOMElements.sidebarWrapper.slideReveal({
+    trigger: DOMElements.homeSidebarToggle,
     push: false,
     width: 390,
     autoEscape: true,
@@ -222,14 +283,13 @@ $(document).ready(function() {
   });
 
   // this allows the second button to close the menu
-  menuSidebarToggle.mousedown(function() {
-    sidebarWrapper.slideReveal("toggle");
-    // defaultHamburgerBtn.removeClass('circle');
+  DOMElements.menuSidebarToggle.mousedown(function() {
+    DOMElements.sidebarWrapper.slideReveal("toggle");
   });
 
   // this removes the red button from the homeToggle
-  homeSidebarToggle.mousedown(function() {
-    defaultHamburgerBtn.removeClass('circle');
+  DOMElements.homeSidebarToggle.mousedown(function() {
+    DOMElements.defaultHamburgerBtn.removeClass('circle');
   });
 
   // start showing the time to the user
@@ -239,118 +299,139 @@ $(document).ready(function() {
   createWebsocket();
   // if an error occurs opening the websocket the modal will not load
 
-  filterSubmit.mousedown(openMapResetModal);
-  decaySubmit.mousedown(openDecayModal);
-  liveMapReset.mousedown(openLiveMapResetModal);
+  DOMElements.filterSubmit.mousedown(openMapResetModal);
+  DOMElements.decaySubmit.mousedown(openDecayModal);
+
+  DOMElements.liveMapReset.mousedown(openLiveMapResetModal);
 
   // add event listener for live button click
-  liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
-    liveBtn.prop('disabled', true);
-    logoTime.prop("disabled", false);
-    dateButton.prop('disabled', false);
-    clearHistoricData.prop('disabled', false);
+  DOMElements.liveBtn.mousedown(function() { // mousedown occurs before click, so it starts the event sooner
+    DOMElements.liveBtn.prop('disabled', true);
+    DOMElements.logoTime.prop("disabled", false);
+    DOMElements.dateButton.prop('disabled', false);
+    DOMElements.clearHistoricData.prop('disabled', false);
     // make sure historical data stops being added
     clearInterval(historicalInterval);
-    homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
+    DOMElements.homeSidebarToggle.css("pointer-events", "auto"); // to re-enable button while in historical
     // add decay refresh intervals
     refreshInterval = setInterval(refreshTimer, refreshRate);
     decayInterval = setInterval(decayTimer, decayRate);
     clearInterval(checkInterval);
-    dateSelector.removeClass('visible');
+    DOMElements.dateSelector.removeClass('visible');
     resetMap();
     removeTimeStamp();
-    selfClose = false;
-    waiting = false;
-    liveTime = true;
+    stateOf.selfClose = false;
+    stateOf.waiting = false;
+    stateOf.liveTime = true;
     updateLiveTime();
     createWebsocket();
   });
 
-  logoTime.mousedown(function() {
-    liveTime = false;
-    liveBtn.prop("disabled", false);
-    logoTime.prop("disabled", true);
-    clearHistoricData.prop("disabled", true);
-    homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
+  DOMElements.logoTime.mousedown(function() {
+    stateOf.liveTime = false;
+    DOMElements.liveBtn.prop("disabled", false);
+    DOMElements.logoTime.prop("disabled", true);
+    DOMElements.clearHistoricData.prop("disabled", true);
+    DOMElements.homeSidebarToggle.css("pointer-events", "none"); // to disable button while in historical
     // remove decay and refresh intervals
     resetMap();
     clearInterval(refreshInterval);
     clearInterval(decayInterval);
-    dateSelector.addClass('visible');
-    selfClose = true; // let the program know that the websocket was closed internally
+    DOMElements.dateSelector.addClass('visible');
+    stateOf.selfClose = true; // let the program know that the websocket was closed internally
     ws.close();
   });
 
   // Set decay to query value
-  if (d !== undefined) {
-    decaySlider.val(d);
-    decayOutput.text(decaySlider.val());
+  if (URLData.d !== undefined) {
+    DOMElements.decaySlider.val(URLData.d);
+    DOMElements.decayOutput.text(DOMElements.decaySlider.val());
     urlQueryDecay();
   }
   // Set refresh to query value
-  if (r !== undefined) {
-    refreshSlider.val(r);
-    refreshOutput.text(refreshSlider.val());
+  if (URLData.r !== undefined) {
+    DOMElements.refreshSlider.val(URLData.r);
+    DOMElements.refreshOutput.text(DOMElements.refreshSlider.val());
     urlQueryRefresh();
   }
   // if the user passes in a location, change view there.
   // TODO: Separate xy and z
-  if (l !== undefined && l.x !== undefined && l.y !== undefined && l.z !== undefined) {
-    map.setView(new L.latLng(parseFloat(l.x[0]), parseFloat(l.y[0])), l.z[0]);
+  if (URLData.l !== undefined && URLData.l.x !== undefined && URLData.l.y !== undefined && URLData.l.z !== undefined) {
+    map.setView(new L.latLng(parseFloat(URLData.l.x[0]), parseFloat(URLData.l.y[0])), URLData.l.z[0]);
   }
-  if (f !== undefined) {
-    f = getFilters(query);
+  if (URLData.f !== undefined) {
+    URLData.f = getFilters(URLData.query);
   }
-
   // add event listener for querying for historical data
-  dateButton.mousedown(function() {
-    clearHistoricData.prop('disabled', false);
-    playback();
+  DOMElements.dateButton.mousedown(function() {
+    DOMElements.clearHistoricData.prop('disabled', false);
+    hourPoints = [];
+    hourIndex = 0;
+    playback(datepicker.start, datepicker.diff);
   });
 
   //used to reset the map at the user
-  clearHistoricData.mousedown(function() {
-    dateButton.prop('disabled', false);
-    clearHistoricData.prop('disabled', true);
+  DOMElements.clearHistoricData.mousedown(function() {
+    DOMElements.dateButton.prop('disabled', false);
+    DOMElements.clearHistoricData.prop('disabled', true);
     // make sure historical data stops being added
     clearInterval(historicalInterval);
     clearInterval(checkInterval);
     resetMap();
     removeTimeStamp();
-    waiting = false;
+    stateOf.waiting = false;
   });
 
   /**** functions from this point on ****/
-  function playback() {
-    if (getActiveEvents().filter.length > 0 && datepicker.diff > 0) {
-      dateButton.prop('disabled', true);
-      //clearHistoricData.prop('disabled', true);
-      wait = true;
-      setTimeStampURL(datepicker.start, datepicker.end);
-      var start = datepicker.start,
-        end = start + 86400,
-        i = 0;
+  /**
+   * playback gets the playback data and makes sure that is displayed in an orderly fashion
+   * @param {Integer} start is the start date in seconds as unix time
+   * @param {Integer} diff is the amount of days that the start date and end date encompase
+   */
+  function playback(start, diff) {
+    if (getActiveEvents().filter.length <= 0) {
+      errorAlert('401: Invalid event selection.');
+      return;
+    } else if (diff <= 0) {
+      errorAlert('401: Invalid date selection.');
+      return;
+    }
+    DOMElements.dateButton.prop('disabled', true);
+    stateOf.wait = true;
 
-      //TODO: assign parameters by each day range of datepicker.start and datepicker.end
-      var checkWaiting = function() {
-        clearInterval(checkInterval);
-        if (waiting === true) {
-          checkInterval = setInterval(checkWaiting, 1000);
-        } else if (i < datepicker.diff) {
-          resetMap();
-          getPlaybackData(start, end);
-          start = end;
-          end += 86400;
-          i++;
-          checkInterval = setInterval(checkWaiting, 1000);
-        } else {
-          dateButton.prop('disabled', false);
-          clearHistoricData.prop('disabled', true);
-        }
-      };
-      checkInterval = setInterval(checkWaiting, 1000);
+    var i = 0,
+      tmpStart = start,
+      range = 86400,
+      end = start + range;
+    playbackData.status = 0;
+
+    setTimeStampURL(start, end);
+    // check to see if any data exists
+    if (hourPoints.length > 0) {
+      playbackData.status = 1;
+      historicalInterval = setInterval(historicalTimer, 1000, 0, start, range, diff);
     } else {
-      createAlert('401: Invalid event selection.', 'danger');
+      playbackData.initStart = start;
+      //TODO: assign parameters by each day range of datepicker.start and datepicker.end
+      var checkWaiting = function(loop) {
+        clearInterval(checkInterval);
+        if (stateOf.waiting === false && i < diff) {
+          if (i + 1 === diff) {
+            playbackData.status = 1;
+          }
+          getPlaybackData(tmpStart, end, diff);
+          tmpStart = end;
+          end += range;
+          i++;
+        } else {
+          if (!loop) { // never gets run as of right now, but could be used for not doing looping
+            DOMElements.dateButton.prop('disabled', false);
+            return;
+          }
+        }
+        checkInterval = setInterval(checkWaiting, 1000, loop);
+      };
+      checkInterval = setInterval(checkWaiting, 1000, true);
     }
   }
 
@@ -400,10 +481,10 @@ $(document).ready(function() {
     });
 
     $("#decayButtonFinal").mousedown(function() {
-      decayRate = decaySlider.val() * 1000;
-      refreshRate = refreshSlider.val() * 1000;
-      setDecayURL(decaySlider.val());
-      setRefreshURL(refreshSlider.val());
+      decayRate = DOMElements.decaySlider.val() * 1000;
+      refreshRate = DOMElements.refreshSlider.val() * 1000;
+      setDecayURL(DOMElements.decaySlider.val());
+      setRefreshURL(DOMElements.refreshSlider.val());
       clearInterval(decayInterval);
       decayInterval = setInterval(decayTimer, decayRate);
       clearInterval(refreshInterval);
@@ -411,14 +492,20 @@ $(document).ready(function() {
     });
   }
 
+  /**
+   * urlQueryDecay ensures that the decay interval is on the amount specified in the url
+   */
   function urlQueryDecay() {
-    decayRate = decaySlider.val() * 1000;
+    decayRate = DOMElements.decaySlider.val() * 1000;
     clearInterval(decayInterval);
     decayInterval = setInterval(decayTimer, decayRate);
   }
 
+  /**
+   * urlQueryRefresh ensures that the refresh interval is on the amount specified in the url
+   */
   function urlQueryRefresh() {
-    refreshRate = refreshSlider.val() * 1000;
+    refreshRate = DOMElements.refreshSlider.val() * 1000;
     clearInterval(refreshInterval);
     refreshInterval = setInterval(refreshTimer, refreshRate);
   }
@@ -429,7 +516,7 @@ $(document).ready(function() {
    */
   function hideModal(ID) {
     $('#' + ID).hide();
-    body.removeClass('modal-open');
+    DOMElements.body.removeClass('modal-open');
     $('.modal-backdrop').remove();
     $('#' + ID).remove(); // make sure that the modal is no longer in the DOM (makes element lookup faster)
   }
@@ -467,15 +554,15 @@ $(document).ready(function() {
         heatmapLayer._min = Math.min(heatmapLayer._min, heatmapLayer._data.get(index).count);
       }
     }
-    if (heatmapLayer._data.size > heatmapLayer.cfg.maxPoints && liveBtn.is(":disabled")) {
+    if (heatmapLayer._data.size > heatmapLayer.cfg.maxPoints && stateOf.liveTime) {
       clearPoints(heatmapLayer._data.size - heatmapLayer.cfg.maxPoints);
     }
-    mapChanged = true;
+    stateOf.mapChanged = true;
   }
 
   /**
    * clearPoints takes in the amount of points tp remove and removes it from the heatmapLayer._data
-   * @param {int} numPoints the number of points to remove
+   * @param {Integer} numPoints the number of points to remove
    */
   function clearPoints(numPoints) {
     var iterator = heatmapLayer._data.entries();
@@ -492,21 +579,21 @@ $(document).ready(function() {
     // add all events to the select box as options
     var listEvents = '';
     // get all current events and add the appropriate list item
-    eventMap.forEach(function(value, key, map) {
+    stateOf.eventMap.forEach(function(value, key, map) {
       listEvents += getListItem(key, value);
     });
     // if the events that are to be added are the first, then add them as checked
-    if (firstPass && f === undefined) {
-      checkedEvent = true;
+    if (stateOf.firstPass && URLData.f === undefined) {
+      stateOf.checkedEvent = true;
     } else {
-      checkedEvent = false;
+      stateOf.checkedEvent = false;
     }
     $.each(events, function(index, value) {
-      if (!eventMap.has(value)) { // the value does not already exist, so add it to the list
-        listEvents += getListItem(value, checkedEvent); // get the HTML markdown
-        eventMap.set(value, checkedEvent);
-        if (!firstPass) { // if the events being added are not the initial batch display the message
-          defaultHamburgerBtn.addClass('circle');
+      if (!stateOf.eventMap.has(value)) { // the value does not already exist, so add it to the list
+        listEvents += getListItem(value, stateOf.checkedEvent); // get the HTML markdown
+        stateOf.eventMap.set(value, stateOf.checkedEvent);
+        if (!stateOf.firstPass) { // if the events being added are not the initial batch display the message
+          DOMElements.defaultHamburgerBtn.addClass('circle');
           eventAlert(value);
 
           window.setTimeout(function() { // this makes the eventAlert disappear after three seconds.
@@ -517,18 +604,18 @@ $(document).ready(function() {
         }
       }
     });
-    eventList.html(listEvents); // saves time on DOM lookup because it is all added at once
-    eventList.height(eventMap.size * 40 + 'px'); // dynamically allocate the height of the event list
+    DOMElements.eventList.html(listEvents); // saves time on DOM lookup because it is all added at once
+    DOMElements.eventList.height(stateOf.eventMap.size * 40 + 'px'); // dynamically allocate the height of the event list
     // make sure that the ticker has the appropriate values on start up
-    if (firstPass) {
+    if (stateOf.firstPass) {
       updateTicker(getActiveEvents().filter);
     }
-    firstPass = false; // the error messages should be displayed in the error modal
+    stateOf.firstPass= false; // the error messages should be displayed in the error modal
     // add event listeners for the checkboxes being clicked
     var eventCheckboxes = $('#eventList li input');
     eventCheckboxes.mousedown(function() {
       var id = $(this).attr('id');
-      eventMap.set(id, !eventMap.get(id)); // flip the value of the checkbox in the map
+      stateOf.eventMap.set(id, !stateOf.eventMap.get(id)); // flip the value of the checkbox in the map
     });
   }
 
@@ -559,14 +646,13 @@ $(document).ready(function() {
 
   /**
    * getActiveEvents gets the active events and returns an object that contains the list
-   * @param {Object} events is an object that has the property filters which is the list of active filters
    */
   function getActiveEvents() {
     var events = {
       'filter': []
     };
     // check to see which events are active
-    eventMap.forEach(function(value, key, map) {
+    stateOf.eventMap.forEach(function(value, key, map) {
       if (value) {
         events.filter.push(key);
       }
@@ -575,12 +661,11 @@ $(document).ready(function() {
   }
 
   /*
-   * Sets the filters to the filters submitted in the url query and then submits them to the WebSocket
+   * urlQueryFilters sets the filters to the filters submitted in the url query and then submits them to the WebSocket
    */
   function urlQueryFilters() {
-    // var events = $('#eventList li input');
-    $.each(f, function(index, value) {
-      eventMap.set(value.split("%20").join(" "), true);
+    $.each(URLData.f, function(index, value) {
+      stateOf.eventMap.set(value.split("%20").join(" "), true);
     });
     sendActiveEventList();
   }
@@ -590,12 +675,12 @@ $(document).ready(function() {
    */
   function submitClientID() {
     // set the clientID and then send it
-    client = clientID.val();
+    client = DOMElements.clientID.val();
     setCidURL(client);
     // show the loading spinner and disable the client
     showSpinner();
-    clientSubmit.prop('disabled', true);
-    wait = true;
+    DOMElements.clientSubmit.prop('disabled', true);
+    stateOf.wait = true;
     sendID();
   }
 
@@ -630,7 +715,7 @@ $(document).ready(function() {
     modal += submitBtn;
     modal += '</div></div></div></div>';
     // append the modal to the body for later use
-    body.append(modal);
+    DOMElements.body.append(modal);
     // handles if there are any page size changes
     $('#' + ID).modal('handleUpdate');
   }
@@ -651,18 +736,14 @@ $(document).ready(function() {
    * @param {String} theTime is a string that will be displayed to the user
    */
   function displayTime(theTime) {
-    timeDisplay.html(theTime);
-  }
-
-  function displayHistoricalTime(theTime) {
-    timeDisplay.html(theTime);
+    DOMElements.timeDisplay.html(theTime);
   }
 
   /**
-   * updateLiveTime updates the time for the user while live mode is active
+   * updatestateOf.liveTime updates the time for the user while live mode is active
    */
   function updateLiveTime() {
-    if (ts !== undefined && liveTime !== true) {
+    if (URLData.ts !== undefined && stateOf.liveTime !== true) {
       return;
     }
     var theTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -670,7 +751,7 @@ $(document).ready(function() {
     var t = setTimeout(function() {
       updateLiveTime();
     }, 500);
-    if (!liveTime) {
+    if (!stateOf.liveTime) {
       clearTimeout(t);
     }
   }
@@ -680,13 +761,13 @@ $(document).ready(function() {
    * @param {Integer} theTime is the time to be displayed to the user during historical mode
    */
   function updateHistoryTime(theTime) {
-    liveTime = false;
+    stateOf.liveTime = false;
     // Formate time to look readable
     var date = moment.unix(theTime);
     if (!date.isDST()) {
       date.subtract(1, "hour"); // should take an hour away when DST goes away
     }
-    displayHistoricalTime(date.format("dddd, MMMM Do YYYY, h:mm:ss a"));
+    displayTime(date.format("dddd, MMMM Do YYYY, h:mm:ss a"));
   }
 
   /**
@@ -701,7 +782,7 @@ $(document).ready(function() {
       tickerText += events[i] + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     }
     // put the text in the marquee
-    marquee.html(tickerText);
+    DOMElements.marquee.html(tickerText);
   }
 
   /**
@@ -757,13 +838,13 @@ $(document).ready(function() {
    * adjustZoomGrade updates the values in the heatmap legend
    */
   function adjustZoomGrade() {
-    var a = heatmapLayer._max / 4;
-    var b = heatmapLayer._min;
-    var c = a / 2;
-    key.html('<i class="fas fa-fire"></i>');
-    key1.html(Math.ceil(b));
-    key2.html(Math.ceil(c));
-    key3.html(Math.ceil(a));
+    var a = heatmapLayer._max / 4,
+      b = heatmapLayer._min,
+      c = a / 2;
+    DOMElements.key.html('<i class="fas fa-fire"></i>');
+    DOMElements.key1.html(Math.ceil(b));
+    DOMElements.key2.html(Math.ceil(c));
+    DOMElements.key3.html(Math.ceil(a));
   }
 
   /**
@@ -786,20 +867,19 @@ $(document).ready(function() {
 
   /**
    * decayMath decays the given integer by subtracting 1 from it and returns that value
-   * @param {int} count
-   * @returns {int} is 1 less than count
+   * @param {Integer} count
+   * @returns {Integer} is 1 less than count
    */
   function decayMath(count) {
     return count - 1;
   }
 
   /**
-   * createAlert creates and displays an alert with an error message
+   * errorAlert creates and displays an alert with an error message
    * @param {String} message is the message to display in the error message
-   * @param {String} classType is the class type that the alert will use, for example 'danger'
    */
-  function createAlert(message, classType) {
-    var alert = '<div class="alert alert-' + classType + ' alert-dismissible fade show" role="alert">' +
+  function errorAlert(message) {
+    var alert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
       '<strong>Oops! Something went wrong.</strong> ' + message +
       '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
       '<span aria-hidden="true">&times;</span> </button></div>',
@@ -807,7 +887,7 @@ $(document).ready(function() {
     if (already.length > 0) {
       already.remove();
     }
-    body.append(alert);
+    DOMElements.body.append(alert);
     $('.alert').alert();
   }
 
@@ -824,7 +904,7 @@ $(document).ready(function() {
     if (already.length > 0) {
       already.remove();
     }
-    body.append(alert);
+    DOMElements.body.append(alert);
     $('.alert').alert();
   }
 
@@ -832,15 +912,15 @@ $(document).ready(function() {
    * getPlaybackData makes an ajax call to get data for playback
    * @param {Integer} startDate is the starting date for the for the desired data in seconds
    * @param {Integer} endDate is the ending date for the for the desired data in seconds
-   * @return {Object}
+   * @param {Integer} diff is the amount if days that the startDate and endDate span
    */
-  function getPlaybackData(startDate, endDate) {
+  function getPlaybackData(startDate, endDate, diff) {
     showSpinner();
-    waiting = true;
-    var frames = 24; // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
-    var range = (endDate - startDate) / frames; // finds the amount of time each chunk is going to have
-    var requestArray = []; // allows us to check when all primises are completed
-    var start = moment.unix(startDate);
+    stateOf.waiting = true;
+    var frames = 24, // the amount of chunks the overall date range should be broken up into. Allows for faster querying and requests.
+      range = (endDate - startDate) / frames, // finds the amount of time each chunk is going to have
+      requestArray = [], // allows us to check when all promises are completed
+      startIndex = hourIndex;
 
     function successFunc(result) {
       hourPoints[result.Index] = result.Batch;
@@ -848,18 +928,20 @@ $(document).ready(function() {
 
     function errFunc() {
       // get rid of the spinner
-      dateButton.prop('disabled', false);
-      createAlert("505: Unable to get historical data.", "danger");
+      DOMElements.dateButton.prop('disabled', false);
+      errorAlert("505: Unable to get historical data.");
     }
 
     for (var i = 0; i < frames; i++) {
       var playbackRequest = {
-        index: i,
+        index: hourIndex,
         filters: getActiveEvents().filter,
         clientID: client,
         startTime: startDate + range * i,
         endTime: startDate + range * (i + 1)
       };
+      hourIndex++;
+      //oldTime(time);
       requestArray.push($.ajax({
         url: 'http://localhost:8000/receive/ajax',
         crossDomain: true,
@@ -881,14 +963,13 @@ $(document).ready(function() {
       //     break;
       //   }
       // }
-      wait = false;
+      stateOf.wait = false;
       hideSpinner();
       // if (noData) {
-      //   createAlert('No data was found for the provided date range.', 'warning');
+      //   errorAlert('No data was found for the provided date range.', );
       // }
       // starts animating the array
-      historicalInterval = setInterval(historicalTimer, 1000, 0, startDate, range);
-
+      historicalInterval = setInterval(historicalTimer, 1000, startIndex, playbackData.initStart, range, diff);
     });
   } // end of getPlaybackData
 
@@ -897,6 +978,7 @@ $(document).ready(function() {
    * @example First include the following element into the markup HTML for a concrete element.  <div class="drp"></div>
    * @example Call the constructor in a javascript file.  var mydatepicker = new DatePicker(start, end, 0);
    * @param {Moment} start Start date
+   * @param {Moment} end End date
    * @param {Integer} time Use 1 to enable time picker option
    * @returns {DatePicker}
    */
@@ -977,42 +1059,36 @@ $(document).ready(function() {
     ws = new WebSocket("ws://localhost:8000/receive/ws");
     // log any messages recieved
     ws.addEventListener("message", function(e) {
-      if (wait) {
+      if (stateOf.wait) {
         hideSpinner();
-        clientSubmit.prop('disabled', false);
+        DOMElements.clientSubmit.prop('disabled', false);
       }
-      wait = false;
+      stateOf.wait = false;
       var data = JSON.parse(e.data);
       if (data instanceof Array) {
         hideModal('startModal');
-        if (f !== undefined && firstPass) {
+        if (URLData.f !== undefined && stateOf.firstPass) {
           urlQueryFilters();
         }
         addEvents(data);
 
-        if (ts !== undefined && !tsEvaluated) {
-          tsEvaluated = true;
+        if (URLData.ts !== undefined && !stateOf.tsEvaluated) {
+          stateOf.tsEvaluated = true;
           // Run historical mode
           setTimeout(function() {
-            if (ts !== undefined && moment(parseInt(ts[0])).isValid()) {
-              // Stop updating livetime
-              liveTime = false;
-              // Close websocket
-              ws.close();
-              // Convert ts to int
-              // var tsInt = parseInt(ts[0]);
-              // Helps with calculating end date
-              var secondsDay = 86400;
-              // Click on historical mode button
-              logoTime.trigger('mousedown');
-              playback();
-              logoTime.prop("disabled", true);
-            }
+            // Stop updating livetime
+            stateOf.liveTime = false;
+            // Close websocket
+            ws.close();
+            // Click on historical mode button
+            DOMElements.logoTime.trigger('mousedown');
+            playback(datepicker.start, datepicker.diff);
+            DOMElements.logoTime.prop("disabled", true);
           }, 1000);
         }
       } else {
         if (JSON.stringify(data).indexOf("Error") != -1) { // if error recieved
-          createAlert(data.Error, "danger");
+          errorAlert(data.Error);
         } else { // if point(s) recieved
           addPoints(JSON.parse(data));
           adjustZoomGrade(); // update ledgend
@@ -1023,10 +1099,10 @@ $(document).ready(function() {
     // on open display that the websocket connection succeeded
     ws.onopen = function() {
       console.log("Connection made!");
-      if (cid !== undefined) {
-        client = cid[0].split("%20").join(" "); // gets the client ID from the query and replaces all "%20" with " "
+      if (URLData.cid !== undefined) {
+        client = URLData.cid[0].split("%20").join(" "); // gets the client ID from the query and replaces all "%20" with " "
         sendID();
-      } else if (liveBtn.is(':disabled') && !firstPass) {
+      } else if (stateOf.liveTime && !stateOf.firstPass) {
         sendID();
       } else {
         // listen to see if a clientID is entered in the input box
@@ -1034,26 +1110,26 @@ $(document).ready(function() {
           false, startModalBtn); // creates the starting modal
         // starting modal opens
         $('#startModal').modal();
-        clientID = $('#cIDinput');
-        clientSubmit = $('#enter');
-        clientID.on('input', function() {
+        DOMElements.clientID = $('#cIDinput');
+        DOMElements.clientSubmit = $('#enter');
+        DOMElements.clientID.on('input', function() {
           if (this.value.trim().length > 0) { // the user has actually input text
-            clientSubmit.prop("disabled", false);
+            DOMElements.clientSubmit.prop("disabled", false);
           } else { // disable the button becuase the input box is empty
-            clientSubmit.prop("disabled", true);
+            DOMElements.clientSubmit.prop("disabled", true);
           }
         });
 
         // Execute a function when the user releases a key on the keyboard
-        clientID.bind('keyup', function(event) {
+        DOMElements.clientID.bind('keyup', function(event) {
           // get the first and only clientSubmit button from the array and make sure that it is not disabled
-          if (event.keyCode === 13 && !clientSubmit[0].disabled) {
+          if (event.keyCode === 13 && !DOMElements.clientSubmit[0].disabled) {
             // Trigger the button element with a click
-            clientSubmit.mousedown();
+            DOMElements.clientSubmit.mousedown();
           }
         });
 
-        clientSubmit.mousedown(submitClientID);
+        DOMElements.clientSubmit.mousedown(submitClientID);
       }
     };
 
@@ -1061,9 +1137,9 @@ $(document).ready(function() {
     ws.onclose = function() {
       console.log("Connection closed.");
       // if the websocket was not closed internally
-      if (!selfClose) {
+      if (!stateOf.selfClose) {
         hideModal('startModal');
-        createAlert('505: Unable to connect to live data.', "danger");
+        errorAlert('505: Unable to connect to live data.');
       }
     };
   }
@@ -1082,8 +1158,8 @@ $(document).ready(function() {
    *  showSpinner shows spinner and generates random text
    */
   function showSpinner() {
-    var message1 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
-    var message2 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
+    var message1 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)],
+      message2 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
     while (message2 === message1) {
       message2 = loadingPrompts[Math.floor(Math.random() * loadingPrompts.length)];
     }
@@ -1091,7 +1167,7 @@ $(document).ready(function() {
     setTimeout(function() {
       $('.randomText').text(message2);
     }, 5000);
-    spinner.addClass('visible');
+    DOMElements.spinner.addClass('visible');
   }
 
 
@@ -1099,13 +1175,18 @@ $(document).ready(function() {
    *  hideSpinner hides the spinner
    */
   function hideSpinner() {
-    spinner.removeClass('visible');
+    DOMElements.spinner.removeClass('visible');
   }
 
+  /**
+   * parseQuery takes in a url and parses it appropriately for later use
+   * @param {String} urlString is the url to parse
+   * @return {Array} is the query part of the url seperated into an array
+   */
   function parseQuery(urlString) {
-    var params = {};
-    var queryArray;
-    var pair;
+    var params = {},
+      queryArray,
+      pair;
     // Check if url contains query
     if (urlString.includes("?") === false) {
       return undefined;
@@ -1132,6 +1213,11 @@ $(document).ready(function() {
     return params;
   }
 
+  /**
+   * getCID gets the clientID from the given array, if it exists
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} is either the clientID array or undefined 
+   */
   function getCID(params) {
     if (params.hasOwnProperty("cid") === true && params.cid.length === 1) {
       return params.cid;
@@ -1140,6 +1226,11 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * getDecay gets the decayRate from the given array, if it exists
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} is either the decayRate or undefined 
+   */
   function getDecay(params) {
     if (params.hasOwnProperty("d") === true && params.d.length === 1) {
       if (params.d > 600 || params.d < 1) {
@@ -1151,6 +1242,11 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * getRefresh gets the refreshRate from the given array, if it exists
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} is either the refreshRate or undefined 
+   */
   function getRefresh(params) {
     if (params.hasOwnProperty("r") === true && params.r.length === 1) {
       if (params.r > 60 || params.r < 1) {
@@ -1162,6 +1258,11 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * getLocation gets the location from the given array, if it exists
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} it either has the properties x, y, and z or is undefined 
+   */
   function getLocation(params) {
 
     if (params.hasOwnProperty("x") === true && params.x.length === 1 && params.hasOwnProperty("y") === true && params.y.length === 1 && params.hasOwnProperty("z") === true && params.z.length === 1) {
@@ -1175,6 +1276,11 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * getFilters gets the filters from the given array, if they exist
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} it is either an array or is undefined 
+   */
   function getFilters(params) {
     if (params.hasOwnProperty("f") === true) {
       return params.f;
@@ -1183,6 +1289,11 @@ $(document).ready(function() {
     }
   }
 
+  /**
+   * getTimeStamp gets the timestamps from the given array, if they exist
+   * @param {Array} params is the array of url parameters 
+   * @return {Object} it is either an array or is undefined 
+   */
   function getTimeStamp(params) {
     if (params.hasOwnProperty("ts") === true && params.ts.length === 2 &&
       moment(parseInt(params.ts[0])).isValid() && moment(parseInt(params.ts[1])).isValid()) {
@@ -1194,162 +1305,116 @@ $(document).ready(function() {
       return undefined;
     }
   }
-  //  updates url live to have clientID parameter
-  function setCidURL(cid) {
-    // Get URL
-    var url = window.location.href;
-    var token = "";
-    if (!url.includes("?")) {
-      token += "?";
-    }
-    token += "&";
 
+  /**
+   * setCidURL puts the clientID into the url
+   * @param {String} cid is the clientID
+   */
+  function setCidURL(cid) {
     var rexpression = /cid\=[^&]*/g;
-    var updatedURL = url;
-    if (url.includes("cid=")) {
-      updatedURL = url.replace(rexpression, "cid=" + cid);
+    ensureProperToken();
+
+    if (URLData.url.includes("cid=")) {
+      URLData.url = URLData.url.replace(rexpression, "cid=" + cid);
     } else {
-      updatedURL += token + "cid=" + cid;
+      URLData.url += URLData.token + "cid=" + cid;
     }
-    window.history.replaceState({}, document.title, updatedURL);
+    window.history.replaceState({}, document.title, URLData.url);
   }
 
-  // nav's in coming changes
+  /**
+   * setFiltersURL puts the active filters into the url
+   */
   function setFiltersURL() {
-    var updatedURL = window.location.href;
-    var activeEvents = getActiveEvents().filter;
-    var token = "";
+    var activeEvents = getActiveEvents().filter,
+        token = "";
     for (var i = 0; i < activeEvents.length; i++) {
       token += "&f=" + activeEvents[i];
     }
 
-    if (!updatedURL.includes("?")) {
-      updatedURL += "?";
+    if (!URLData.url.includes("?")) {
+      URLData.url += "?";
     }
 
     // takes out previous filter query flags
-    updatedURL = updatedURL.replace(/[\?\&][fF]\=[^&]*/g, "");
-    updatedURL += token;
-    window.history.replaceState({}, document.title, updatedURL);
+    URLData.url = URLData.url.replace(/[\?\&][fF]\=[^&]*/g, "");
+    URLData.url += token;
+    window.history.replaceState({}, document.title, URLData.url);
   }
 
-  //  updates URL whenever the map view is moved
-  map.addEventListener('moveend', function(event) {
-    var url = window.location.href;
-    var updatedURL = url;
-    var center = map.getCenter();
-    var x = center.lat;
-    var y = center.lng;
-    var token = "&x=" + Math.round(x * 100) / 100 + "&y=" + Math.round(y * 100) / 100;
-    if (!url.includes("?")) {
-      updatedURL += "?";
-    }
-
-    if (url.includes("x=")) {
-      var rexpression = /x=-?[0-9]*[.]?[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "x=" + Math.round(x * 1000) / 1000);
-      rexpression = /y=-?[0-9]*[.]?[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "y=" + Math.round(y * 1000) / 1000);
-    } else {
-      updatedURL += token;
-    }
-    window.history.replaceState({}, document.title, updatedURL);
-    return;
-  });
-
-  // updates URL whenever the map zoom is changed
-  map.addEventListener('zoomend', function(event) {
-    var url = window.location.href;
-    var updatedURL = url;
-    var z = map.getZoom();
-    var token = "&z=" + z;
-
-    if (!url.includes("?")) {
-      updatedURL += "?";
-    }
-
-    if (url.includes("z=")) {
-      var rexpression = /z=-?[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "z=" + z);
-    } else {
-      updatedURL += token;
-    }
-    window.history.replaceState({}, document.title, updatedURL);
-    return;
-  });
-
+  /**
+   * setDecayURL sets the decay rate value in the query string of the url
+   * @param {Integer} d the decay rate that is on the slider
+   */
   function setDecayURL(d) {
-    // Get URL
-    var url = window.location.href;
-    var token = "";
-    if (!url.includes("?")) {
-      token += "?";
-    }
-
-    token += "&";
+    ensureProperToken();
 
     var rexpression = /[\?\&]d\=[0-9]*/g;
-    var updatedURL = url;
-    if (url.includes("&d=")) {
-      updatedURL = url.replace(rexpression, token + "d=" + d);
+    if (URLData.url.includes("&d=")) {
+      URLData.url = URLData.url.replace(rexpression, URLData.token + "d=" + d);
     } else {
-      updatedURL += token + "d=" + d;
+      URLData.url += URLData.token + "d=" + d;
     }
-    window.history.replaceState({}, document.title, updatedURL);
+    window.history.replaceState({}, document.title, URLData.url);
   }
 
+  /**
+   * setRefreshURL sets the refresh rate in the query string of the url
+   * @param {Integer} r is the refreshRate from the slider
+   */
   function setRefreshURL(r) {
-    // Get URL
-    var url = window.location.href;
-    var token = "";
-    if (!url.includes("?")) {
-      token += "?";
-    } else {
-      token += "&";
-    }
+    ensureProperToken();
+
     var rexpression = /[\?\&]r\=[0-9]*/g;
-    var updatedURL = url;
-    if (url.includes("r=")) {
-      updatedURL = url.replace(rexpression, token + "r=" + r);
+    if (URLData.url.includes("r=")) {
+      URLData.url = URLData.url.replace(rexpression, URLData.token + "r=" + r);
     } else {
-      updatedURL = url + token + "r=" + r;
+      URLData.url += URLData.token + "r=" + r;
     }
-    window.history.replaceState({}, document.title, updatedURL);
+    window.history.replaceState({}, document.title, URLData.url);
   }
 
   /**
    * Inserts timestamp into url
+   * @param {Integer} ts_start is the start date in unix time in seconds
+   * @param {Integer} ts_end is the end date in unix time in seconds
    */
   function setTimeStampURL(ts_start, ts_end) {
-    // Get URL
-    var updatedURL = window.location.href;
-    // Build up regex
-    var token = "&ts=" + ts_start + "&ts=" + ts_end;
-    // Check if you have a query started
-    if (!updatedURL.includes("?")) {
-      updatedURL += "?";
-    }
+    // make sure the token is correct
+    ensureProperToken();
+    var token = URLData.token + "ts=" + ts_start + "&ts=" + ts_end;
 
-    if (updatedURL.includes("ts=")) {
+    if (URLData.url.includes("ts=")) {
       // Look for ts key in query and go through value
       var rexpression = /[/?/&][tT][sS]\=[0-9]*/g;
-      updatedURL = updatedURL.replace(rexpression, "");
-      clearHistoricData.prop('disabled', false);
+      URLData.url = URLData.url.replace(rexpression, "");
+      DOMElements.clearHistoricData.prop('disabled', false);
     }
-    updatedURL += token;
+    URLData.url += token;
 
-    window.history.replaceState({}, document.title, updatedURL);
+    window.history.replaceState({}, document.title, URLData.url);
   }
 
   /**
    * Removes time stamps from url
    */
   function removeTimeStamp() {
-    var url = window.location.href;
-    if (url.includes("ts=")) {
+    if (URLData.url.includes("ts=")) {
       var rexpression = /[\?\&][tT][sS]\=[0-9]*/g;
-      url = url.replace(rexpression, "");
+      URLData.url = URLData.url.replace(rexpression, "");
     }
-    window.history.replaceState({}, document.title, url);
+    window.history.replaceState({}, document.title, URLData.url);
+  }
+
+  /**
+   * ensureProperToken makes sure that the correct token is available
+   */
+  function ensureProperToken() {
+    // determine whether or not the url query exists
+    if (!URLData.url.includes("?")) {
+      URLData.token = '?'; 
+    } else {
+      URLData.token = '&'; 
+    }
   }
 });
