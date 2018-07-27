@@ -16,6 +16,10 @@ Go to `http://localhost:9080/` to open the heatmap webpage
 
  _Note: To receive messages and send over a web-socket connection, doppler-events and doppler-frontend must be running._
 
+ ## Features
+    
+    To see a list of features and tutorials on how to use the Heatmap, visit our    [wiki](https://github.com/acstech/doppler-frontend/wiki/Heatmap-Features)
+
 ## Contributors
 
 * [Ben Wornom](https://github.com/bwornom7)

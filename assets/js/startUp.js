@@ -367,6 +367,7 @@ $(document).ready(function() {
     DOMElements.clearHistoricData.prop('disabled', false);
     hourPoints = [];
     hourIndex = 0;
+    updateTicker(getActiveEvents().filter);
     playback(datepicker.start, datepicker.diff);
   });
 
@@ -1061,7 +1062,9 @@ $(document).ready(function() {
     ws.addEventListener("message", function(e) {
       if (stateOf.wait) {
         hideSpinner();
-        DOMElements.clientSubmit.prop('disabled', false);
+        if (DOMElements.clientSubmit !== undefined) {
+          DOMElements.clientSubmit.prop('disabled', false);
+        }
       }
       stateOf.wait = false;
       var data = JSON.parse(e.data);
